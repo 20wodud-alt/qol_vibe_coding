@@ -56,6 +56,7 @@ button { border: 0; cursor: pointer; }
 .quick-add input::placeholder { color: #a1a1a6; }
 .quick-add button { padding: 6px 12px; border-radius: 8px; color: white; background: var(--blue); font-size: 12px; font-weight: 600; }
 .quick-add button:disabled { opacity: 0; pointer-events: none; }
+.sync-error { margin: 10px 4px -2px; color: var(--red); font-size: 11px; }
 .list-head { height: 47px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 4px 10px; color: var(--muted); font-size: 11px; font-weight: 600; }
 .list-head button { padding: 0; color: var(--blue); background: transparent; font-size: 11px; }
 .task-list { border-radius: 16px; overflow: hidden; background: rgba(255,255,255,.8); box-shadow: 0 8px 30px rgba(20,20,40,.055); }

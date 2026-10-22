@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Filter = "today" | "upcoming" | "all" | "completed";
 type Priority = "none" | "important";
@@ -31,7 +32,27 @@ type Todo = {
   createdAt: number;
 };
 
-const STORAGE_KEY = "toto-apple-tasks-v1";
+type TodoRow = {
+  id: string;
+  text: string;
+  note: string;
+  due: string;
+  completed: boolean;
+  priority: Priority;
+  created_at: string;
+};
+
+function fromRow(row: TodoRow): Todo {
+  return {
+    id: row.id,
+    title: row.text,
+    note: row.note,
+    due: row.due,
+    completed: row.completed,
+    priority: row.priority,
+    createdAt: new Date(row.created_at).getTime(),
+  };
+}
 
 function isoDate(offset = 0) {
   const date = new Date();
@@ -68,22 +89,55 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [dateLabel, setDateLabel] = useState("");
+  const [syncError, setSyncError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      setTasks(saved ? JSON.parse(saved) : starterTasks());
-    } catch {
-      setTasks(starterTasks());
-    }
     setDateLabel(new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" }).format(new Date()));
-    setHydrated(true);
-  }, []);
+    async function loadTasks() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      let user = sessionData.session?.user;
 
-  useEffect(() => {
-    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks, hydrated]);
+      if (!user) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          setSyncError("Supabase에 연결하지 못했어요.");
+          setHydrated(true);
+          return;
+        }
+        user = data.user ?? undefined;
+      }
+
+      const { data, error } = await supabase
+        .from("apple_todos")
+        .select("id, text, note, due, completed, priority, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setSyncError("할 일을 불러오지 못했어요.");
+      } else if (data && data.length > 0) {
+        setTasks((data as TodoRow[]).map(fromRow));
+      } else if (user) {
+        const seeds = starterTasks().map((task) => ({
+          user_id: user.id,
+          text: task.title,
+          note: task.note,
+          due: task.due,
+          completed: task.completed,
+          priority: task.priority,
+        }));
+        const { data: inserted, error: insertError } = await supabase
+          .from("apple_todos")
+          .insert(seeds)
+          .select("id, text, note, due, completed, priority, created_at");
+        if (insertError) setSyncError("시작할 일을 저장하지 못했어요.");
+        else setTasks(((inserted ?? []) as TodoRow[]).map(fromRow));
+      }
+      setHydrated(true);
+    }
+
+    void loadTasks();
+  }, []);
 
   const selected = tasks.find((task) => task.id === selectedId) ?? null;
   const todayCount = tasks.filter((task) => !task.completed && task.due === isoDate()).length;
@@ -102,32 +156,71 @@ export default function Home() {
 
   const completionRate = tasks.length ? Math.round((tasks.filter((task) => task.completed).length / tasks.length) * 100) : 0;
 
-  function addTask(event: FormEvent) {
+  async function addTask(event: FormEvent) {
     event.preventDefault();
     const title = quickTitle.trim();
     if (!title) return;
-    const task: Todo = {
-      id: crypto.randomUUID(),
-      title,
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) return;
+    const { data, error } = await supabase
+      .from("apple_todos")
+      .insert({
+      user_id: authData.user.id,
+      text: title,
       note: "",
       due: filter === "upcoming" ? isoDate(1) : isoDate(),
       completed: false,
       priority: "none",
-      createdAt: Date.now(),
-    };
+      })
+      .select("id, text, note, due, completed, priority, created_at")
+      .single();
+    if (error || !data) {
+      setSyncError("할 일을 추가하지 못했어요.");
+      return;
+    }
+    const task = fromRow(data as TodoRow);
     setTasks((current) => [task, ...current]);
     setQuickTitle("");
     setSelectedId(task.id);
+    setSyncError("");
   }
 
-  function patchTask(id: string, patch: Partial<Todo>) {
+  async function patchTask(id: string, patch: Partial<Todo>) {
+    setTasks((current) => current.map((task) => (task.id === id ? { ...task, ...patch } : task)));
+    const databasePatch: Record<string, string | boolean> = {};
+    if (patch.title !== undefined) databasePatch.text = patch.title;
+    if (patch.note !== undefined) databasePatch.note = patch.note;
+    if (patch.due !== undefined) databasePatch.due = patch.due;
+    if (patch.completed !== undefined) databasePatch.completed = patch.completed;
+    if (patch.priority !== undefined) databasePatch.priority = patch.priority;
+    const { error } = await supabase.from("apple_todos").update(databasePatch).eq("id", id);
+    if (error) setSyncError("변경사항을 저장하지 못했어요.");
+    else setSyncError("");
+  }
+
+  function patchTaskLocally(id: string, patch: Partial<Todo>) {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, ...patch } : task)));
   }
 
-  function removeTask(id: string) {
+  async function removeTask(id: string) {
     setTasks((current) => current.filter((task) => task.id !== id));
     setSelectedId(null);
     setDetailOpen(false);
+    const { error } = await supabase.from("apple_todos").delete().eq("id", id);
+    if (error) setSyncError("할 일을 삭제하지 못했어요.");
+  }
+
+  async function clearCompleted() {
+    const completedIds = tasks.filter((task) => task.completed).map((task) => task.id);
+    if (completedIds.length === 0) return;
+    const { error } = await supabase.from("apple_todos").delete().in("id", completedIds);
+    if (error) {
+      setSyncError("완료한 항목을 지우지 못했어요.");
+      return;
+    }
+    setTasks((current) => current.filter((task) => !task.completed));
+    setSelectedId(null);
+    setSyncError("");
   }
 
   function chooseTask(id: string) {
@@ -190,7 +283,9 @@ export default function Home() {
           <button type="submit" disabled={!quickTitle.trim()}>추가</button>
         </form>
 
-        <div className="list-head"><span>{visibleTasks.length}개의 할 일</span>{filter === "completed" && visibleTasks.length > 0 && <button onClick={() => { setTasks((current) => current.filter((task) => !task.completed)); setSelectedId(null); }}>완료 항목 지우기</button>}</div>
+        {syncError && <p className="sync-error">{syncError}</p>}
+
+        <div className="list-head"><span>{visibleTasks.length}개의 할 일</span>{filter === "completed" && visibleTasks.length > 0 && <button onClick={() => void clearCompleted()}>완료 항목 지우기</button>}</div>
 
         <div className="task-list">
           {!hydrated ? <div className="empty-state"><div className="loader" /><p>할 일을 불러오고 있어요</p></div> : visibleTasks.length === 0 ? (
@@ -215,13 +310,13 @@ export default function Home() {
             <div className="detail-body">
               <div className="detail-title-row">
                 <button className="check-button" onClick={() => patchTask(selected.id, { completed: !selected.completed })}>{selected.completed ? <span className="checked"><Check size={15} strokeWidth={3} /></span> : <Circle size={23} />}</button>
-                <textarea className={selected.completed ? "title-completed" : ""} value={selected.title} onChange={(event) => patchTask(selected.id, { title: event.target.value })} rows={2} aria-label="할 일 제목" />
+                <textarea className={selected.completed ? "title-completed" : ""} value={selected.title} onChange={(event) => patchTaskLocally(selected.id, { title: event.target.value })} onBlur={(event) => void patchTask(selected.id, { title: event.target.value })} rows={2} aria-label="할 일 제목" />
               </div>
               <div className="detail-group">
                 <label><span><CalendarDays size={18} /> 날짜</span><input type="date" value={selected.due} onChange={(event) => patchTask(selected.id, { due: event.target.value })} /></label>
                 <button className="detail-option" onClick={() => patchTask(selected.id, { priority: selected.priority === "important" ? "none" : "important" })}><span><Star size={18} /> 중요</span><span className={`switch ${selected.priority === "important" ? "on" : ""}`}><i /></span></button>
               </div>
-              <label className="notes"><span>메모</span><textarea value={selected.note} onChange={(event) => patchTask(selected.id, { note: event.target.value })} placeholder="생각이나 세부 내용을 적어보세요…" rows={7} /></label>
+              <label className="notes"><span>메모</span><textarea value={selected.note} onChange={(event) => patchTaskLocally(selected.id, { note: event.target.value })} onBlur={(event) => void patchTask(selected.id, { note: event.target.value })} placeholder="생각이나 세부 내용을 적어보세요…" rows={7} /></label>
             </div>
             <button className="delete-button" onClick={() => removeTask(selected.id)}><Trash2 size={17} /> 할 일 삭제</button>
           </>

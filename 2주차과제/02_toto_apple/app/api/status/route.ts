@@ -4,7 +4,7 @@ export async function GET() {
   return NextResponse.json({
     service: "Toto",
     status: "ready",
-    storage: "browser-local",
+    storage: "supabase-postgres",
     timestamp: new Date().toISOString(),
   });
 }
