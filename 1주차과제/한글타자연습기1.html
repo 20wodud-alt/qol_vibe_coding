@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>타닥타닥 타자연습 — 2벌식 표준 트레이너</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#3525cd",
+        "primary-container": "#4f46e5",
+        "primary-fixed": "#e2dfff",
+        "primary-fixed-dim": "#c3c0ff",
+        "on-primary": "#ffffff",
+        "on-primary-fixed": "#0f0069",
+        "on-primary-fixed-variant": "#3323cc",
+        "secondary": "#006c49",
+        "secondary-container": "#6cf8bb",
+        "secondary-fixed": "#6ffbbe",
+        "on-secondary": "#ffffff",
+        "on-secondary-container": "#00714d",
+        "tertiary": "#684000",
+        "tertiary-container": "#855300",
+        "tertiary-fixed": "#ffddb8",
+        "on-tertiary-fixed-variant": "#653e00",
+        "error": "#ba1a1a",
+        "error-container": "#ffdad6",
+        "surface": "#f8f9ff",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#eff4ff",
+        "surface-container": "#e5eeff",
+        "surface-container-high": "#dce9ff",
+        "surface-container-highest": "#d3e4fe",
+        "inverse-surface": "#213145",
+        "on-surface": "#0b1c30",
+        "on-surface-variant": "#464555",
+        "outline": "#777587",
+        "outline-variant": "#c7c4d8"
+      },
+      fontFamily: {
+        "headline": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+        "body": ["Inter", "Noto Sans KR", "sans-serif"],
+        "mono": ["JetBrains Mono", "Noto Sans KR", "monospace"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    background-color: #f8f9ff;
+    color: #0b1c30;
+    overflow-x: hidden;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  /* 3D Tactile Keycap Styles */
+  .key-cap {
+    box-shadow: 0 4px 0 #c3d2ec, 0 5px 8px rgba(11, 28, 48, 0.08);
+    transition: all 80ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+  }
+  .key-cap:active, .key-cap.pressed {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #c3d2ec, 0 2px 3px rgba(11, 28, 48, 0.06);
+  }
+  .key-cap-target {
+    background: linear-gradient(135deg, #3525cd 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    border-color: #3525cd !important;
+    box-shadow: 0 4px 0 #1e138a, 0 0 20px rgba(79, 70, 229, 0.48) !important;
+    transform: translateY(-2px);
+    z-index: 25;
+  }
+  .key-cap-error {
+    background: #ba1a1a !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 0 #7a0f0f, 0 0 16px rgba(186, 26, 26, 0.5) !important;
+    animation: shakeKey 0.28s ease-in-out;
+  }
+  @keyframes shakeKey {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  /* Finger Zone Subtle Tints */
+  .finger-pinky { background-color: #fff5f6; border-color: #fecdd3; }
+  .finger-ring  { background-color: #fffbeb; border-color: #fde68a; }
+  .finger-middle{ background-color: #ecfdf5; border-color: #a7f3d0; }
+  .finger-index-l{ background-color: #eef2ff; border-color: #c7d2fe; }
+  .finger-index-r{ background-color: #f5f3ff; border-color: #ddd6fe; }
+
+  /* Detailed Human Hand Shadow Overlay */
+  .hand-shadow-overlay {
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .hand-silhouette {
+    filter: blur(1.4px) drop-shadow(0 10px 16px rgba(11, 28, 48, 0.35));
+    transition: filter 0.2s ease;
+  }
+  .palm-shadow-body {
+    fill: url(#palmDetailedGrad);
+    stroke: rgba(15, 23, 42, 0.38);
+    stroke-width: 1.5;
+  }
+  .palm-crease-line {
+    fill: none;
+    stroke: rgba(15, 23, 42, 0.28);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .finger-shadow-part {
+    fill: rgba(30, 41, 59, 0.34);
+    stroke: rgba(15, 23, 42, 0.48);
+    stroke-width: 1.5;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.18s ease, stroke 0.18s ease, filter 0.18s ease;
+    transform-origin: center bottom;
+  }
+  .finger-joint-line {
+    stroke: rgba(15, 23, 42, 0.42);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    fill: none;
+  }
+  .finger-nail {
+    fill: rgba(255, 255, 255, 0.25);
+    stroke: rgba(15, 23, 42, 0.45);
+    stroke-width: 1.2;
+    transition: all 0.18s ease;
+  }
+  .finger-knuckle-highlight {
+    fill: rgba(255, 255, 255, 0.12);
+    stroke: none;
+  }
+  .finger-label-text {
+    font-size: 9px;
+    font-weight: 800;
+    fill: rgba(255, 255, 255, 0.88);
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  .finger-shadow-part.active-finger {
+    fill: rgba(67, 56, 202, 0.52);
+    stroke: rgba(79, 70, 229, 0.95);
+    stroke-width: 2.2;
+    filter: drop-shadow(0 0 14px rgba(79, 70, 229, 0.85));
+  }
+  .finger-shadow-part.active-finger .finger-nail {
+    fill: rgba(111, 251, 190, 0.75);
+    stroke: #ffffff;
+    stroke-width: 1.6;
+  }
+  .finger-shadow-part.active-finger .finger-joint-line {
+    stroke: rgba(226, 223, 255, 0.75);
+    stroke-width: 1.8;
+  }
+  .finger-tip-dot {
+    opacity: 0;
+    transition: opacity 0.18s ease, r 0.18s ease;
+  }
+  .finger-tip-dot.active-dot {
+    opacity: 1;
+  }
+
+  /* Cyber Rain Game Arena */
+  .cyber-grid {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(79, 70, 229, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(79, 70, 229, 0.08) 1px, transparent 1px);
+  }
+  .danger-line-glow {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.7), 0 0 40px rgba(239, 68, 68, 0.35);
+  }
+  /* Character float animation */
+  @keyframes floatChar {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+  .char-float {
+    animation: floatChar 3s ease-in-out infinite;
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+
+<!-- ================= TOP NAVIGATION BAR ================= -->
+<header class="sticky top-0 z-50 w-full bg-[#f8f9ff]/90 backdrop-blur-md border-b border-[#d3e4fe]">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 py-3 gap-3">
+    <!-- Brand -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-sm">
+        <span class="material-symbols-outlined text-2xl">keyboard</span>
+      </div>
+      <div>
+        <span class="text-lg sm:text-xl font-extrabold tracking-tight text-[#0b1c30] font-headline block leading-none">타닥타닥 타자</span>
+        <span class="text-[11px] font-semibold text-[#464555] tracking-wider uppercase">2벌식 표준 트레이너</span>
+      </div>
+    </div>
+
+    <!-- 4 Navigation Tabs -->
+    <nav class="flex items-center gap-1 bg-surface-container-low p-1.5 rounded-2xl border border-[#d3e4fe]">
+      <button onclick="switchTab('key')" id="tab-btn-key" class="tab-nav-btn bg-[#e5eeff] text-[#3525cd] font-bold rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all">
+        <span class="material-symbols-outlined text-lg">grid_view</span>
+        <span>자리 연습</span>
+      </button>
+      <button onclick="switchTab('word')" id="tab-btn-word" class="tab-nav-btn text-[#464555] hover:text-[#0b1c30] font-medium rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all hover:bg-[#eff4ff]">
+        <span class="material-symbols-outlined text-lg">abc</span>
+        <span>낱말 연습</span>
+      </button>
+      <button onclick="switchTab('game')" id="tab-btn-game" class="tab-nav-btn text-[#464555] hover:text-[#0b1c30] font-medium rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all hover:bg-[#eff4ff]">
+        <span class="material-symbols-outlined text-lg">sports_esports</span>
+        <span>타자 게임</span>
+      </button>
+      <button onclick="switchTab('level')" id="tab-btn-level" class="tab-nav-btn text-[#464555] hover:text-[#0b1c30] font-medium rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all hover:bg-[#eff4ff]">
+        <span class="material-symbols-outlined text-lg">military_tech</span>
+        <span>레벨 등급</span>
+      </button>
+    </nav>
+
+    <!-- Right User Profile + Level Character Mini Widget -->
+    <div class="flex items-center gap-2.5">
+      <!-- Mini Character & Level Pill -->
+      <button onclick="switchTab('level')" title="내 레벨 캐릭터 보기" class="hidden md:flex items-center gap-2.5 bg-surface-container-low hover:bg-surface-container px-3 py-1.5 rounded-xl border border-[#d3e4fe] transition-all">
+        <div id="header-char-icon" class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-lg shadow-inner">🦊</div>
+        <div class="text-left">
+          <div class="flex items-center gap-1.5">
+            <span id="header-tier-badge" class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800">Lv.3 골드</span>
+            <span id="header-char-name" class="text-xs font-bold text-on-surface">여우별</span>
+          </div>
+          <div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden mt-1">
+            <div id="header-xp-bar" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300" style="width: 65%"></div>
+          </div>
+        </div>
+      </button>
+
+      <!-- User Name Registration / Edit Button -->
+      <button onclick="openProfileModal()" class="flex items-center gap-2 bg-surface-container-lowest hover:bg-primary-fixed/40 px-3.5 py-2 rounded-xl border border-primary/25 shadow-sm transition-all group">
+        <span class="material-symbols-outlined text-primary text-lg">badge</span>
+        <div class="text-left">
+          <span class="text-[10px] font-bold text-outline block leading-none">훈련생 이름</span>
+          <span id="header-user-name" class="text-xs sm:text-sm font-extrabold text-on-surface group-hover:text-primary">타자왕김코딩</span>
+        </div>
+        <span class="material-symbols-outlined text-outline group-hover:text-primary text-sm">edit</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= MAIN CONTENT CONTAINER ================= -->
+<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+  <!-- =========================================================================
+       TAB 1: 자리 연습 (KEY POSITION PRACTICE - Stitch _3)
+       ========================================================================= -->
+  <section id="view-key" class="space-y-6">
+    <!-- Stage Selector & HUD Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+      <!-- Stage Selection Pills (7 cols) -->
+      <div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-4 border border-[#d3e4fe]/80 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-xs font-bold">1단계 · 자리 연습</span>
+            <h2 class="text-sm font-bold text-on-surface-variant">연습할 자판 위치를 선택하세요</h2>
+          </div>
+          <span id="key-stage-label" class="text-xs font-mono font-semibold text-primary">STAGE 01 / 05</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="key-stage-buttons">
+          <button onclick="selectKeyStage(0)" class="key-stage-btn active px-3 py-2 rounded-xl text-xs font-bold bg-primary text-white shadow-sm transition-all text-left">
+            <span class="block text-[10px] opacity-80">1단계</span>기본 자리 (ㅁㄴㅇㄹ)
+          </button>
+          <button onclick="selectKeyStage(1)" class="key-stage-btn px-3 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all text-left">
+            <span class="block text-[10px] opacity-75">2단계</span>왼손 윗자리 (ㅂㅈㄷㄱㅅ)
+          </button>
+          <button onclick="selectKeyStage(2)" class="key-stage-btn px-3 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all text-left">
+            <span class="block text-[10px] opacity-75">3단계</span>오른손 윗자리 (ㅛㅕㅑㅐㅔ)
+          </button>
+          <button onclick="selectKeyStage(3)" class="key-stage-btn px-3 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all text-left">
+            <span class="block text-[10px] opacity-75">4단계</span>아랫자리 (ㅋㅌㅊㅍㅠㅜㅡ)
+          </button>
+          <button onclick="selectKeyStage(4)" class="key-stage-btn col-span-2 sm:col-span-1 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all text-left">
+            <span class="block text-[10px] opacity-75">5단계</span>쌍자음 (ㅃㅉㄸㄲㅆ)
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Telemetry HUD (5 cols) -->
+      <div class="lg:col-span-5 grid grid-cols-4 gap-2.5">
+        <div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-[#d3e4fe]/80 shadow-sm flex flex-col justify-between">
+          <span class="text-[11px] font-semibold text-on-surface-variant">현재 타수</span>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="key-cpm" class="text-2xl font-extrabold font-mono text-primary">0</span>
+            <span class="text-[10px] font-bold text-outline">타/분</span>
+          </div>
+          <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mt-2">
+            <div id="key-cpm-bar" class="bg-primary h-full rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-[#d3e4fe]/80 shadow-sm flex flex-col justify-between">
+          <span class="text-[11px] font-semibold text-on-surface-variant">정확도</span>
+          <div class="mt-1 flex items-baseline gap-0.5">
+            <span id="key-acc" class="text-2xl font-extrabold font-mono text-secondary">100</span>
+            <span class="text-xs font-bold text-secondary">%</span>
+          </div>
+          <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mt-2">
+            <div id="key-acc-bar" class="bg-secondary h-full rounded-full transition-all" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-[#d3e4fe]/80 shadow-sm flex flex-col justify-between">
+          <span class="text-[11px] font-semibold text-on-surface-variant">진행도</span>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="key-progress" class="text-xl font-extrabold font-mono text-on-surface">1/20</span>
+          </div>
+          <div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mt-2">
+            <div id="key-prog-bar" class="bg-amber-500 h-full rounded-full transition-all" style="width: 5%"></div>
+          </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-2xl p-3.5 border border-[#d3e4fe]/80 shadow-sm flex flex-col justify-between">
+          <span class="text-[11px] font-semibold text-on-surface-variant">콤보 / 오타</span>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="key-combo" class="text-xl font-extrabold font-mono text-primary">0</span>
+            <span class="text-xs text-outline">/</span>
+            <span id="key-err" class="text-sm font-bold font-mono text-error">0</span>
+          </div>
+          <span class="text-[10px] font-semibold text-secondary">연속 정확 입력</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Central Target Character Chamber & Level Character Mini Coach -->
+    <div class="bg-surface-container-lowest rounded-3xl p-6 border border-[#d3e4fe] shadow-sm relative overflow-hidden">
+      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Left Finger Instruction Pill -->
+        <div class="flex items-center gap-3 bg-surface-container-low px-4 py-3 rounded-2xl border border-[#d3e4fe]">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined">pan_tool_alt</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-on-surface-variant font-medium block">권장 운지 손가락</span>
+            <span id="key-finger-guide-text" class="text-sm font-extrabold text-primary">왼손 검지 (ㄹ / F)</span>
+          </div>
+        </div>
+
+        <!-- Character Stream Ribbon -->
+        <div class="flex items-center justify-center gap-2.5 sm:gap-4 my-1">
+          <div id="key-prev-2" class="w-11 h-11 rounded-xl bg-surface-container-low text-outline/50 flex items-center justify-center text-lg font-bold font-headline border border-outline-variant/20">-</div>
+          <div id="key-prev-1" class="w-12 h-12 rounded-xl bg-secondary-container/30 text-secondary flex items-center justify-center text-xl font-bold font-headline border border-secondary/20 relative">
+            <span id="key-prev-1-char">-</span>
+          </div>
+
+          <!-- CURRENT ACTIVE TARGET CARD -->
+          <div id="key-target-card" class="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-br from-primary to-primary-container text-white flex flex-col items-center justify-center shadow-xl ring-4 ring-primary-fixed relative transition-transform duration-150">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-primary-fixed-dim mb-0.5">Target Key</span>
+            <span id="key-target-char" class="text-5xl sm:text-6xl font-extrabold font-headline leading-none">ㄹ</span>
+            <span id="key-target-en" class="mt-2 px-2.5 py-0.5 rounded-md bg-white/15 text-xs font-mono font-bold">영문 F</span>
+            <div class="absolute -bottom-2.5 bg-[#0b1c30] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">
+              키보드로 입력하세요
+            </div>
+          </div>
+
+          <div id="key-next-1" class="w-14 h-14 rounded-2xl bg-surface-container text-on-surface flex flex-col items-center justify-center border border-[#d3e4fe]">
+            <span class="text-2xl font-bold font-headline">ㅎ</span>
+          </div>
+          <div id="key-next-2" class="w-11 h-11 rounded-xl bg-surface-container-low text-on-surface-variant flex items-center justify-center text-lg font-bold font-headline">ㅓ</div>
+          <div id="key-next-3" class="hidden sm:flex w-10 h-10 rounded-xl bg-surface-container-low/60 text-outline flex items-center justify-center text-base font-bold font-headline">ㅏ</div>
+        </div>
+
+        <!-- Right: Level Character Live Encouragement Bubble -->
+        <div class="flex items-center gap-3 bg-surface-container-low px-4 py-2.5 rounded-2xl border border-[#d3e4fe]">
+          <div id="key-coach-avatar" class="text-3xl char-float">🦊</div>
+          <div class="max-w-[180px]">
+            <div class="flex items-center gap-1">
+              <span id="key-coach-name" class="text-xs font-extrabold text-primary">여우별 코치</span>
+              <span class="text-[10px] text-outline">응원 중</span>
+            </div>
+            <p id="key-coach-msg" class="text-xs text-on-surface-variant font-medium leading-snug mt-0.5">"돌기(ㄹ, ㅓ)에 양손 검지를 가볍게 올려보세요!"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive 2-Beolsik Visual Keyboard + Blurry Human Hand Shadow Overlay -->
+    <div class="bg-surface-container-low rounded-3xl p-4 sm:p-6 border border-[#d3e4fe] shadow-inner">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-lg">keyboard_alt</span>
+          <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">2벌식 표준 시각 키보드 & 손가락 그림자 가이드</span>
+        </div>
+        <!-- Finger Legend + Hand Shadow Clarity Slider + Toggle -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="hidden md:flex items-center gap-2.5 text-[11px] font-semibold text-on-surface-variant">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-300 inline-block"></span>새끼</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-300 inline-block"></span>약지</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-300 inline-block"></span>중지</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-indigo-300 inline-block"></span>검지</span>
+          </div>
+          <!-- Clarity / Darkness Slider -->
+          <div class="flex items-center gap-1.5 bg-surface-container-lowest px-2.5 py-1 rounded-xl border border-[#d3e4fe]">
+            <span class="text-[10px] font-bold text-on-surface-variant">그림자 선명도</span>
+            <input id="shadow-clarity-slider" type="range" min="1" max="100" value="78" oninput="updateShadowClarity(this.value)" class="w-20 accent-primary cursor-pointer h-1.5"/>
+          </div>
+          <button onclick="toggleHandShadow()" id="btn-toggle-shadow" class="px-3 py-1 rounded-xl text-xs font-bold bg-primary text-white shadow-sm flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-sm">back_hand</span>
+            <span id="shadow-btn-text">손 그림자 ON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Keyboard Wrapper with Relative Positioning for Detailed Hand Shadow -->
+      <div class="relative select-none overflow-x-auto pb-2">
+        <div id="visual-keyboard-grid" class="min-w-[760px] flex flex-col gap-2 relative z-10">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+        <!-- DETAILED ANATOMICAL HUMAN HAND SHADOW OVERLAY (SVG) -->
+        <svg id="hand-shadow-svg" viewBox="0 0 900 300" class="hand-shadow-overlay absolute inset-0 w-full h-full z-20 pointer-events-none" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="palmDetailedGrad" cx="50%" cy="48%" r="60%">
+              <stop offset="0%" stop-color="rgba(15, 23, 42, 0.42)"/>
+              <stop offset="70%" stop-color="rgba(30, 41, 59, 0.30)"/>
+              <stop offset="100%" stop-color="rgba(15, 23, 42, 0.18)"/>
+            </radialGradient>
+            <linearGradient id="wristGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(30, 41, 59, 0.32)"/>
+              <stop offset="100%" stop-color="rgba(15, 23, 42, 0.05)"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ==================== LEFT HAND ANATOMICAL SHADOW ==================== -->
+          <g class="hand-silhouette" id="left-hand-group">
+            <!-- Left Wrist & Forearm Base -->
+            <path d="M 192 252 Q 252 238 322 252 L 336 300 L 178 300 Z" fill="url(#wristGrad)"/>
+            <!-- Left Contoured Palm & Thumb Webbing -->
+            <path class="palm-shadow-body" d="M 146 196 Q 140 238 188 262 Q 256 280 326 258 Q 355 246 368 225 Q 345 194 334 182 Q 250 166 146 196 Z"/>
+            <!-- Palm Knuckle Mounds & Tendon Creases -->
+            <path class="palm-crease-line" d="M 178 214 Q 246 198 316 212"/>
+            <path class="palm-crease-line" d="M 205 236 Q 262 224 318 242"/>
+            <ellipse class="finger-knuckle-highlight" cx="164" cy="195" rx="11" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="212" cy="186" rx="12" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="262" cy="182" rx="13" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="314" cy="186" rx="13" ry="6"/>
+
+            <!-- 1. Left Pinky (왼손 새끼 - ㅁ/ㅂ/ㅋ) -->
+            <g id="shadow-L_PINKY" class="finger-shadow-part" transform="rotate(-8 162 195)">
+              <path d="M 148 195 L 149 126 Q 149 110 162 110 Q 175 110 175 126 L 176 195 Z"/>
+              <!-- Fingernail -->
+              <rect class="finger-nail" x="154" y="114" width="16" height="14" rx="7"/>
+              <path d="M 156 125 Q 162 122 168 125" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <!-- Finger Joint Creases (마디 주름) -->
+              <path class="finger-joint-line" d="M 152 142 Q 162 139 172 142"/>
+              <path class="finger-joint-line" d="M 151 166 Q 162 163 173 166"/>
+              <text x="162" y="184" class="finger-label-text">새끼</text>
+              <circle id="dot-L_PINKY" cx="162" cy="121" r="14" fill="none" stroke="#f43f5e" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 2. Left Ring (왼손 약지 - ㄴ/ㅈ/ㅌ) -->
+            <g id="shadow-L_RING" class="finger-shadow-part" transform="rotate(-3 212 188)">
+              <path d="M 197 190 L 198 104 Q 198 87 212 87 Q 226 87 226 104 L 227 190 Z"/>
+              <rect class="finger-nail" x="204" y="91" width="16" height="15" rx="7.5"/>
+              <path d="M 206 103 Q 212 100 218 103" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 201 124 Q 212 121 223 124"/>
+              <path class="finger-joint-line" d="M 200 154 Q 212 151 224 154"/>
+              <text x="212" y="176" class="finger-label-text">약지</text>
+              <circle id="dot-L_RING" cx="212" cy="98" r="15" fill="none" stroke="#f59e0b" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 3. Left Middle (왼손 중지 - ㅇ/ㄷ/ㅊ) -->
+            <g id="shadow-L_MID" class="finger-shadow-part">
+              <path d="M 246 186 L 247 92 Q 247 74 262 74 Q 277 74 277 92 L 278 186 Z"/>
+              <rect class="finger-nail" x="253" y="79" width="18" height="16" rx="8"/>
+              <path d="M 255 92 Q 262 89 269 92" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 250 114 Q 262 111 274 114"/>
+              <path class="finger-joint-line" d="M 249 146 Q 262 143 275 146"/>
+              <text x="262" y="172" class="finger-label-text">중지</text>
+              <circle id="dot-L_MID" cx="262" cy="87" r="15" fill="none" stroke="#10b981" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 4. Left Index (왼손 검지 - ㄹ/ㅎ/ㄱ/ㅅ/ㅍ/ㅠ) -->
+            <g id="shadow-L_IDX" class="finger-shadow-part" transform="rotate(4 314 188)">
+              <path d="M 298 190 L 299 104 Q 299 86 314 86 Q 329 86 329 104 L 330 190 Z"/>
+              <rect class="finger-nail" x="305" y="90" width="18" height="16" rx="8"/>
+              <path d="M 307 103 Q 314 100 321 103" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 302 124 Q 314 121 326 124"/>
+              <path class="finger-joint-line" d="M 301 154 Q 314 151 327 154"/>
+              <text x="314" y="176" class="finger-label-text">검지(ㄹ)</text>
+              <circle id="dot-L_IDX" cx="314" cy="98" r="16" fill="none" stroke="#4f46e5" stroke-width="2.8" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 5. Left Thumb (왼손 엄지 - SPACE) -->
+            <g id="shadow-L_THUMB" class="finger-shadow-part" transform="rotate(-32 355 224)">
+              <path d="M 338 236 L 338 176 Q 338 160 354 160 Q 370 160 370 176 L 372 236 Z"/>
+              <rect class="finger-nail" x="345" y="164" width="18" height="14" rx="7"/>
+              <path class="finger-joint-line" d="M 342 196 Q 354 193 366 196"/>
+              <text x="354" y="218" class="finger-label-text">엄지</text>
+            </g>
+          </g>
+
+          <!-- ==================== RIGHT HAND ANATOMICAL SHADOW ==================== -->
+          <g class="hand-silhouette" id="right-hand-group">
+            <!-- Right Wrist & Forearm Base -->
+            <path d="M 556 252 Q 626 238 686 252 L 700 300 L 542 300 Z" fill="url(#wristGrad)"/>
+            <!-- Right Contoured Palm & Thumb Webbing -->
+            <path class="palm-shadow-body" d="M 544 182 Q 533 194 510 225 Q 523 246 552 258 Q 622 280 690 262 Q 738 238 732 196 Q 628 166 544 182 Z"/>
+            <!-- Palm Knuckle Mounds & Tendon Creases -->
+            <path class="palm-crease-line" d="M 562 212 Q 632 198 700 214"/>
+            <path class="palm-crease-line" d="M 560 242 Q 616 224 673 236"/>
+            <ellipse class="finger-knuckle-highlight" cx="564" cy="186" rx="13" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="616" cy="182" rx="13" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="666" cy="186" rx="12" ry="6"/>
+            <ellipse class="finger-knuckle-highlight" cx="714" cy="195" rx="11" ry="6"/>
+
+            <!-- 6. Right Thumb (오른손 엄지 - SPACE) -->
+            <g id="shadow-R_THUMB" class="finger-shadow-part" transform="rotate(32 523 224)">
+              <path d="M 506 236 L 508 176 Q 508 160 524 160 Q 540 160 540 176 L 540 236 Z"/>
+              <rect class="finger-nail" x="515" y="164" width="18" height="14" rx="7"/>
+              <path class="finger-joint-line" d="M 512 196 Q 524 193 536 196"/>
+              <text x="524" y="218" class="finger-label-text">엄지</text>
+            </g>
+
+            <!-- 7. Right Index (오른손 검지 - ㅓ/ㅗ/ㅛ/ㅕ/ㅜ/ㅡ) -->
+            <g id="shadow-R_IDX" class="finger-shadow-part" transform="rotate(-4 564 188)">
+              <path d="M 548 190 L 549 104 Q 549 86 564 86 Q 579 86 579 104 L 580 190 Z"/>
+              <rect class="finger-nail" x="555" y="90" width="18" height="16" rx="8"/>
+              <path d="M 557 103 Q 564 100 571 103" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 552 124 Q 564 121 576 124"/>
+              <path class="finger-joint-line" d="M 551 154 Q 564 151 577 154"/>
+              <text x="564" y="176" class="finger-label-text">검지(ㅓ)</text>
+              <circle id="dot-R_IDX" cx="564" cy="98" r="16" fill="none" stroke="#4f46e5" stroke-width="2.8" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 8. Right Middle (오른손 중지 - ㅏ/ㅑ/,) -->
+            <g id="shadow-R_MID" class="finger-shadow-part">
+              <path d="M 600 186 L 601 92 Q 601 74 616 74 Q 631 74 631 92 L 632 186 Z"/>
+              <rect class="finger-nail" x="607" y="79" width="18" height="16" rx="8"/>
+              <path d="M 609 92 Q 616 89 623 92" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 604 114 Q 616 111 628 114"/>
+              <path class="finger-joint-line" d="M 603 146 Q 616 143 629 146"/>
+              <text x="616" y="172" class="finger-label-text">중지</text>
+              <circle id="dot-R_MID" cx="616" cy="87" r="15" fill="none" stroke="#10b981" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 9. Right Ring (오른손 약지 - ㅣ/ㅐ/.) -->
+            <g id="shadow-R_RING" class="finger-shadow-part" transform="rotate(3 666 188)">
+              <path d="M 651 190 L 652 104 Q 652 87 666 87 Q 680 87 680 104 L 681 190 Z"/>
+              <rect class="finger-nail" x="658" y="91" width="16" height="15" rx="7.5"/>
+              <path d="M 660 103 Q 666 100 672 103" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 655 124 Q 666 121 677 124"/>
+              <path class="finger-joint-line" d="M 654 154 Q 666 151 678 154"/>
+              <text x="666" y="176" class="finger-label-text">약지</text>
+              <circle id="dot-R_RING" cx="666" cy="98" r="15" fill="none" stroke="#f59e0b" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+
+            <!-- 10. Right Pinky (오른손 새끼 - ;/ㅔ//) -->
+            <g id="shadow-R_PINKY" class="finger-shadow-part" transform="rotate(8 716 195)">
+              <path d="M 702 195 L 703 126 Q 703 110 716 110 Q 729 110 729 126 L 730 195 Z"/>
+              <rect class="finger-nail" x="708" y="114" width="16" height="14" rx="7"/>
+              <path d="M 710 125 Q 716 122 722 125" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/>
+              <path class="finger-joint-line" d="M 706 142 Q 716 139 726 142"/>
+              <path class="finger-joint-line" d="M 705 166 Q 716 163 727 166"/>
+              <text x="716" y="184" class="finger-label-text">새끼</text>
+              <circle id="dot-R_PINKY" cx="716" cy="121" r="14" fill="none" stroke="#f43f5e" stroke-width="2.5" class="finger-tip-dot"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Bottom Switch Sound Selector & Quick Mobile Input -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div class="md:col-span-7 bg-surface-container-lowest rounded-2xl p-4 border border-[#d3e4fe]/80 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-secondary-container/50 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined">tips_and_updates</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">자세 교정 & 직접 입력 상자 (모바일/IME 지원)</h3>
+            <p class="text-[11px] text-on-surface-variant">키보드를 바로 누르거나 오른쪽 입력창에 자모를 타이핑하세요.</p>
+          </div>
+        </div>
+        <input id="key-direct-input" type="text" placeholder="여기 클릭 후 타이핑" class="w-40 sm:w-48 px-3 py-2 text-sm font-bold text-center rounded-xl bg-surface-container-low border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary"/>
+      </div>
+
+      <div class="md:col-span-5 bg-surface-container-lowest rounded-2xl p-4 border border-[#d3e4fe]/80 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary">volume_up</span>
+          <div>
+            <span class="text-xs font-bold text-on-surface block">기계식 타건음 스위치</span>
+            <span class="text-[10px] text-on-surface-variant">실시간 사운드 피드백</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl" id="switch-sound-btns">
+          <button onclick="setSoundMode('blue')" data-sound="blue" class="sound-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-primary text-white shadow-sm">청축</button>
+          <button onclick="setSoundMode('brown')" data-sound="brown" class="sound-btn px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant">갈축</button>
+          <button onclick="setSoundMode('red')" data-sound="red" class="sound-btn px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant">적축</button>
+          <button onclick="setSoundMode('mute')" data-sound="mute" class="sound-btn px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant">무소음</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       TAB 2: 낱말 연습 (WORD PRACTICE - Stitch _1)
+       ========================================================================= -->
+  <section id="view-word" class="hidden space-y-6">
+    <!-- Category Header & Pills -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-xs font-semibold mb-2">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span>MODULE 02 · SYLLABLE &amp; VOCABULARY FLUENCY</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold font-headline tracking-tight text-on-surface">낱말 단기 집중 연습</h1>
+      </div>
+      <div class="flex flex-wrap items-center gap-2" id="word-cat-btns">
+        <button onclick="selectWordCategory('basic')" data-cat="basic" class="word-cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-on-primary shadow-sm transition-all">기초 낱말 (2~3글자)</button>
+        <button onclick="selectWordCategory('proverb')" data-cat="proverb" class="word-cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all">속담 및 명언 어휘</button>
+        <button onclick="selectWordCategory('it')" data-cat="it" class="word-cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all">IT/코딩 필수 어휘</button>
+        <button onclick="selectWordCategory('pure')" data-cat="pure" class="word-cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all">아름다운 순우리말</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left 8 Cols: Word Stage -->
+      <div class="lg:col-span-8 flex flex-col gap-5">
+        <!-- 4 Telemetry Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-[#d3e4fe]/80 shadow-sm">
+            <span class="text-xs font-semibold text-on-surface-variant">평균 타수 (CPM)</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="word-cpm" class="text-2xl font-extrabold font-mono text-primary">0</span>
+              <span class="text-xs font-semibold text-outline">타/분</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-[#d3e4fe]/80 shadow-sm">
+            <span class="text-xs font-semibold text-on-surface-variant">최고 타수 (PEAK)</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="word-peak" class="text-2xl font-extrabold font-mono text-on-surface">0</span>
+              <span class="text-xs font-semibold text-outline">타/분</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-[#d3e4fe]/80 shadow-sm">
+            <span class="text-xs font-semibold text-on-surface-variant">정확도</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="word-acc" class="text-2xl font-extrabold font-mono text-secondary">100</span>
+              <span class="text-xs font-semibold text-secondary">%</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded-2xl border border-[#d3e4fe]/80 shadow-sm">
+            <span class="text-xs font-semibold text-on-surface-variant">세션 진척도</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="word-step" class="text-2xl font-extrabold font-mono text-on-surface">1</span>
+              <span class="text-sm font-mono text-outline">/ 15</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Word Typing Canvas -->
+        <div class="bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-[#d3e4fe] shadow-sm flex flex-col items-center">
+          <div class="mb-3 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant text-xs font-medium">
+            <span class="material-symbols-outlined text-sm text-primary">menu_book</span>
+            <span id="word-meaning-hint">뜻풀이: 자연의 바람과 구름처럼 자유로운 모습</span>
+          </div>
+
+          <!-- Big Target Word Display -->
+          <div id="word-target-display" class="text-4xl sm:text-6xl font-extrabold font-headline tracking-tight text-on-surface my-4 select-none">
+            꽃구름
+          </div>
+
+          <!-- Input Field -->
+          <div class="w-full max-w-md relative mt-2">
+            <input id="word-input" type="text" autocomplete="off" placeholder="단어를 입력하고 Enter 또는 Space를 누르세요" class="w-full text-center text-2xl sm:text-3xl font-bold font-headline py-3.5 px-6 rounded-2xl bg-surface-container-low border-2 border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 text-on-surface"/>
+            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-primary bg-primary-fixed px-2 py-1 rounded-lg">ENTER ↵</span>
+          </div>
+
+          <!-- Upcoming Word Stream -->
+          <div class="w-full pt-5 mt-6 border-t border-surface-container">
+            <div class="flex items-center justify-between text-xs font-semibold text-outline mb-2.5">
+              <span>단어 스트림 대기열</span>
+              <span class="font-mono text-primary">Enter 키로 제출</span>
+            </div>
+            <div id="word-queue-list" class="flex items-center gap-2.5 overflow-x-auto py-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 4 Cols: Level Character Card & CPM History -->
+      <div class="lg:col-span-4 flex flex-col gap-5">
+        <!-- Level Character Companion Card -->
+        <div class="bg-gradient-to-br from-[#3525cd] to-[#4f46e5] rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div class="relative z-10 flex items-center gap-4">
+            <div id="word-char-avatar" class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-4xl border border-white/25 char-float">
+              🦊
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="word-char-tier" class="px-2 py-0.5 rounded-full bg-secondary-fixed text-[#005236] text-[10px] font-extrabold uppercase">Lv.3 골드</span>
+                <span id="word-user-name" class="text-xs font-bold text-primary-fixed">타자왕김코딩 님</span>
+              </div>
+              <h3 id="word-char-title" class="text-lg font-extrabold font-headline mt-0.5">여우별 · 능숙한 명사수</h3>
+              <p id="word-char-desc" class="text-xs text-primary-fixed-dim mt-0.5">낱말 1개를 완료할 때마다 경험치(XP)가 올라갑니다!</p>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs">
+            <span class="text-primary-fixed">현재 누적 XP</span>
+            <span id="word-xp-text" class="font-mono font-bold text-secondary-fixed">320 XP</span>
+          </div>
+        </div>
+
+        <!-- Recent Completed Words Log -->
+        <div class="bg-surface-container-lowest rounded-3xl p-5 border border-[#d3e4fe] shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold font-headline text-on-surface">방금 입력한 낱말 기록</h3>
+            <span class="text-xs font-mono text-primary font-bold">LIVE LOG</span>
+          </div>
+          <div id="word-history-log" class="space-y-2 max-h-56 overflow-y-auto text-xs">
+            <div class="text-outline text-center py-6">단어를 입력하면 타수와 정확도가 기록됩니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       TAB 3: 타자 게임 (ACID RAIN METEOR DEFENSE GAME - Stitch _2)
+       ========================================================================= -->
+  <section id="view-game" class="hidden space-y-5">
+    <!-- Top Game HUD -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-surface-container-low p-4 rounded-2xl border border-[#d3e4fe]">
+      <div class="md:col-span-4 flex items-center gap-3 bg-surface-container-lowest px-4 py-3 rounded-xl shadow-sm">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-headline font-extrabold text-lg">
+          S<span id="game-stage-num">1</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant">산성비 디펜스</span>
+            <span id="game-speed-label" class="text-xs text-on-surface-variant font-medium">속도 1.0x</span>
+          </div>
+          <h2 class="text-base font-bold font-headline text-on-surface mt-0.5">밤하늘 유성우 방어작전</h2>
+        </div>
+      </div>
+
+      <div class="md:col-span-4 flex items-center justify-between bg-surface-container-lowest px-5 py-3 rounded-xl shadow-sm">
+        <div>
+          <span class="text-[11px] font-semibold text-on-surface-variant block">현재 획득 점수</span>
+          <span id="game-score" class="text-2xl font-extrabold font-mono text-primary">0</span>
+        </div>
+        <div class="flex flex-col items-end">
+          <div class="flex items-center gap-1 bg-tertiary-fixed px-2.5 py-1 rounded-full">
+            <span class="material-symbols-outlined text-sm text-tertiary">local_fire_department</span>
+            <span id="game-combo" class="text-xs font-extrabold font-mono text-on-tertiary-fixed-variant">x0 COMBO</span>
+          </div>
+          <span class="text-[10px] text-on-surface-variant mt-1">연속 격추 보너스</span>
+        </div>
+      </div>
+
+      <div class="md:col-span-4 flex items-center justify-between bg-surface-container-lowest px-4 py-3 rounded-xl shadow-sm">
+        <div>
+          <span class="text-[11px] font-semibold text-on-surface-variant block mb-1">방어벽 생명력</span>
+          <div id="game-hearts" class="flex items-center gap-1 text-error text-lg">
+            ❤️❤️❤️❤️❤️
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="startOrToggleGame()" id="game-start-btn" class="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-base">play_arrow</span>
+            <span id="game-start-btn-text">게임 시작</span>
+          </button>
+          <button onclick="resetGame()" title="초기화" class="w-9 h-9 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface flex items-center justify-center">
+            <span class="material-symbols-outlined text-base">restart_alt</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Game Arena (8 cols) + Right Leaderboard & Telemetry (4 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-8 flex flex-col gap-4">
+        <!-- Dark Cyber Canvas -->
+        <div id="game-arena" class="relative h-[430px] rounded-2xl bg-[#0b1c30] cyber-grid overflow-hidden border-2 border-[#213145] shadow-xl flex flex-col justify-between">
+          <!-- Top Status Bar inside Arena -->
+          <div class="relative z-10 flex items-center justify-between px-5 py-3 bg-[#0b1c30]/75 backdrop-blur-sm border-b border-white/10">
+            <div class="flex items-center gap-2">
+              <span id="game-status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              <span id="game-status-text" class="text-xs font-mono text-slate-300">READY — [게임 시작] 버튼을 누르세요</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-mono text-slate-300">
+              <span>처치한 유성: <strong id="game-cleared-count" class="text-[#6ffbbe]">0</strong>개</span>
+            </div>
+          </div>
+
+          <!-- Falling Words Container -->
+          <div id="game-words-layer" class="relative flex-1 w-full overflow-hidden"></div>
+
+          <!-- Danger Defense Line -->
+          <div class="relative z-10 px-6 pb-3">
+            <div class="flex items-center justify-between text-[10px] font-mono text-red-400 uppercase tracking-widest mb-1">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">warning</span> DEFENSE LINE</span>
+              <span>바닥에 닿으면 생명력이 감소합니다</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-gradient-to-r from-red-500 via-orange-400 to-red-500 danger-line-glow"></div>
+          </div>
+        </div>
+
+        <!-- Command Input Bar & Special Skills -->
+        <div class="bg-surface-container-low p-4 rounded-2xl border border-[#d3e4fe] flex flex-col sm:flex-row items-center gap-3">
+          <div class="relative flex-1 w-full">
+            <input id="game-input" type="text" autocomplete="off" placeholder="떨어지는 단어를 입력하고 Enter!" class="w-full pl-4 pr-20 py-3.5 bg-surface-container-lowest rounded-xl text-lg font-headline font-bold text-on-surface border-2 border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"/>
+            <button onclick="submitGameInput()" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-primary text-white font-mono text-xs font-bold">발사 ↵</button>
+          </div>
+          <!-- 3 Item Skills -->
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button onclick="useGameSkill('bomb')" id="skill-bomb-btn" class="px-3 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-error-container/40 border border-outline-variant/40 text-xs font-bold flex items-center gap-1.5 transition-all">
+              <span>💣 전체 폭탄</span>
+              <span id="skill-bomb-cnt" class="px-1.5 py-0.5 rounded bg-error text-white font-mono text-[10px]">1</span>
+            </button>
+            <button onclick="useGameSkill('slow')" id="skill-slow-btn" class="px-3 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-primary-fixed/50 border border-outline-variant/40 text-xs font-bold flex items-center gap-1.5 transition-all">
+              <span>❄️ 시간 감속</span>
+              <span id="skill-slow-cnt" class="px-1.5 py-0.5 rounded bg-primary text-white font-mono text-[10px]">2</span>
+            </button>
+            <button onclick="useGameSkill('heal')" id="skill-heal-btn" class="px-3 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-secondary-container/40 border border-outline-variant/40 text-xs font-bold flex items-center gap-1.5 transition-all">
+              <span>💚 회복</span>
+              <span id="skill-heal-cnt" class="px-1.5 py-0.5 rounded bg-secondary text-white font-mono text-[10px]">1</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 4 Cols: Pilot Character & Stage Ranking -->
+      <div class="lg:col-span-4 flex flex-col gap-5">
+        <!-- Pilot Level Character Card -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-[#d3e4fe] shadow-sm flex items-center gap-4">
+          <div id="game-pilot-avatar" class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center text-4xl char-float">
+            🦊
+          </div>
+          <div class="flex-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary-fixed px-2 py-0.5 rounded">방어 사령관</span>
+            <h3 id="game-pilot-name" class="text-base font-extrabold text-on-surface mt-1">타자왕김코딩 (여우별)</h3>
+            <p id="game-pilot-msg" class="text-xs text-on-surface-variant mt-0.5">"황금 단어를 맞추면 보너스 300점이에요!"</p>
+          </div>
+        </div>
+
+        <!-- Stage Leaderboard (Includes User's Live Score & Registered Name) -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-[#d3e4fe] shadow-sm flex-1">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500">emoji_events</span>
+              <h3 class="text-sm font-bold font-headline text-on-surface">실시간 방어 사령부 랭킹</h3>
+            </div>
+            <span class="text-[11px] text-primary font-semibold">내 점수 자동 반영</span>
+          </div>
+          <div id="game-leaderboard-list" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       TAB 4: 레벨 등급 & 레벨 캐릭터 진화 도감 (LEVEL TIERS - Stitch _4)
+       ========================================================================= -->
+  <section id="view-level" class="hidden space-y-8">
+    <!-- Hero Grid: Left Level Character Card (7 cols) + Right Core Stats (5 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <!-- Left: Current Level Character & User Profile Showcase -->
+      <div class="lg:col-span-7 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3525cd] via-[#4f46e5] to-[#1e1b4b] text-white p-7 sm:p-8 shadow-xl flex flex-col justify-between">
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold tracking-wide uppercase">
+              <span class="w-2 h-2 rounded-full bg-[#6ffbbe]"></span>
+              <span id="lvl-hero-badge">LEVEL 3 · GOLD RANGER</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <h1 id="lvl-hero-char-name" class="text-3xl sm:text-4xl font-extrabold font-headline tracking-tight">여우별 (능숙한 명사수)</h1>
+            </div>
+            <p class="text-sm text-primary-fixed max-w-md leading-relaxed">
+              훈련생 <strong id="lvl-hero-user-name" class="text-[#6ffbbe] underline decoration-dotted cursor-pointer" onclick="openProfileModal()">타자왕김코딩</strong> 님의 파트너 캐릭터입니다. 연습과 게임을 통해 경험치(XP)를 모으면 다음 단계 캐릭터로 진화합니다!
+            </p>
+            <div class="pt-1 flex flex-wrap gap-2">
+              <button onclick="openProfileModal()" class="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-sm">edit</span>이름/칭호 변경
+              </button>
+              <button onclick="addBonusXp(150)" class="px-3.5 py-1.5 rounded-xl bg-[#6ffbbe] text-[#005236] hover: opacity-95 text-xs font-extrabold flex items-center gap-1.5 transition-all shadow">
+                <span class="material-symbols-outlined text-sm">bolt</span>진화 체험 (+150 XP)
+              </button>
+            </div>
+          </div>
+
+          <!-- Big Character Illustration Box -->
+          <div class="shrink-0 flex flex-col items-center">
+            <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl bg-white/10 backdrop-blur-md border-2 border-white/25 flex flex-col items-center justify-center shadow-2xl char-float relative">
+              <div id="lvl-hero-svg" class="text-6xl sm:text-7xl select-none">🦊</div>
+              <span id="lvl-hero-stage-pill" class="mt-2 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black">3단계 진화체</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- XP Progress Bar -->
+        <div class="relative z-10 mt-7 pt-5 border-t border-white/15 space-y-2">
+          <div class="flex justify-between items-end text-xs">
+            <span class="font-medium text-primary-fixed">다음 캐릭터 진화까지 남은 경험치</span>
+            <span id="lvl-xp-ratio" class="font-mono font-bold text-base text-[#6ffbbe]">320 / 500 XP (64%)</span>
+          </div>
+          <div class="w-full h-3.5 bg-black/30 rounded-full overflow-hidden p-0.5">
+            <div id="lvl-xp-bar" class="h-full bg-gradient-to-r from-[#6ffbbe] to-[#c3c0ff] rounded-full transition-all duration-500" style="width: 64%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: 4 Summary Stat Cards -->
+      <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+        <div class="bg-surface-container-lowest p-5 rounded-3xl border border-[#d3e4fe] shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-on-surface-variant">최고 타수 기록</span>
+            <span class="material-symbols-outlined text-primary">speed</span>
+          </div>
+          <div class="my-2">
+            <span id="stat-best-cpm" class="text-3xl font-extrabold font-mono text-on-surface">342</span>
+            <span class="text-xs font-semibold text-on-surface-variant ml-1">타/분</span>
+          </div>
+          <span class="text-[11px] font-semibold text-secondary">꾸준히 상승 중!</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-5 rounded-3xl border border-[#d3e4fe] shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-on-surface-variant">평균 정확도</span>
+            <span class="material-symbols-outlined text-secondary">verified</span>
+          </div>
+          <div class="my-2">
+            <span id="stat-avg-acc" class="text-3xl font-extrabold font-mono text-on-surface">97.4</span>
+            <span class="text-xs font-semibold text-on-surface-variant ml-1">%</span>
+          </div>
+          <span class="text-[11px] font-semibold text-primary">안정적인 손가락 운지</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-5 rounded-3xl border border-[#d3e4fe] shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-on-surface-variant">누적 완료 낱말</span>
+            <span class="material-symbols-outlined text-amber-600">check_circle</span>
+          </div>
+          <div class="my-2">
+            <span id="stat-total-words" class="text-3xl font-extrabold font-mono text-on-surface">48</span>
+            <span class="text-xs font-semibold text-on-surface-variant ml-1">개</span>
+          </div>
+          <span class="text-[11px] text-on-surface-variant">자리·낱말·게임 합산</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-5 rounded-3xl border border-[#d3e4fe] shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-on-surface-variant">보유 경험치</span>
+            <span class="material-symbols-outlined text-primary">stars</span>
+          </div>
+          <div class="my-2">
+            <span id="stat-total-xp" class="text-3xl font-extrabold font-mono text-primary">320</span>
+            <span class="text-xs font-semibold text-on-surface-variant ml-1">XP</span>
+          </div>
+          <span class="text-[11px] text-on-surface-variant">클릭하여 캐릭터 진화 가능</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6-Stage Level Character Evolution Roadmap -->
+    <div class="bg-surface-container-low rounded-3xl p-6 sm:p-8 border border-[#d3e4fe]">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-primary">CHARACTER EVOLUTION DEX</span>
+          <h2 class="text-2xl font-extrabold font-headline text-on-surface mt-1">레벨 캐릭터 6단계 진화 도감</h2>
+        </div>
+        <p class="text-xs text-on-surface-variant">원하는 캐릭터 카드를 클릭하면 대표 파트너로 미리 체험할 수 있습니다.</p>
+      </div>
+      <div id="character-dex-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- National Leaderboard with User's Registered Name -->
+    <div class="bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-[#d3e4fe] shadow-sm">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-primary">HALL OF FAME</span>
+          <h2 class="text-xl font-extrabold font-headline text-on-surface mt-0.5">전국 타닥타닥 명예의 전당</h2>
+        </div>
+        <button onclick="openProfileModal()" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">person_edit</span>내 등록 이름 변경
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-surface-container text-[11px] font-bold text-outline uppercase">
+              <th class="py-3 px-4">순위</th>
+              <th class="py-3 px-4">훈련생 이름 &amp; 레벨 캐릭터</th>
+              <th class="py-3 px-4">등급 칭호</th>
+              <th class="py-3 px-4 text-right">최고 타수</th>
+              <th class="py-3 px-4 text-right">경험치 (XP)</th>
+            </tr>
+          </thead>
+          <tbody id="national-leaderboard-body" class="divide-y divide-surface-container text-sm"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= USER NAME & CHARACTER PROFILE MODAL ================= -->
+<div id="profile-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest w-full max-w-md rounded-3xl p-6 sm:p-7 border border-[#d3e4fe] shadow-2xl space-y-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center">
+          <span class="material-symbols-outlined">badge</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold font-headline text-on-surface">사용자 이름 등록 · 프로필</h3>
+          <p class="text-xs text-on-surface-variant">등록한 이름은 모든 화면과 랭킹에 즉시 표시됩니다.</p>
+        </div>
+      </div>
+      <button onclick="closeProfileModal()" class="w-8 h-8 rounded-lg hover:bg-surface-container text-outline flex items-center justify-center">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant mb-1.5">훈련생 이름 (닉네임)</label>
+        <input id="modal-username-input" type="text" maxlength="12" placeholder="예: 홍길동, 타자마스터" class="w-full px-4 py-3 rounded-xl bg-surface-container-low border-2 border-primary/40 focus:border-primary focus:outline-none font-bold text-base text-on-surface"/>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant mb-1.5">파트너 레벨 캐릭터 선택 (미리보기 가능)</label>
+        <div id="modal-char-selector" class="grid grid-cols-3 gap-2"></div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button onclick="closeProfileModal()" class="px-4 py-2.5 rounded-xl bg-surface-container-low text-on-surface-variant text-xs font-bold">취소</button>
+      <button onclick="saveUserProfile()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-extrabold shadow-md">저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= JAVASCRIPT ENGINE ================= -->
+<script>
+// ---------------------------------------------------------------------------
+// 1. LEVEL CHARACTERS & USER PROFILE STATE
+// ---------------------------------------------------------------------------
+const LEVEL_CHARACTERS = [
+  { level: 1, tier: "브론즈", name: "삐약이", title: "알을 깬 병아리 타자", emoji: "🐣", minXp: 0, targetCpm: 150, quote: "기본 자리(ㅁㄴㅇㄹ)부터 차근차근 눌러봐요!", color: "bg-amber-100 text-amber-900" },
+  { level: 2, tier: "실버", name: "다람이", title: "재빠른 도토리 입문자", emoji: "🐿️", minXp: 150, targetCpm: 250, quote: "손가락이 점점 가벼워지고 있어요! 도토리처럼 빠르게!", color: "bg-slate-200 text-slate-800" },
+  { level: 3, tier: "골드", name: "여우별", title: "능숙한 숲속 명사수", emoji: "🦊", minXp: 300, targetCpm: 350, quote: "시선을 화면에 고정하면 타수가 쑥쑥 올라가요!", color: "bg-amber-200 text-amber-900" },
+  { level: 4, tier: "플래티넘", name: "치타곤", title: "광속의 질주 본능", emoji: "⚡", minXp: 500, targetCpm: 450, quote: "바람보다 빠른 손놀림! 오타만 줄이면 완벽해요!", color: "bg-cyan-100 text-cyan-900" },
+  { level: 5, tier: "다이아몬드", name: "백호랑", title: "전설의 타건 마스터", emoji: "🐯", minXp: 750, targetCpm: 550, quote: "강렬한 리듬감! 어떤 긴 단어도 문제없군요!", color: "bg-indigo-100 text-indigo-900" },
+  { level: 6, tier: "마스터", name: "청룡왕", title: "하늘을 가르는 타자신", emoji: "🐉", minXp: 1050, targetCpm: 650, quote: "인간 매크로 경지에 도달했습니다! 경이로운 타수!", color: "bg-purple-100 text-purple-900" }
+];
+
+const userState = {
+  name: localStorage.getItem("tadak_username") || "타자왕김코딩",
+  xp: parseInt(localStorage.getItem("tadak_xp") || "320", 10),
+  selectedCharIdx: null, // null means auto by XP, or user override
+  bestCpm: parseInt(localStorage.getItem("tadak_best_cpm") || "342", 10),
+  totalWords: parseInt(localStorage.getItem("tadak_total_words") || "48", 10),
+  soundMode: "blue",
+  showHandShadow: true
+};
+
+function getCurrentCharacter() {
+  if (userState.selectedCharIdx !== null && LEVEL_CHARACTERS[userState.selectedCharIdx]) {
+    return LEVEL_CHARACTERS[userState.selectedCharIdx];
+  }
+  let chosen = LEVEL_CHARACTERS[0];
+  for (const c of LEVEL_CHARACTERS) {
+    if (userState.xp >= c.minXp) chosen = c;
+  }
+  return chosen;
+}
+
+function getNextCharacter(curr) {
+  const idx = LEVEL_CHARACTERS.findIndex(c => c.level === curr.level);
+  return LEVEL_CHARACTERS[idx + 1] || null;
+}
+
+function syncProfileUI() {
+  const char = getCurrentCharacter();
+  const nextChar = getNextCharacter(char);
+  const nextMin = nextChar ? nextChar.minXp : char.minXp + 500;
+  const spanXp = Math.max(1, nextMin - char.minXp);
+  const progressPct = nextChar
+    ? Math.min(100, Math.max(5, Math.round(((userState.xp - char.minXp) / spanXp) * 100)))
+    : 100;
+
+  // Header
+  document.getElementById("header-user-name").textContent = userState.name;
+  document.getElementById("header-char-icon").textContent = char.emoji;
+  document.getElementById("header-tier-badge").textContent = `Lv.${char.level} ${char.tier}`;
+  document.getElementById("header-char-name").textContent = char.name;
+  document.getElementById("header-xp-bar").style.width = `${progressPct}%`;
+
+  // Key Practice Coach
+  document.getElementById("key-coach-avatar").textContent = char.emoji;
+  document.getElementById("key-coach-name").textContent = `${char.name} 코치`;
+  document.getElementById("key-coach-msg").textContent = `"${char.quote}"`;
+
+  // Word Practice Card
+  document.getElementById("word-char-avatar").textContent = char.emoji;
+  document.getElementById("word-char-tier").textContent = `Lv.${char.level} ${char.tier}`;
+  document.getElementById("word-user-name").textContent = `${userState.name} 님`;
+  document.getElementById("word-char-title").textContent = `${char.name} · ${char.title}`;
+  document.getElementById("word-xp-text").textContent = `${userState.xp} XP`;
+
+  // Game Pilot Card
+  document.getElementById("game-pilot-avatar").textContent = char.emoji;
+  document.getElementById("game-pilot-name").textContent = `${userState.name} (${char.name})`;
+
+  // Level Tab Hero
+  document.getElementById("lvl-hero-badge").textContent = `LEVEL ${char.level} · ${char.tier} 등급`;
+  document.getElementById("lvl-hero-char-name").textContent = `${char.name} (${char.title})`;
+  document.getElementById("lvl-hero-user-name").textContent = userState.name;
+  document.getElementById("lvl-hero-svg").textContent = char.emoji;
+  document.getElementById("lvl-hero-stage-pill").textContent = `${char.level}단계 파트너 캐릭터`;
+  document.getElementById("lvl-xp-ratio").textContent = nextChar
+    ? `${userState.xp} / ${nextChar.minXp} XP (${progressPct}%)`
+    : `${userState.xp} XP (최고 등급 달성!)`;
+  document.getElementById("lvl-xp-bar").style.width = `${progressPct}%`;
+
+  document.getElementById("stat-best-cpm").textContent = userState.bestCpm;
+  document.getElementById("stat-total-words").textContent = userState.totalWords;
+  document.getElementById("stat-total-xp").textContent = userState.xp;
+
+  renderCharacterDex();
+  renderNationalLeaderboard();
+  renderGameLeaderboard();
+}
+
+function addXp(amount) {
+  userState.xp += amount;
+  localStorage.setItem("tadak_xp", String(userState.xp));
+  syncProfileUI();
+}
+
+function addBonusXp(amount) {
+  userState.selectedCharIdx = null; // follow XP progression
+  addXp(amount);
+}
+
+// ---------------------------------------------------------------------------
+// 2. PROFILE MODAL (USER NAME REGISTRATION & CHARACTER PICKER)
+// ---------------------------------------------------------------------------
+let tempModalCharIdx = null;
+
+function openProfileModal() {
+  const modal = document.getElementById("profile-modal");
+  const input = document.getElementById("modal-username-input");
+  input.value = userState.name;
+  tempModalCharIdx = userState.selectedCharIdx;
+  renderModalCharSelector();
+  modal.classList.remove("hidden");
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeProfileModal() {
+  document.getElementById("profile-modal").classList.add("hidden");
+}
+
+function renderModalCharSelector() {
+  const container = document.getElementById("modal-char-selector");
+  const curr = getCurrentCharacter();
+  container.innerHTML = LEVEL_CHARACTERS.map((c, idx) => {
+    const isSelected = (tempModalCharIdx === idx) || (tempModalCharIdx === null && curr.level === c.level);
+    return `
+      <button type="button" onclick="selectModalChar(${idx})" class="p-2.5 rounded-2xl border-2 text-center transition-all ${isSelected ? 'border-primary bg-primary-fixed/40 shadow-sm' : 'border-surface-container bg-surface-container-low hover:bg-surface-container'}">
+        <div class="text-2xl">${c.emoji}</div>
+        <div class="text-xs font-extrabold text-on-surface mt-1">Lv.${c.level} ${c.name}</div>
+        <div class="text-[10px] text-outline">${c.tier}</div>
+      </button>
+    `;
+  }).join("");
+}
+
+function selectModalChar(idx) {
+  tempModalCharIdx = idx;
+  renderModalCharSelector();
+}
+
+function saveUserProfile() {
+  const raw = document.getElementById("modal-username-input").value.trim();
+  if (raw) {
+    userState.name = raw;
+    localStorage.setItem("tadak_username", raw);
+  }
+  userState.selectedCharIdx = tempModalCharIdx;
+  syncProfileUI();
+  closeProfileModal();
+}
+
+function renderCharacterDex() {
+  const grid = document.getElementById("character-dex-grid");
+  const activeChar = getCurrentCharacter();
+  grid.innerHTML = LEVEL_CHARACTERS.map((c, idx) => {
+    const unlocked = userState.xp >= c.minXp;
+    const isCurrent = activeChar.level === c.level;
+    return `
+      <div onclick="selectCharacterDirect(${idx})" class="cursor-pointer rounded-2xl p-4 border-2 transition-all flex flex-col items-center text-center ${isCurrent ? 'bg-surface-container-lowest border-primary ring-4 ring-primary/10 shadow-md -translate-y-1' : 'bg-surface-container-lowest/80 border-transparent hover:border-primary/40'}">
+        <div class="w-14 h-14 rounded-2xl ${c.color} flex items-center justify-center text-3xl mb-2.5 shadow-inner">${c.emoji}</div>
+        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isCurrent ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'}">Lv.${c.level} ${c.tier}</span>
+        <h4 class="text-sm font-extrabold font-headline text-on-surface mt-1.5">${c.name}</h4>
+        <p class="text-[11px] text-on-surface-variant mt-0.5">${c.title}</p>
+        <span class="mt-2 text-[10px] font-mono font-bold ${unlocked ? 'text-secondary' : 'text-outline'}">${unlocked ? '✓ 해금됨' : c.minXp + ' XP 필요'}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function selectCharacterDirect(idx) {
+  userState.selectedCharIdx = idx;
+  syncProfileUI();
+}
+
+function renderNationalLeaderboard() {
+  const tbody = document.getElementById("national-leaderboard-body");
+  const char = getCurrentCharacter();
+  const entries = [
+    { name: "번개손가락", emoji: "🐉", tier: "마스터 · 청룡왕", cpm: 684, xp: 1420, isMe: false },
+    { name: "한글사랑꾼", emoji: "🐯", tier: "다이아몬드 · 백호랑", cpm: 562, xp: 890, isMe: false },
+    { name: userState.name, emoji: char.emoji, tier: `${char.tier} · ${char.name}`, cpm: userState.bestCpm, xp: userState.xp, isMe: true },
+    { name: "새벽타자러", emoji: "⚡", tier: "플래티넘 · 치타곤", cpm: 438, xp: 520, isMe: false },
+    { name: "도토리묵", emoji: "🐿️", tier: "실버 · 다람이", cpm: 265, xp: 210, isMe: false }
+  ].sort((a, b) => b.cpm - a.cpm);
+
+  tbody.innerHTML = entries.map((e, i) => `
+    <tr class="${e.isMe ? 'bg-primary-fixed/40 font-bold' : 'hover:bg-surface-container-low/60'}">
+      <td class="py-3.5 px-4 font-mono font-extrabold ${i === 0 ? 'text-amber-600' : 'text-on-surface'}">#${i + 1}</td>
+      <td class="py-3.5 px-4 flex items-center gap-2.5">
+        <span class="text-xl">${e.emoji}</span>
+        <span>${e.name}</span>
+        ${e.isMe ? '<span class="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-extrabold">나 (YOU)</span>' : ''}
+      </td>
+      <td class="py-3.5 px-4 text-xs text-on-surface-variant">${e.tier}</td>
+      <td class="py-3.5 px-4 text-right font-mono font-bold text-primary">${e.cpm} 타/분</td>
+      <td class="py-3.5 px-4 text-right font-mono text-xs">${e.xp} XP</td>
+    </tr>
+  `).join("");
+}
+
+// ---------------------------------------------------------------------------
+// 3. WEB AUDIO API MECHANICAL SWITCH SOUND SYNTHESIS
+// ---------------------------------------------------------------------------
+let audioCtx = null;
+function playKeySound(isError = false) {
+  if (userState.soundMode === "mute") return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (isError) {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.start(now);
+      osc.stop(now + 0.14);
+      return;
+    }
+
+    if (userState.soundMode === "blue") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(1350, now);
+      osc.frequency.exponentialRampToValueAtTime(420, now + 0.045);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+      osc.start(now);
+      osc.stop(now + 0.045);
+    } else if (userState.soundMode === "brown") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(620, now);
+      osc.frequency.exponentialRampToValueAtTime(240, now + 0.04);
+      gain.gain.setValueAtTime(0.11, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } else {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(360, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.035);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+      osc.start(now);
+      osc.stop(now + 0.035);
+    }
+  } catch (e) {}
+}
+
+function setSoundMode(mode) {
+  userState.soundMode = mode;
+  document.querySelectorAll(".sound-btn").forEach(btn => {
+    if (btn.dataset.sound === mode) {
+      btn.className = "sound-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-primary text-white shadow-sm";
+    } else {
+      btn.className = "sound-btn px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant";
+    }
+  });
+  playKeySound(false);
+}
+
+// ---------------------------------------------------------------------------
+// 4. 2-BEOLSIK KEYBOARD LAYOUT & BLURRY HAND SHADOW MAPPING
+// ---------------------------------------------------------------------------
+const KEYBOARD_ROWS = [
+  [
+    { kr: "ㅂ", shiftKr: "ㅃ", en: "Q", finger: "L_PINKY", name: "왼손 새끼", zone: "finger-pinky" },
+    { kr: "ㅈ", shiftKr: "ㅉ", en: "W", finger: "L_RING",  name: "왼손 약지", zone: "finger-ring" },
+    { kr: "ㄷ", shiftKr: "ㄸ", en: "E", finger: "L_MID",   name: "왼손 중지", zone: "finger-middle" },
+    { kr: "ㄱ", shiftKr: "ㄲ", en: "R", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l" },
+    { kr: "ㅅ", shiftKr: "ㅆ", en: "T", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l" },
+    { kr: "ㅛ", shiftKr: "ㅛ", en: "Y", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r" },
+    { kr: "ㅕ", shiftKr: "ㅕ", en: "U", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r" },
+    { kr: "ㅑ", shiftKr: "ㅑ", en: "I", finger: "R_MID",   name: "오른손 중지", zone: "finger-middle" },
+    { kr: "ㅐ", shiftKr: "ㅒ", en: "O", finger: "R_RING",  name: "오른손 약지", zone: "finger-ring" },
+    { kr: "ㅔ", shiftKr: "ㅖ", en: "P", finger: "R_PINKY", name: "오른손 새끼", zone: "finger-pinky" }
+  ],
+  [
+    { kr: "ㅁ", en: "A", finger: "L_PINKY", name: "왼손 새끼", zone: "finger-pinky" },
+    { kr: "ㄴ", en: "S", finger: "L_RING",  name: "왼손 약지", zone: "finger-ring" },
+    { kr: "ㅇ", en: "D", finger: "L_MID",   name: "왼손 중지", zone: "finger-middle" },
+    { kr: "ㄹ", en: "F", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l", homeBump: true },
+    { kr: "ㅎ", en: "G", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l" },
+    { kr: "ㅗ", en: "H", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r" },
+    { kr: "ㅓ", en: "J", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r", homeBump: true },
+    { kr: "ㅏ", en: "K", finger: "R_MID",   name: "오른손 중지", zone: "finger-middle" },
+    { kr: "ㅣ", en: "L", finger: "R_RING",  name: "오른손 약지", zone: "finger-ring" },
+    { kr: ";",  en: ";", finger: "R_PINKY", name: "오른손 새끼", zone: "finger-pinky" }
+  ],
+  [
+    { kr: "ㅋ", en: "Z", finger: "L_PINKY", name: "왼손 새끼", zone: "finger-pinky" },
+    { kr: "ㅌ", en: "X", finger: "L_RING",  name: "왼손 약지", zone: "finger-ring" },
+    { kr: "ㅊ", en: "C", finger: "L_MID",   name: "왼손 중지", zone: "finger-middle" },
+    { kr: "ㅍ", en: "V", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l" },
+    { kr: "ㅠ", en: "B", finger: "L_IDX",   name: "왼손 검지", zone: "finger-index-l" },
+    { kr: "ㅜ", en: "N", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r" },
+    { kr: "ㅡ", en: "M", finger: "R_IDX",   name: "오른손 검지", zone: "finger-index-r" },
+    { kr: ",",  en: ",", finger: "R_MID",   name: "오른손 중지", zone: "finger-middle" },
+    { kr: ".",  en: ".", finger: "R_RING",  name: "오른손 약지", zone: "finger-ring" },
+    { kr: "/",  en: "/", finger: "R_PINKY", name: "오른손 새끼", zone: "finger-pinky" }
+  ]
+];
+
+const KEY_LOOKUP = {};
+KEYBOARD_ROWS.forEach(row => {
+  row.forEach(k => {
+    KEY_LOOKUP[k.kr] = k;
+    KEY_LOOKUP[k.en.toLowerCase()] = k;
+    if (k.shiftKr) KEY_LOOKUP[k.shiftKr] = { ...k, kr: k.shiftKr, needShift: true };
+  });
+});
+
+function renderVisualKeyboard() {
+  const container = document.getElementById("visual-keyboard-grid");
+  const rowOffsets = ["pl-2", "pl-6", "pl-12"];
+  let html = "";
+  KEYBOARD_ROWS.forEach((row, rIdx) => {
+    html += `<div class="flex items-center justify-center gap-2 ${rowOffsets[rIdx]}">`;
+    row.forEach(k => {
+      html += `
+        <div id="keycap-${k.en}" data-kr="${k.kr}" data-shift="${k.shiftKr || ''}" class="key-cap ${k.zone} w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border flex flex-col justify-between p-2.5 relative">
+          <div class="flex justify-between items-center text-[10px] font-mono text-outline font-bold">
+            <span>${k.en}</span>
+            <span>${k.shiftKr || ''}</span>
+          </div>
+          <span class="text-xl font-extrabold font-headline self-center text-on-surface">${k.kr}</span>
+          ${k.homeBump ? '<span class="w-3.5 h-1 bg-primary/40 rounded-full self-center"></span>' : '<span></span>'}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  // Spacebar row
+  html += `
+    <div class="flex items-center justify-center mt-1">
+      <div class="key-cap bg-surface-container-lowest border border-outline-variant/40 w-72 h-11 rounded-2xl flex items-center justify-center text-xs font-mono font-bold text-outline">
+        SPACE (양손 엄지)
+      </div>
+    </div>
+  `;
+  container.innerHTML = html;
+}
+
+const FINGER_BASE_ROTATE = {
+  L_PINKY: "rotate(-8 162 195)",
+  L_RING:  "rotate(-3 212 188)",
+  L_MID:   "",
+  L_IDX:   "rotate(4 314 188)",
+  L_THUMB: "rotate(-32 355 224)",
+  R_THUMB: "rotate(32 523 224)",
+  R_IDX:   "rotate(-4 564 188)",
+  R_MID:   "",
+  R_RING:  "rotate(3 666 188)",
+  R_PINKY: "rotate(8 716 195)"
+};
+
+const KEY_REACH_OFFSET = {
+  // Top Row (moves finger up)
+  Q: { dx: -8, dy: -26 }, W: { dx: -5, dy: -26 }, E: { dx: -2, dy: -26 }, R: { dx: -4, dy: -26 }, T: { dx: 26, dy: -24 },
+  Y: { dx: -26, dy: -24 }, U: { dx: 0, dy: -26 }, I: { dx: 2, dy: -26 }, O: { dx: 5, dy: -26 }, P: { dx: 8, dy: -26 },
+  // Home Row (base position, inner index reaches sideways)
+  A: { dx: 0, dy: 0 }, S: { dx: 0, dy: 0 }, D: { dx: 0, dy: 0 }, F: { dx: 0, dy: 0 }, G: { dx: 28, dy: 0 },
+  H: { dx: -28, dy: 0 }, J: { dx: 0, dy: 0 }, K: { dx: 0, dy: 0 }, L: { dx: 0, dy: 0 }, ";": { dx: 0, dy: 0 },
+  // Bottom Row (curls finger down)
+  Z: { dx: 6, dy: 24 }, X: { dx: 5, dy: 24 }, C: { dx: 4, dy: 24 }, V: { dx: 4, dy: 24 }, B: { dx: 30, dy: 22 },
+  N: { dx: -28, dy: 22 }, M: { dx: 2, dy: 24 }, ",": { dx: 4, dy: 24 }, ".": { dx: 5, dy: 24 }, "/": { dx: 6, dy: 24 }
+};
+
+function toggleHandShadow() {
+  userState.showHandShadow = !userState.showHandShadow;
+  const svg = document.getElementById("hand-shadow-svg");
+  const txt = document.getElementById("shadow-btn-text");
+  svg.style.opacity = userState.showHandShadow ? "1" : "0";
+  txt.textContent = userState.showHandShadow ? "손 그림자 ON" : "손 그림자 OFF";
+}
+
+function updateShadowClarity(val) {
+  const num = Number(val);
+  // Higher clarity -> less blur (0.2px to 4.5px) and stronger opacity (0.55 to 1.0)
+  const blurPx = ((100 - num) / 100 * 4.2).toFixed(2);
+  const alpha = (0.45 + (num / 100) * 0.55).toFixed(2);
+  document.querySelectorAll(".hand-silhouette").forEach(g => {
+    g.style.filter = `blur(${blurPx}px) drop-shadow(0 10px 16px rgba(11, 28, 48, 0.35))`;
+    g.style.opacity = alpha;
+  });
+}
+
+function highlightKeyAndFinger(targetChar) {
+  document.querySelectorAll(".key-cap").forEach(el => el.classList.remove("key-cap-target"));
+  document.querySelectorAll(".finger-shadow-part").forEach(el => {
+    el.classList.remove("active-finger");
+    const fid = el.id.replace("shadow-", "");
+    el.setAttribute("transform", FINGER_BASE_ROTATE[fid] || "");
+  });
+  document.querySelectorAll(".finger-tip-dot").forEach(el => el.classList.remove("active-dot"));
+
+  const info = KEY_LOOKUP[targetChar];
+  if (!info) return;
+  const cap = document.getElementById(`keycap-${info.en}`);
+  if (cap) cap.classList.add("key-cap-target");
+
+  const shadowFinger = document.getElementById(`shadow-${info.finger}`);
+  if (shadowFinger) {
+    shadowFinger.classList.add("active-finger");
+    const reach = KEY_REACH_OFFSET[info.en] || { dx: 0, dy: 0 };
+    const baseRot = FINGER_BASE_ROTATE[info.finger] || "";
+    shadowFinger.setAttribute("transform", `translate(${reach.dx}, ${reach.dy}) ${baseRot}`);
+  }
+  const dot = document.getElementById(`dot-${info.finger}`);
+  if (dot) dot.classList.add("active-dot");
+
+  // If Shift is required (쌍자음 등), also highlight opposite pinky finger
+  if (info.needShift) {
+    const shiftFingerId = info.finger.startsWith("L_") ? "R_PINKY" : "L_PINKY";
+    const shiftFinger = document.getElementById(`shadow-${shiftFingerId}`);
+    if (shiftFinger) shiftFinger.classList.add("active-finger");
+  }
+
+  document.getElementById("key-finger-guide-text").textContent = `${info.name} (${targetChar} / ${info.en})`;
+}
+
+// ---------------------------------------------------------------------------
+// 5. TAB 1: 자리 연습 (KEY POSITION PRACTICE)
+// ---------------------------------------------------------------------------
+const KEY_STAGES = [
+  ["ㅁ", "ㄴ", "ㅇ", "ㄹ", "ㅎ", "ㅗ", "ㅓ", "ㅏ", "ㅣ", "ㄹ", "ㅓ", "ㅇ", "ㅏ", "ㄴ", "ㅣ", "ㅁ", "ㅗ", "ㅎ", "ㄹ", "ㅓ"],
+  ["ㅂ", "ㅈ", "ㄷ", "ㄱ", "ㅅ", "ㄹ", "ㅓ", "ㅂ", "ㅈ", "ㄷ", "ㄱ", "ㅅ", "ㅁ", "ㄴ", "ㅇ", "ㅂ", "ㄷ", "ㅅ", "ㄱ", "ㅈ"],
+  ["ㅛ", "ㅕ", "ㅑ", "ㅐ", "ㅔ", "ㅗ", "ㅓ", "ㅏ", "ㅣ", "ㅛ", "ㅕ", "ㅑ", "ㅐ", "ㅔ", "ㅎ", "ㅛ", "ㅑ", "ㅔ", "ㅕ", "ㅐ"],
+  ["ㅋ", "ㅌ", "ㅊ", "ㅍ", "ㅠ", "ㅜ", "ㅡ", "ㅋ", "ㅌ", "ㅊ", "ㅍ", "ㅠ", "ㅜ", "ㅡ", "ㄹ", "ㅓ", "ㅋ", "ㅊ", "ㅜ", "ㅡ"],
+  ["ㅃ", "ㅉ", "ㄸ", "ㄲ", "ㅆ", "ㅂ", "ㅈ", "ㄷ", "ㄱ", "ㅅ", "ㅃ", "ㅉ", "ㄸ", "ㄲ", "ㅆ", "ㅒ", "ㅖ", "ㄲ", "ㅆ", "ㄸ"]
+];
+
+let keyPractice = {
+  stageIdx: 0,
+  idx: 0,
+  hits: 0,
+  errors: 0,
+  combo: 0,
+  startTime: null
+};
+
+function selectKeyStage(sIdx) {
+  keyPractice.stageIdx = sIdx;
+  keyPractice.idx = 0;
+  keyPractice.hits = 0;
+  keyPractice.errors = 0;
+  keyPractice.combo = 0;
+  keyPractice.startTime = null;
+
+  document.querySelectorAll(".key-stage-btn").forEach((btn, i) => {
+    if (i === sIdx) {
+      btn.className = "key-stage-btn active px-3 py-2 rounded-xl text-xs font-bold bg-primary text-white shadow-sm transition-all text-left";
+    } else {
+      btn.className = "key-stage-btn px-3 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all text-left";
+    }
+  });
+  document.getElementById("key-stage-label").textContent = `STAGE 0${sIdx + 1} / 05`;
+  updateKeyPracticeUI();
+}
+
+function updateKeyPracticeUI() {
+  const seq = KEY_STAGES[keyPractice.stageIdx];
+  const curr = seq[keyPractice.idx];
+  const info = KEY_LOOKUP[curr] || { en: "?", name: "양손" };
+
+  document.getElementById("key-target-char").textContent = curr;
+  document.getElementById("key-target-en").textContent = `${info.needShift ? 'Shift + ' : '영문 '}${info.en}`;
+  document.getElementById("key-prev-2").textContent = keyPractice.idx >= 2 ? seq[keyPractice.idx - 2] : "-";
+  document.getElementById("key-prev-1-char").textContent = keyPractice.idx >= 1 ? seq[keyPractice.idx - 1] : "-";
+  document.getElementById("key-next-1").innerHTML = `<span class="text-2xl font-bold font-headline">${seq[(keyPractice.idx + 1) % seq.length]}</span>`;
+  document.getElementById("key-next-2").textContent = seq[(keyPractice.idx + 2) % seq.length];
+  document.getElementById("key-next-3").textContent = seq[(keyPractice.idx + 3) % seq.length];
+
+  const totalAttempts = keyPractice.hits + keyPractice.errors;
+  const acc = totalAttempts === 0 ? 100 : Math.round((keyPractice.hits / totalAttempts) * 100);
+  const elapsedMin = keyPractice.startTime ? Math.max(0.05, (Date.now() - keyPractice.startTime) / 60000) : 0;
+  const cpm = elapsedMin > 0 ? Math.round(keyPractice.hits / elapsedMin) : 0;
+
+  document.getElementById("key-cpm").textContent = cpm;
+  document.getElementById("key-cpm-bar").style.width = `${Math.min(100, (cpm / 400) * 100)}%`;
+  document.getElementById("key-acc").textContent = acc;
+  document.getElementById("key-acc-bar").style.width = `${acc}%`;
+  document.getElementById("key-progress").textContent = `${keyPractice.idx + 1}/${seq.length}`;
+  document.getElementById("key-prog-bar").style.width = `${Math.round(((keyPractice.idx + 1) / seq.length) * 100)}%`;
+  document.getElementById("key-combo").textContent = keyPractice.combo;
+  document.getElementById("key-err").textContent = keyPractice.errors;
+
+  highlightKeyAndFinger(curr);
+}
+
+function handleKeyPracticeInput(pressedChar) {
+  const seq = KEY_STAGES[keyPractice.stageIdx];
+  const target = seq[keyPractice.idx];
+  const targetInfo = KEY_LOOKUP[target];
+
+  const isMatch = (pressedChar === target) ||
+    (targetInfo && !targetInfo.needShift && pressedChar.toUpperCase() === targetInfo.en);
+
+  if (!keyPractice.startTime) keyPractice.startTime = Date.now();
+
+  if (isMatch) {
+    playKeySound(false);
+    keyPractice.hits++;
+    keyPractice.combo++;
+    keyPractice.idx++;
+    addXp(2);
+    if (keyPractice.idx >= seq.length) {
+      keyPractice.idx = 0;
+      addXp(15);
+    }
+    updateKeyPracticeUI();
+  } else {
+    playKeySound(true);
+    keyPractice.errors++;
+    keyPractice.combo = 0;
+    const card = document.getElementById("key-target-card");
+    card.classList.add("key-cap-error");
+    setTimeout(() => card.classList.remove("key-cap-error"), 280);
+    updateKeyPracticeUI();
+  }
+}
+
+// Listen for physical keyboard in Tab 1
+window.addEventListener("keydown", (e) => {
+  if (currentTab !== "key") return;
+  if (!document.getElementById("profile-modal").classList.contains("hidden")) return;
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (["Shift", "Control", "Alt", "Meta", "CapsLock", "Tab", "Escape"].includes(e.key)) return;
+
+  // Map English key code (KeyQ..KeyP) to 2-beolsik Korean jamo
+  if (e.code && e.code.startsWith("Key")) {
+    const enLetter = e.code.replace("Key", "");
+    const rowItem = KEY_LOOKUP[enLetter.toLowerCase()];
+    if (rowItem) {
+      e.preventDefault();
+      const targetJamo = (e.shiftKey && rowItem.shiftKr) ? rowItem.shiftKr : rowItem.kr;
+      document.getElementById("key-direct-input").value = "";
+      handleKeyPracticeInput(targetJamo);
+    }
+  }
+});
+
+document.getElementById("key-direct-input").addEventListener("input", (e) => {
+  const val = e.target.value.trim();
+  if (val.length > 0) {
+    const ch = val[val.length - 1];
+    e.target.value = "";
+    handleKeyPracticeInput(ch);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 6. TAB 2: 낱말 연습 (WORD PRACTICE)
+// ---------------------------------------------------------------------------
+const WORD_BANKS = {
+  basic: [
+    { word: "꽃구름", desc: "빛깔이 아름답게 물든 구름" },
+    { word: "하늘빛", desc: "맑게 개인 하늘의 푸른 빛깔" },
+    { word: "별똥별", desc: "밤하늘에 꼬리를 끌며 떨어지는 유성" },
+    { word: "솔바람", desc: "소나무 사이로 불어오는 상쾌한 바람" },
+    { word: "은하수", desc: "수많은 별이 강물처럼 보이는 성운" },
+    { word: "물안개", desc: "강이나 호수 위로 피어오르는 안개" },
+    { word: "산들바람", desc: "시원하고 가볍게 부는 바람" },
+    { word: "무지개", desc: "비 온 뒤 하늘에 걸리는 일곱 빛깔 호" }
+  ],
+  proverb: [
+    { word: "유비무환", desc: "미리 준비가 되어 있으면 근심할 것이 없음" },
+    { word: "대기만성", desc: "큰 그릇은 늦게 이루어진다는 뜻" },
+    { word: "일취월장", desc: "나날이 다달이 끊임없이 발전함" },
+    { word: "백절불굴", desc: "백 번 꺾여도 굴하지 않고 끝까지 도전함" },
+    { word: "온고지신", desc: "옛것을 익히고 이를 미루어 새것을 앎" },
+    { word: "동고동락", desc: "괴로움과 즐거움을 함께 나눔" }
+  ],
+  it: [
+    { word: "알고리즘", desc: "문제를 해결하기 위한 논리적 절차와 방법" },
+    { word: "클라우드", desc: "인터넷 기반의 가상화된 서버 컴퓨팅 환경" },
+    { word: "데이터베이스", desc: "체계적으로 구조화된 데이터의 집합체" },
+    { word: "인터페이스", desc: "사용자와 사물 또는 시스템이 소통하는 접점" },
+    { word: "인공지능", desc: "인간의 학습과 추론 능력을 구현한 컴퓨터 기술" },
+    { word: "프레임워크", desc: "소프트웨어 개발을 돕는 뼈대 구조" }
+  ],
+  pure: [
+    { word: "시나브로", desc: "모르는 사이에 조금씩 조금씩" },
+    { word: "윤슬", desc: "햇빛이나 달빛에 비치어 반짝이는 잔물결" },
+    { word: "미리내", desc: "은하수를 부르는 아름다운 순우리말" },
+    { word: "가온누리", desc: "무슨 일이든 세상의 중심이 되라는 뜻" },
+    { word: "나르샤", desc: "날아오르다의 뜻을 가진 순우리말" },
+    { word: "아름드리", desc: "한 아름이 넘을 만큼 큰 나무나 물건" }
+  ]
+};
+
+let wordPractice = {
+  cat: "basic",
+  idx: 0,
+  step: 1,
+  cpmHistory: [],
+  peakCpm: 0,
+  wordStartTime: null
+};
+
+function selectWordCategory(cat) {
+  wordPractice.cat = cat;
+  wordPractice.idx = 0;
+  wordPractice.step = 1;
+  wordPractice.wordStartTime = null;
+
+  document.querySelectorAll(".word-cat-btn").forEach(btn => {
+    if (btn.dataset.cat === cat) {
+      btn.className = "word-cat-btn px-4 py-2 rounded-xl text-xs font-bold bg-primary text-on-primary shadow-sm transition-all";
+    } else {
+      btn.className = "word-cat-btn px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all";
+    }
+  });
+  updateWordPracticeUI();
+}
+
+function updateWordPracticeUI() {
+  const list = WORD_BANKS[wordPractice.cat];
+  const item = list[wordPractice.idx % list.length];
+  document.getElementById("word-target-display").textContent = item.word;
+  document.getElementById("word-meaning-hint").textContent = `뜻풀이: ${item.desc}`;
+  document.getElementById("word-step").textContent = wordPractice.step;
+
+  // Render queue
+  const queueEl = document.getElementById("word-queue-list");
+  let qHtml = "";
+  for (let i = 0; i < 5; i++) {
+    const w = list[(wordPractice.idx + i) % list.length].word;
+    if (i === 0) {
+      qHtml += `<div class="shrink-0 px-4 py-2 rounded-xl bg-primary text-white font-bold text-sm shadow-sm">${w}</div>`;
+    } else {
+      qHtml += `<div class="shrink-0 px-4 py-2 rounded-xl bg-surface-container-low text-on-surface-variant font-medium text-sm">${w}</div>`;
+    }
+  }
+  queueEl.innerHTML = qHtml;
+}
+
+const wordInputEl = document.getElementById("word-input");
+wordInputEl.addEventListener("input", () => {
+  if (!wordPractice.wordStartTime) wordPractice.wordStartTime = Date.now();
+});
+
+wordInputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    const typed = wordInputEl.value.trim();
+    if (!typed) return;
+    e.preventDefault();
+
+    const list = WORD_BANKS[wordPractice.cat];
+    const target = list[wordPractice.idx % list.length].word;
+    const elapsedMin = Math.max(0.02, (Date.now() - (wordPractice.wordStartTime || Date.now() - 1800)) / 60000);
+    const strokes = target.length * 2.6;
+    const cpm = Math.min(850, Math.round(strokes / elapsedMin));
+    const isCorrect = typed === target;
+
+    playKeySound(!isCorrect);
+
+    if (isCorrect) {
+      wordPractice.cpmHistory.push(cpm);
+      if (cpm > wordPractice.peakCpm) wordPractice.peakCpm = cpm;
+      if (cpm > userState.bestCpm) {
+        userState.bestCpm = cpm;
+        localStorage.setItem("tadak_best_cpm", String(cpm));
+      }
+      userState.totalWords++;
+      localStorage.setItem("tadak_total_words", String(userState.totalWords));
+      addXp(15);
+    }
+
+    const avgCpm = wordPractice.cpmHistory.length
+      ? Math.round(wordPractice.cpmHistory.reduce((a, b) => a + b, 0) / wordPractice.cpmHistory.length)
+      : 0;
+
+    document.getElementById("word-cpm").textContent = avgCpm;
+    document.getElementById("word-peak").textContent = wordPractice.peakCpm;
+
+    // Log entry
+    const logEl = document.getElementById("word-history-log");
+    if (wordPractice.step === 1 && logEl.children.length === 1) logEl.innerHTML = "";
+    const row = document.createElement("div");
+    row.className = "flex items-center justify-between px-3 py-2 rounded-xl bg-surface-container-low";
+    row.innerHTML = `
+      <span class="font-bold ${isCorrect ? 'text-on-surface' : 'text-error line-through'}">${typed} ${isCorrect ? '✓' : `(정답: ${target})`}</span>
+      <span class="font-mono font-bold text-primary">${isCorrect ? cpm + ' 타/분 (+15 XP)' : '오타'}</span>
+    `;
+    logEl.prepend(row);
+
+    wordInputEl.value = "";
+    wordPractice.wordStartTime = null;
+    wordPractice.idx++;
+    wordPractice.step = (wordPractice.step % 15) + 1;
+    updateWordPracticeUI();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 7. TAB 3: 타자 게임 (ACID RAIN METEOR DEFENSE GAME)
+// ---------------------------------------------------------------------------
+const GAME_WORDS = [
+  "별똥별", "우주선", "인공위성", "은하수", "태양계", "타자왕", "알고리즘", "클라우드",
+  "꽃구름", "청룡왕", "백호랑", "여우별", "다람이", "사이버", "레이저", "방어벽",
+  "초신성", "블랙홀", "안드로메다", "빛의속도", "광속타자", "미리내", "가온누리"
+];
+
+let gameState = {
+  running: false,
+  score: 0,
+  combo: 0,
+  lives: 5,
+  stage: 1,
+  cleared: 0,
+  meteors: [],
+  skills: { bomb: 1, slow: 2, heal: 1 },
+  slowUntil: 0,
+  loopId: null,
+  lastSpawn: 0
+};
+
+function startOrToggleGame() {
+  if (gameState.running) {
+    gameState.running = false;
+    cancelAnimationFrame(gameState.loopId);
+    document.getElementById("game-start-btn-text").textContent = "계속하기";
+    document.getElementById("game-status-text").textContent = "PAUSED — 일시정지됨";
+    return;
+  }
+  if (gameState.lives <= 0) resetGame();
+  gameState.running = true;
+  gameState.lastSpawn = performance.now();
+  document.getElementById("game-start-btn-text").textContent = "일시정지";
+  document.getElementById("game-status-dot").className = "w-2.5 h-2.5 rounded-full bg-[#6ffbbe] animate-ping";
+  document.getElementById("game-status-text").textContent = "LIVE — 유성우 격추 작전 진행 중!";
+  document.getElementById("game-input").focus();
+  gameLoop(performance.now());
+}
+
+function resetGame() {
+  gameState.running = false;
+  cancelAnimationFrame(gameState.loopId);
+  gameState.score = 0;
+  gameState.combo = 0;
+  gameState.lives = 5;
+  gameState.stage = 1;
+  gameState.cleared = 0;
+  gameState.meteors = [];
+  gameState.skills = { bomb: 1, slow: 2, heal: 1 };
+  document.getElementById("game-words-layer").innerHTML = "";
+  document.getElementById("game-start-btn-text").textContent = "게임 시작";
+  document.getElementById("game-status-text").textContent = "READY — [게임 시작] 버튼을 누르세요";
+  updateGameHUD();
+}
+
+function spawnMeteor() {
+  const layer = document.getElementById("game-words-layer");
+  const word = GAME_WORDS[Math.floor(Math.random() * GAME_WORDS.length)];
+  const isGold = Math.random() < 0.18;
+  const x = Math.floor(Math.random() * 74) + 6; // 6% ~ 80%
+  const speed = (0.45 + gameState.stage * 0.12 + Math.random() * 0.25);
+
+  const el = document.createElement("div");
+  el.className = `absolute px-3.5 py-1.5 rounded-xl font-headline font-bold text-sm shadow-lg border transition-transform ${
+    isGold
+      ? "bg-amber-400/25 border-amber-300 text-amber-200"
+      : "bg-[#1a2b42]/90 border-[#6ffbbe]/50 text-white"
+  }`;
+  el.style.left = `${x}%`;
+  el.style.top = `0px`;
+  el.innerHTML = `${isGold ? '⭐ ' : ''}${word}`;
+  layer.appendChild(el);
+
+  gameState.meteors.push({ word, x, y: 0, speed, isGold, el });
+}
+
+function gameLoop(now) {
+  if (!gameState.running) return;
+  const spawnInterval = Math.max(950, 2100 - gameState.stage * 180);
+  if (now - gameState.lastSpawn > spawnInterval) {
+    spawnMeteor();
+    gameState.lastSpawn = now;
+  }
+
+  const isSlow = Date.now() < gameState.slowUntil;
+  const arenaHeight = 320;
+
+  for (let i = gameState.meteors.length - 1; i >= 0; i--) {
+    const m = gameState.meteors[i];
+    m.y += m.speed * (isSlow ? 0.4 : 1);
+    m.el.style.top = `${m.y}px`;
+
+    if (m.y >= arenaHeight) {
+      m.el.remove();
+      gameState.meteors.splice(i, 1);
+      gameState.lives--;
+      gameState.combo = 0;
+      playKeySound(true);
+      updateGameHUD();
+
+      if (gameState.lives <= 0) {
+        gameState.running = false;
+        document.getElementById("game-status-text").textContent = `GAME OVER — 최종 점수 ${gameState.score}점!`;
+        document.getElementById("game-start-btn-text").textContent = "다시 시작";
+        return;
+      }
+    }
+  }
+  gameState.loopId = requestAnimationFrame(gameLoop);
+}
+
+function submitGameInput() {
+  const input = document.getElementById("game-input");
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = "";
+
+  const idx = gameState.meteors.findIndex(m => m.word === val);
+  if (idx !== -1) {
+    const hit = gameState.meteors[idx];
+    hit.el.remove();
+    gameState.meteors.splice(idx, 1);
+
+    playKeySound(false);
+    gameState.combo++;
+    gameState.cleared++;
+    const pts = (hit.isGold ? 300 : 120) + gameState.combo * 15;
+    gameState.score += pts;
+    gameState.stage = 1 + Math.floor(gameState.cleared / 8);
+
+    userState.totalWords++;
+    addXp(hit.isGold ? 30 : 12);
+    updateGameHUD();
+  } else {
+    playKeySound(true);
+    gameState.combo = 0;
+    updateGameHUD();
+  }
+}
+
+document.getElementById("game-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    submitGameInput();
+  }
+});
+
+function useGameSkill(type) {
+  if (!gameState.running || gameState.skills[type] <= 0) return;
+  gameState.skills[type]--;
+  playKeySound(false);
+
+  if (type === "bomb") {
+    gameState.meteors.forEach(m => m.el.remove());
+    gameState.score += gameState.meteors.length * 100;
+    gameState.meteors = [];
+  } else if (type === "slow") {
+    gameState.slowUntil = Date.now() + 5000;
+  } else if (type === "heal") {
+    gameState.lives = Math.min(5, gameState.lives + 1);
+  }
+  updateGameHUD();
+}
+
+function updateGameHUD() {
+  document.getElementById("game-score").textContent = gameState.score.toLocaleString();
+  document.getElementById("game-combo").textContent = `x${gameState.combo} COMBO`;
+  document.getElementById("game-stage-num").textContent = gameState.stage;
+  document.getElementById("game-speed-label").textContent = `속도 ${(0.9 + gameState.stage * 0.1).toFixed(1)}x`;
+  document.getElementById("game-cleared-count").textContent = gameState.cleared;
+  document.getElementById("game-hearts").textContent = "❤️".repeat(Math.max(0, gameState.lives)) + "🖤".repeat(Math.max(0, 5 - gameState.lives));
+
+  document.getElementById("skill-bomb-cnt").textContent = gameState.skills.bomb;
+  document.getElementById("skill-slow-cnt").textContent = gameState.skills.slow;
+  document.getElementById("skill-heal-cnt").textContent = gameState.skills.heal;
+  renderGameLeaderboard();
+}
+
+function renderGameLeaderboard() {
+  const box = document.getElementById("game-leaderboard-list");
+  const char = getCurrentCharacter();
+  const list = [
+    { name: "은하수방어대장", emoji: "🐉", score: 4200, isMe: false },
+    { name: "광속타이핑", emoji: "🐯", score: 2850, isMe: false },
+    { name: userState.name, emoji: char.emoji, score: gameState.score, isMe: true },
+    { name: "별빛수호자", emoji: "🦊", score: 1450, isMe: false }
+  ].sort((a, b) => b.score - a.score);
+
+  box.innerHTML = list.map((r, i) => `
+    <div class="flex items-center justify-between p-3 rounded-xl ${r.isMe ? 'bg-primary-fixed/50 border border-primary/30' : 'bg-surface-container-low'}">
+      <div class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-lg ${i === 0 ? 'bg-amber-400 text-slate-900' : 'bg-surface-container-high text-on-surface'} font-mono text-xs font-extrabold flex items-center justify-center">${i + 1}</span>
+        <span class="text-lg">${r.emoji}</span>
+        <div>
+          <span class="text-xs font-extrabold text-on-surface">${r.name}</span>
+          ${r.isMe ? '<span class="ml-1 text-[10px] font-bold text-primary">(나)</span>' : ''}
+        </div>
+      </div>
+      <span class="font-mono text-xs font-extrabold text-primary">${r.score.toLocaleString()}점</span>
+    </div>
+  `).join("");
+}
+
+// ---------------------------------------------------------------------------
+// 8. TAB NAVIGATION CONTROLLER
+// ---------------------------------------------------------------------------
+let currentTab = "key";
+function switchTab(tab) {
+  currentTab = tab;
+  ["key", "word", "game", "level"].forEach(t => {
+    const view = document.getElementById(`view-${t}`);
+    const btn = document.getElementById(`tab-btn-${t}`);
+    if (t === tab) {
+      view.classList.remove("hidden");
+      btn.className = "tab-nav-btn bg-[#e5eeff] text-[#3525cd] font-bold rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all";
+    } else {
+      view.classList.add("hidden");
+      btn.className = "tab-nav-btn text-[#464555] hover:text-[#0b1c30] font-medium rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-1.5 transition-all hover:bg-[#eff4ff]";
+    }
+  });
+  if (tab === "word") setTimeout(() => document.getElementById("word-input").focus(), 50);
+  if (tab === "game") setTimeout(() => document.getElementById("game-input").focus(), 50);
+}
+
+// Initialize everything on load
+renderVisualKeyboard();
+updateKeyPracticeUI();
+updateWordPracticeUI();
+updateGameHUD();
+syncProfileUI();
+</script>
+</body>
+</html>

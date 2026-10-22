@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ColorStudio - 스마트 색상 팔레트 생성기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .swatch-card {
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .swatch-card:hover {
+      transform: translateY(-4px);
+    }
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 9999px;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Logo & Brand -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <span class="material-symbols-outlined text-[22px]">palette</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight text-slate-900">ColorStudio</h1>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/60">PRO</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">스페이스바(Space)를 눌러 새로운 색상 조합을 생성하세요</p>
+        </div>
+      </div>
+
+      <!-- Harmony Rule & Actions -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+        <!-- Base Color Picker -->
+        <div class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/70 px-3 py-1.5 rounded-xl border border-slate-200/80 transition-colors" title="기준 색상 지정">
+          <input type="color" id="seedColorPicker" value="#6366f1" class="w-6 h-6 rounded-full shadow-xs" />
+          <label for="seedColorPicker" class="text-xs font-semibold text-slate-700 cursor-pointer hidden md:inline">기준색 적용</label>
+          <input type="checkbox" id="useSeedToggle" class="w-3.5 h-3.5 accent-indigo-600 rounded cursor-pointer" title="체크 시 기준색을 중심으로 팔레트 생성" />
+        </div>
+
+        <!-- Harmony Selector -->
+        <div class="relative">
+          <select id="harmonySelect" class="h-10 pl-3.5 pr-8 rounded-xl bg-slate-100 hover:bg-slate-200/70 text-xs sm:text-sm font-semibold text-slate-800 border border-slate-200/80 outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer transition-all">
+            <option value="random">✨ 스마트 조화 (자동)</option>
+            <option value="analogous">🌈 유사색 (Analogous)</option>
+            <option value="monochromatic">🎨 단색 톤온톤 (Mono)</option>
+            <option value="complementary">⚡ 보색 대비 (Complementary)</option>
+            <option value="triadic">📐 삼각 배색 (Triadic)</option>
+            <option value="pastel">🍬 소프트 파스텔 (Pastel)</option>
+            <option value="vivid">🔥 네온 & 비비드 (Vivid)</option>
+            <option value="earth">🌿 내추럴 어스 (Earth Tone)</option>
+          </select>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="btnGenerate" type="button" class="h-10 px-4 rounded-xl bg-slate-900 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-[18px]" id="generateIcon">autorenew</span>
+          <span>팔레트 생성</span>
+        </button>
+
+        <!-- Export CSS/JSON Button -->
+        <button id="btnExportModal" type="button" class="h-10 px-3.5 rounded-xl bg-white hover:bg-slate-50 active:scale-95 text-slate-700 font-semibold text-xs sm:text-sm border border-slate-200 shadow-2xs flex items-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-[18px]">code</span>
+          <span class="hidden sm:inline">내보내기</span>
+        </button>
+
+        <!-- Save Favorite Button -->
+        <button id="btnSavePalette" type="button" class="h-10 px-3.5 rounded-xl bg-pink-50 hover:bg-pink-100 active:scale-95 text-pink-600 font-bold text-xs sm:text-sm border border-pink-200/80 flex items-center gap-1 transition-all">
+          <span class="material-symbols-outlined text-[18px]">favorite</span>
+          <span id="savedCountBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-8">
+
+    <!-- 1. 5-Column Interactive Color Swatches -->
+    <section class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Active Palette (5 Colors)</span>
+          <span class="text-xs text-slate-400">• 자물쇠 아이콘을 눌러 마음에 드는 색상을 고정하세요</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnUndo" type="button" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-40 flex items-center gap-1" disabled>
+            <span class="material-symbols-outlined text-[15px]">undo</span> 이전 팔레트
+          </button>
+          <button id="btnCopyAllHex" type="button" class="px-3 py-1 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">content_copy</span> 전체 HEX 복사
+          </button>
+        </div>
+      </div>
+
+      <!-- Swatch Grid -->
+      <div id="paletteContainer" class="grid grid-cols-1 sm:grid-cols-5 gap-3.5 min-h-[380px] sm:min-h-[420px]">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- 2. Real-time UI Component Preview & Shade Explorer -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- Left 7 Cols: Live UI Preview with Current Palette -->
+      <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-600 text-[20px]">dashboard</span>
+            <h2 class="text-base font-bold text-slate-900">실시간 UI 디자인 프리뷰</h2>
+          </div>
+          <span class="text-xs text-slate-500">생성된 5가지 색상이 실제 웹 카드와 버튼에 적용된 모습</span>
+        </div>
+
+        <!-- Dynamic Preview Mockup Box -->
+        <div id="uiPreviewCanvas" class="rounded-2xl p-6 transition-colors duration-500 border border-slate-100 shadow-inner flex flex-col gap-5">
+          <!-- Top Mockup Bar -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div id="prevLogo" class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm">
+                CS
+              </div>
+              <div>
+                <div id="prevBrandTitle" class="font-bold text-sm">Brand Design System</div>
+                <div id="prevBrandSub" class="text-xs opacity-75">실시간 컬러 테마 검증</div>
+              </div>
+            </div>
+            <span id="prevBadge" class="px-3 py-1 rounded-full text-xs font-bold shadow-2xs">
+              New Release
+            </span>
+          </div>
+
+          <!-- Center Hero Banner inside Preview -->
+          <div id="prevCard" class="rounded-xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1.5">
+              <div class="text-xs font-bold uppercase tracking-wider opacity-80">Color Harmony Analytics</div>
+              <h3 class="text-xl font-extrabold tracking-tight">완벽한 브랜드 컬러를 발견하세요</h3>
+              <p class="text-xs opacity-85 max-w-md leading-relaxed">
+                배경색, 강조색, 보조 카드 색상의 명도 대비와 시각적 균형을 실시간으로 시뮬레이션합니다.
+              </p>
+            </div>
+            <button id="prevCtaBtn" type="button" class="px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap shadow-sm transition-transform active:scale-95">
+              지금 시작하기 →
+            </button>
+          </div>
+
+          <!-- Bottom Metric Pills -->
+          <div class="grid grid-cols-3 gap-3">
+            <div id="prevStat1" class="p-3.5 rounded-xl flex flex-col gap-1">
+              <span class="text-[11px] font-semibold opacity-75">Primary Color</span>
+              <span id="prevStat1Val" class="font-mono font-bold text-sm">#000000</span>
+            </div>
+            <div id="prevStat2" class="p-3.5 rounded-xl flex flex-col gap-1">
+              <span class="text-[11px] font-semibold opacity-75">Secondary Accent</span>
+              <span id="prevStat2Val" class="font-mono font-bold text-sm">#000000</span>
+            </div>
+            <div id="prevStat3" class="p-3.5 rounded-xl flex flex-col gap-1">
+              <span class="text-[11px] font-semibold opacity-75">Surface Contrast</span>
+              <span id="prevStat3Val" class="font-mono font-bold text-sm">AAA Pass</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5 Cols: Saved Palettes & Curated Presets -->
+      <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-pink-500 text-[20px]">bookmarks</span>
+            <h2 class="text-base font-bold text-slate-900">저장된 팔레트 & 추천 프리셋</h2>
+          </div>
+          <button id="btnClearSaved" type="button" class="text-xs text-slate-400 hover:text-rose-500 font-medium">초기화</button>
+        </div>
+
+        <!-- Saved List -->
+        <div id="savedPalettesList" class="flex flex-col gap-2.5 max-h-[340px] overflow-y-auto pr-1">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Export Code Modal (CSS / Tailwind / JSON) -->
+  <div id="exportModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+    <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl border border-slate-200 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-600">integration_instructions</span>
+          <h3 class="text-base font-bold text-slate-900">팔레트 코드 내보내기</h3>
+        </div>
+        <button id="btnCloseModal" type="button" class="text-slate-400 hover:text-slate-700">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Format Tabs -->
+      <div class="flex gap-1.5 bg-slate-100 p-1 rounded-xl">
+        <button type="button" class="export-tab active flex-1 py-1.5 rounded-lg bg-white text-slate-900 font-bold text-xs shadow-2xs" data-format="css">CSS 변수</button>
+        <button type="button" class="export-tab flex-1 py-1.5 rounded-lg text-slate-600 font-semibold text-xs hover:text-slate-900" data-format="tailwind">Tailwind CSS</button>
+        <button type="button" class="export-tab flex-1 py-1.5 rounded-lg text-slate-600 font-semibold text-xs hover:text-slate-900" data-format="json">JSON 배열</button>
+      </div>
+
+      <pre id="exportCodeBox" class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto leading-relaxed select-all"></pre>
+
+      <div class="flex justify-end gap-2">
+        <button id="btnCopyExportCode" type="button" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">content_copy</span>
+          <span>코드 복사하기</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-semibold shadow-xl flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+    <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+    <span id="toastMsg">복사되었습니다!</span>
+  </div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    (function () {
+      // 1. Color Conversion Utilities (HSL <-> RGB <-> HEX)
+      function hslToHex(h, s, l) {
+        h = ((h % 360) + 360) % 360;
+        s = Math.max(0, Math.min(100, s)) / 100;
+        l = Math.max(0, Math.min(100, l)) / 100;
+
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = l - c / 2;
+        let r = 0, g = 0, b = 0;
+
+        if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+        else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+        else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+        else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+        else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+        else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+
+        const toHex = (n) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+      }
+
+      function hexToRgb(hex) {
+        const clean = hex.replace('#', '');
+        const num = parseInt(clean, 16);
+        return {
+          r: (num >> 16) & 255,
+          g: (num >> 8) & 255,
+          b: num & 255
+        };
+      }
+
+      function hexToHsl(hex) {
+        let { r, g, b } = hexToRgb(hex);
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+          h /= 6;
+        }
+        return {
+          h: Math.round(h * 360),
+          s: Math.round(s * 100),
+          l: Math.round(l * 100)
+        };
+      }
+
+      // Relative Luminance for WCAG Contrast
+      function getLuminance(hex) {
+        const { r, g, b } = hexToRgb(hex);
+        const a = [r, g, b].map(v => {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+      }
+
+      function isLightColor(hex) {
+        return getLuminance(hex) > 0.42;
+      }
+
+      // Korean Color Naming Approximator
+      function getKoreanColorName(hex) {
+        const { h, s, l } = hexToHsl(hex);
+        if (l < 12) return "미드나잇 블랙";
+        if (l > 93) return "퓨어 화이트";
+        if (s < 10) return l > 60 ? "실버 그레이" : "차콜 그레이";
+
+        let prefix = "";
+        if (l > 78) prefix = "파스텔 ";
+        else if (l < 30) prefix = "딥 ";
+        else if (s > 80) prefix = "비비드 ";
+
+        let base = "코랄";
+        if (h < 15 || h >= 345) base = "크림슨 레드";
+        else if (h < 42) base = "탠저린 오렌지";
+        else if (h < 68) base = "선샤인 옐로우";
+        else if (h < 150) base = "포레스트 그린";
+        else if (h < 195) base = "민트 아쿠아";
+        else if (h < 250) base = "오션 블루";
+        else if (h < 290) base = "로얄 바이올렛";
+        else base = "로즈 핑크";
+
+        return prefix + base;
+      }
+
+      // 2. Application State
+      let currentSlots = [
+        { hex: "#1E1B4B", locked: false },
+        { hex: "#4F46E5", locked: false },
+        { hex: "#818CF8", locked: false },
+        { hex: "#C7D2FE", locked: false },
+        { hex: "#EEF2FF", locked: false }
+      ];
+      let historyStack = [];
+
+      const defaultSaved = [
+        { name: "인디고 나이트", colors: ["#1E1B4B", "#4F46E5", "#818CF8", "#C7D2FE", "#EEF2FF"] },
+        { name: "포레스트 민트", colors: ["#064E3B", "#059669", "#34D399", "#A7F3D0", "#ECFDF5"] },
+        { name: "선셋 피치", colors: ["#7C2D12", "#EA580C", "#FB923C", "#FED7AA", "#FFF7ED"] },
+        { name: "베리 블라썸", colors: ["#831843", "#DB2777", "#F472B6", "#FBCFE8", "#FDF2F8"] }
+      ];
+      let savedPalettes = JSON.parse(localStorage.getItem('colorstudio_saved') || JSON.stringify(defaultSaved));
+
+      // Toast Helper
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      let toastTimer = null;
+      function showToast(msg) {
+        toastMsg.textContent = msg;
+        toast.classList.remove('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2000);
+      }
+
+      function copyText(text, label = "코드가") {
+        navigator.clipboard?.writeText(text);
+        showToast(`${text} ${label} 클립보드에 복사되었습니다!`);
+      }
+
+      // 3. Palette Generation Algorithms
+      function generateHarmonyColors(mode, seedHex, useSeed) {
+        let baseH = Math.floor(Math.random() * 360);
+        let baseS = 65 + Math.floor(Math.random() * 25);
+        let baseL = 50;
+
+        if (useSeed && seedHex) {
+          const hsl = hexToHsl(seedHex);
+          baseH = hsl.h;
+          baseS = Math.max(25, hsl.s);
+          baseL = hsl.l;
+        }
+
+        const generated = [];
+
+        for (let i = 0; i < 5; i++) {
+          let h = baseH, s = baseS, l = baseL;
+
+          switch (mode) {
+            case 'monochromatic':
+              s = Math.max(20, baseS - i * 5);
+              l = 18 + i * 18;
+              break;
+            case 'analogous':
+              h = (baseH + (i - 2) * 24) % 360;
+              s = 65 + (i % 2) * 15;
+              l = 25 + i * 14;
+              break;
+            case 'complementary':
+              h = i < 3 ? baseH : (baseH + 180) % 360;
+              s = 60 + (i * 7);
+              l = i < 3 ? 22 + i * 22 : 40 + (i - 3) * 30;
+              break;
+            case 'triadic':
+              h = (baseH + (i % 3) * 120) % 360;
+              s = 65;
+              l = 25 + i * 14;
+              break;
+            case 'pastel':
+              h = (baseH + i * 45) % 360;
+              s = 55 + Math.floor(Math.random() * 20);
+              l = 78 + Math.floor(Math.random() * 12);
+              break;
+            case 'vivid':
+              h = (baseH + i * 55) % 360;
+              s = 85 + Math.floor(Math.random() * 15);
+              l = 48 + Math.floor(Math.random() * 12);
+              break;
+            case 'earth':
+              h = (25 + i * 28 + Math.floor(Math.random() * 15)) % 360;
+              s = 30 + Math.floor(Math.random() * 25);
+              l = 24 + i * 15;
+              break;
+            default: // Smart auto harmony
+              h = (baseH + i * 38) % 360;
+              s = 60 + Math.sin(i) * 20;
+              l = 18 + i * 17;
+              break;
+          }
+          generated.push(hslToHex(h, s, l));
+        }
+        return generated;
+      }
+
+      function triggerNewPalette() {
+        // Save current state to undo stack
+        historyStack.push(JSON.parse(JSON.stringify(currentSlots)));
+        if (historyStack.length > 20) historyStack.shift();
+        document.getElementById('btnUndo').disabled = false;
+
+        const mode = document.getElementById('harmonySelect').value;
+        const seedHex = document.getElementById('seedColorPicker').value;
+        const useSeed = document.getElementById('useSeedToggle').checked;
+
+        const newHexes = generateHarmonyColors(mode, seedHex, useSeed);
+
+        currentSlots = currentSlots.map((slot, idx) => {
+          if (slot.locked) return slot;
+          return { hex: newHexes[idx], locked: false };
+        });
+
+        renderAll();
+      }
+
+      // 4. Render Swatches & Live UI Preview
+      function renderSwatches() {
+        const container = document.getElementById('paletteContainer');
+        container.innerHTML = '';
+
+        currentSlots.forEach((slot, index) => {
+          const isLight = isLightColor(slot.hex);
+          const textColor = isLight ? 'text-slate-900' : 'text-white';
+          const subTextColor = isLight ? 'text-slate-700/80' : 'text-white/75';
+          const btnBg = isLight ? 'bg-black/10 hover:bg-black/20 text-slate-900' : 'bg-white/15 hover:bg-white/25 text-white';
+
+          const { r, g, b } = hexToRgb(slot.hex);
+          const { h, s, l } = hexToHsl(slot.hex);
+          const korName = getKoreanColorName(slot.hex);
+
+          // Generate 5 mini shade steps
+          const shades = [20, 38, 55, 75, 90].map(lightness => hslToHex(h, s, lightness));
+
+          const card = document.createElement('div');
+          card.className = `swatch-card relative rounded-2xl p-5 flex flex-col justify-between shadow-md overflow-hidden ${textColor}`;
+          card.style.backgroundColor = slot.hex;
+
+          card.innerHTML = `
+            <!-- Top Controls -->
+            <div class="flex items-center justify-between z-10">
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md ${btnBg}">
+                ${korName}
+              </span>
+              <div class="flex items-center gap-1.5">
+                <!-- Color Picker Trigger -->
+                <label class="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer backdrop-blur-md transition-transform active:scale-90 ${btnBg}" title="색상 직접 변경">
+                  <span class="material-symbols-outlined text-[17px]">colorize</span>
+                  <input type="color" value="${slot.hex}" class="sr-only swatch-picker" data-index="${index}" />
+                </label>
+                <!-- Lock Toggle Button -->
+                <button type="button" class="w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-md transition-transform active:scale-90 btn-lock ${btnBg}" data-index="${index}" title="${slot.locked ? '잠금 해제' : '색상 고정'}">
+                  <span class="material-symbols-outlined text-[17px]">${slot.locked ? 'lock' : 'lock_open'}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Center Big HEX Display -->
+            <div class="my-6 flex flex-col items-start gap-1 z-10">
+              <button type="button" class="font-mono text-2xl sm:text-3xl font-extrabold tracking-tight hover:opacity-80 flex items-center gap-1.5 btn-copy-hex" data-hex="${slot.hex}" title="클릭하여 HEX 복사">
+                <span>${slot.hex}</span>
+                <span class="material-symbols-outlined text-[18px] opacity-70">content_copy</span>
+              </button>
+              <div class="flex flex-col text-[11px] font-mono ${subTextColor} space-y-0.5">
+                <button type="button" class="text-left hover:underline btn-copy-rgb" data-rgb="rgb(${r}, ${g}, ${b})">RGB(${r}, ${g}, ${b})</button>
+                <button type="button" class="text-left hover:underline btn-copy-hsl" data-hsl="hsl(${h}, ${s}%, ${l}%)">HSL(${h}°, ${s}%, ${l}%)</button>
+              </div>
+            </div>
+
+            <!-- Bottom Shade Strip -->
+            <div class="flex flex-col gap-1.5 z-10">
+              <span class="text-[10px] font-bold uppercase tracking-wider ${subTextColor}">Tints & Shades</span>
+              <div class="grid grid-cols-5 h-6 rounded-lg overflow-hidden shadow-xs border border-white/20">
+                ${shades.map(sh => `
+                  <button type="button" class="h-full w-full hover:scale-110 transition-transform shade-cell" style="background-color: ${sh};" data-shade="${sh}" title="${sh} 복사"></button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+
+        // Attach Event Listeners
+        container.querySelectorAll('.btn-lock').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index, 10);
+            currentSlots[idx].locked = !currentSlots[idx].locked;
+            renderSwatches();
+            showToast(currentSlots[idx].locked ? '색상이 고정되었습니다.' : '색상 고정이 해제되었습니다.');
+          });
+        });
+
+        container.querySelectorAll('.swatch-picker').forEach(input => {
+          input.addEventListener('input', (e) => {
+            const idx = parseInt(input.dataset.index, 10);
+            currentSlots[idx].hex = e.target.value.toUpperCase();
+            renderAll();
+          });
+        });
+
+        container.querySelectorAll('.btn-copy-hex').forEach(btn => {
+          btn.addEventListener('click', () => copyText(btn.dataset.hex, 'HEX 코드가'));
+        });
+
+        container.querySelectorAll('.btn-copy-rgb').forEach(btn => {
+          btn.addEventListener('click', () => copyText(btn.dataset.rgb, 'RGB 코드가'));
+        });
+
+        container.querySelectorAll('.btn-copy-hsl').forEach(btn => {
+          btn.addEventListener('click', () => copyText(btn.dataset.hsl, 'HSL 코드가'));
+        });
+
+        container.querySelectorAll('.shade-cell').forEach(cell => {
+          cell.addEventListener('click', () => copyText(cell.dataset.shade, '명도 단계 색상이'));
+        });
+      }
+
+      function renderUiPreview() {
+        const c0 = currentSlots[0].hex;
+        const c1 = currentSlots[1].hex;
+        const c2 = currentSlots[2].hex;
+        const c3 = currentSlots[3].hex;
+        const c4 = currentSlots[4].hex;
+
+        const canvas = document.getElementById('uiPreviewCanvas');
+        canvas.style.backgroundColor = c4;
+        canvas.style.color = isLightColor(c4) ? '#0f172a' : '#f8fafc';
+
+        const logo = document.getElementById('prevLogo');
+        logo.style.backgroundColor = c0;
+        logo.style.color = isLightColor(c0) ? '#0f172a' : '#ffffff';
+
+        const badge = document.getElementById('prevBadge');
+        badge.style.backgroundColor = c3;
+        badge.style.color = isLightColor(c3) ? '#0f172a' : '#ffffff';
+
+        const card = document.getElementById('prevCard');
+        card.style.backgroundColor = c0;
+        card.style.color = isLightColor(c0) ? '#0f172a' : '#ffffff';
+
+        const cta = document.getElementById('prevCtaBtn');
+        cta.style.backgroundColor = c2;
+        cta.style.color = isLightColor(c2) ? '#0f172a' : '#ffffff';
+
+        const stat1 = document.getElementById('prevStat1');
+        stat1.style.backgroundColor = c1;
+        stat1.style.color = isLightColor(c1) ? '#0f172a' : '#ffffff';
+        document.getElementById('prevStat1Val').textContent = c1;
+
+        const stat2 = document.getElementById('prevStat2');
+        stat2.style.backgroundColor = c2;
+        stat2.style.color = isLightColor(c2) ? '#0f172a' : '#ffffff';
+        document.getElementById('prevStat2Val').textContent = c2;
+
+        const stat3 = document.getElementById('prevStat3');
+        stat3.style.backgroundColor = c3;
+        stat3.style.color = isLightColor(c3) ? '#0f172a' : '#ffffff';
+      }
+
+      function renderSavedPalettes() {
+        const list = document.getElementById('savedPalettesList');
+        const badge = document.getElementById('savedCountBadge');
+        badge.textContent = savedPalettes.length;
+        list.innerHTML = '';
+
+        savedPalettes.forEach((item, idx) => {
+          const row = document.createElement('div');
+          row.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 transition-colors cursor-pointer group";
+          row.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-8 w-28 rounded-lg overflow-hidden shadow-2xs border border-white shrink-0">
+                ${item.colors.map(c => `<div class="flex-1 h-full" style="background-color: ${c};"></div>`).join('')}
+              </div>
+              <div class="truncate">
+                <div class="text-xs font-bold text-slate-800 truncate">${item.name}</div>
+                <div class="text-[10px] font-mono text-slate-400 truncate">${item.colors.join(' · ')}</div>
+              </div>
+            </div>
+            <button type="button" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity btn-del-saved" data-idx="${idx}" title="삭제">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          `;
+
+          row.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-del-saved')) return;
+            currentSlots = item.colors.map(hex => ({ hex, locked: false }));
+            renderAll();
+            showToast(`'${item.name}' 팔레트를 불러왔습니다.`);
+          });
+
+          row.querySelector('.btn-del-saved').addEventListener('click', (e) => {
+            e.stopPropagation();
+            savedPalettes.splice(idx, 1);
+            localStorage.setItem('colorstudio_saved', JSON.stringify(savedPalettes));
+            renderSavedPalettes();
+            showToast('저장된 팔레트가 삭제되었습니다.');
+          });
+
+          list.appendChild(row);
+        });
+      }
+
+      function renderAll() {
+        renderSwatches();
+        renderUiPreview();
+        renderSavedPalettes();
+      }
+
+      // 5. Top Bar Controls & Spacebar Shortcut
+      document.getElementById('btnGenerate').addEventListener('click', () => {
+        const icon = document.getElementById('generateIcon');
+        icon.classList.add('animate-spin');
+        setTimeout(() => icon.classList.remove('animate-spin'), 350);
+        triggerNewPalette();
+      });
+
+      document.getElementById('harmonySelect').addEventListener('change', () => {
+        triggerNewPalette();
+      });
+
+      document.getElementById('seedColorPicker').addEventListener('input', () => {
+        document.getElementById('useSeedToggle').checked = true;
+        triggerNewPalette();
+      });
+
+      document.getElementById('btnUndo').addEventListener('click', () => {
+        if (historyStack.length === 0) return;
+        currentSlots = historyStack.pop();
+        document.getElementById('btnUndo').disabled = historyStack.length === 0;
+        renderAll();
+        showToast('이전 팔레트로 되돌렸습니다.');
+      });
+
+      document.getElementById('btnCopyAllHex').addEventListener('click', () => {
+        const joined = currentSlots.map(s => s.hex).join(', ');
+        copyText(joined, '전체 팔레트 HEX가');
+      });
+
+      document.getElementById('btnSavePalette').addEventListener('click', () => {
+        const hexList = currentSlots.map(s => s.hex);
+        const name = `${getKoreanColorName(hexList[1])} 테마`;
+        savedPalettes.unshift({ name, colors: hexList });
+        localStorage.setItem('colorstudio_saved', JSON.stringify(savedPalettes));
+        renderSavedPalettes();
+        showToast(`'${name}' 팔레트가 즐겨찾기에 저장되었습니다!`);
+      });
+
+      document.getElementById('btnClearSaved').addEventListener('click', () => {
+        savedPalettes = [...defaultSaved];
+        localStorage.setItem('colorstudio_saved', JSON.stringify(savedPalettes));
+        renderSavedPalettes();
+        showToast('기본 추천 팔레트로 초기화되었습니다.');
+      });
+
+      // Spacebar shortcut to generate palette
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+          e.preventDefault();
+          triggerNewPalette();
+        }
+      });
+
+      // 6. Export Modal Logic
+      const exportModal = document.getElementById('exportModal');
+      const exportCodeBox = document.getElementById('exportCodeBox');
+      let currentExportFormat = 'css';
+
+      function updateExportCode() {
+        const hexes = currentSlots.map(s => s.hex);
+        if (currentExportFormat === 'css') {
+          exportCodeBox.textContent = `:root {\n  --color-primary-dark: ${hexes[0]};\n  --color-primary: ${hexes[1]};\n  --color-accent: ${hexes[2]};\n  --color-Muted: ${hexes[3]};\n  --color-surface: ${hexes[4]};\n}`;
+        } else if (currentExportFormat === 'tailwind') {
+          exportCodeBox.textContent = `// tailwind.config.js\nmodule.exports = {\n  theme: {\n    extend: {\n      colors: {\n        brand: {\n          900: '${hexes[0]}',\n          600: '${hexes[1]}',\n          400: '${hexes[2]}',\n          200: '${hexes[3]}',\n          50:  '${hexes[4]}',\n        }\n      }\n    }\n  }\n};`;
+        } else {
+          exportCodeBox.textContent = JSON.stringify(hexes, null, 2);
+        }
+      }
+
+      document.getElementById('btnExportModal').addEventListener('click', () => {
+        updateExportCode();
+        exportModal.classList.remove('opacity-0', 'pointer-events-none');
+      });
+
+      document.getElementById('btnCloseModal').addEventListener('click', () => {
+        exportModal.classList.add('opacity-0', 'pointer-events-none');
+      });
+
+      document.querySelectorAll('.export-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.export-tab').forEach(t => {
+            t.className = "export-tab flex-1 py-1.5 rounded-lg text-slate-600 font-semibold text-xs hover:text-slate-900";
+          });
+          tab.className = "export-tab active flex-1 py-1.5 rounded-lg bg-white text-slate-900 font-bold text-xs shadow-2xs";
+          currentExportFormat = tab.dataset.format;
+          updateExportCode();
+        });
+      });
+
+      document.getElementById('btnCopyExportCode').addEventListener('click', () => {
+        navigator.clipboard?.writeText(exportCodeBox.textContent);
+        showToast('내보내기 코드가 클립보드에 복사되었습니다!');
+      });
+
+      // Initial Render
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
+

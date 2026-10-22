@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지역별 실시간 날씨 예보</title>
+  <style>
+    :root {
+      --bg-color: #f1f3f6;
+      --card-bg: #ffffff;
+      --text-main: #1f2328;
+      --text-sub: #656d76;
+      --text-muted: #8c959f;
+      --border-color: #e5e8eb;
+      --blue-temp: #2563eb;
+      --red-temp: #dc2626;
+      --dust-good: #0284c7;
+      --dust-normal: #16a34a;
+      --dust-bad: #ea580c;
+      --dust-very-bad: #dc2626;
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 24px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Top App Header & Controls */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-sub);
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .icon-btn:hover {
+      background: #f8fafc;
+      color: var(--primary-color);
+      border-color: #cbd5e1;
+    }
+    .icon-btn.spinning svg {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Search & Region Chips */
+    .search-bar {
+      position: relative;
+      width: 100%;
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 42px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: white;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Region Selector Chips */
+    .chip-scroll-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 2px 6px;
+      scrollbar-width: none;
+    }
+    .chip-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    .region-chip {
+      background: white;
+      border: 1px solid var(--border-color);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-sub);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .region-chip:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    .region-chip.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    /* Dynamic Theme Variable Support Across Cards */
+    .app-title {
+      color: var(--text-main) !important;
+    }
+    .badge-title, .current-temp, .hourly-time.current, .detail-val {
+      color: var(--text-main) !important;
+    }
+    .current-status, .location-label, .dust-row, .hourly-time, .weekly-day, .weekly-condition, .section-title {
+      color: var(--text-sub) !important;
+    }
+    .graph-temp-text {
+      fill: var(--text-main) !important;
+    }
+    .graph-line {
+      stroke: var(--primary-color) !important;
+      opacity: 0.55;
+    }
+    .graph-dot {
+      fill: var(--card-bg) !important;
+      stroke: var(--primary-color) !important;
+    }
+    .details-card, .weekly-card, .search-input, .icon-btn, .region-chip:not(.active) {
+      background: var(--card-bg) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-main);
+    }
+    .detail-item {
+      background: var(--bg-color) !important;
+    }
+    .weekly-row {
+      border-bottom-color: var(--border-color) !important;
+    }
+
+    /* Color Palette Generator Studio Card */
+    .palette-btn-pill {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+    .palette-btn-pill:hover, .palette-btn-pill.active {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      transform: translateY(-1px);
+    }
+    .palette-studio-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: all 0.25s ease;
+    }
+    .palette-studio-card.collapsed {
+      display: none;
+    }
+    .palette-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .palette-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .palette-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--primary-color);
+      color: #fff;
+      letter-spacing: 0.4px;
+    }
+    .palette-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .palette-select {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .palette-action-btn {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--primary-color);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .palette-action-btn:hover {
+      opacity: 0.92;
+    }
+    .palette-action-btn:active {
+      transform: scale(0.97);
+    }
+    .palette-action-btn.secondary {
+      background: var(--bg-color);
+      color: var(--text-sub);
+      border: 1px solid var(--border-color);
+    }
+    .palette-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 500px) {
+      .palette-swatch-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .palette-swatch {
+      height: 92px;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .palette-swatch:hover {
+      transform: translateY(-2px);
+    }
+    .swatch-top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .swatch-role-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+    .swatch-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .swatch-icon-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      backdrop-filter: blur(4px);
+      padding: 0;
+    }
+    .swatch-color-input {
+      width: 18px;
+      height: 18px;
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .swatch-hex-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .palette-presets-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border-color);
+    }
+    .preset-chips-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .theme-preset-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: var(--bg-color);
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .theme-preset-chip:hover {
+      border-color: var(--primary-color);
+      color: var(--text-main);
+    }
+    .preset-dot-group {
+      display: inline-flex;
+      gap: 2px;
+    }
+    .preset-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Primary Weather Card (Naver Style) */
+    .weather-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    /* Card Header */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.3px;
+    }
+
+    .pill-compare {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      background-color: #f1f3f5;
+      color: #555e68;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #e9ecef;
+      transition: background 0.2s;
+    }
+    .pill-compare:hover {
+      background-color: #e5e8eb;
+    }
+
+    .location-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Card Body: 2 Columns Layout */
+    .card-body {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      align-items: center;
+      gap: 16px;
+    }
+
+    @media (max-width: 520px) {
+      .card-body {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .weather-left {
+        border-bottom: 1px solid #f1f3f5;
+        padding-bottom: 16px;
+      }
+    }
+
+    /* Left Section: Current Weather */
+    .weather-left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .current-temp-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hero-icon-box {
+      width: 76px;
+      height: 76px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-icon-box svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+    }
+
+    .temp-status-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .current-temp {
+      font-size: 44px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .current-status {
+      font-size: 15px;
+      font-weight: 500;
+      color: #374151;
+      margin-top: 4px;
+    }
+
+    /* Min / Max Temp & Dust */
+    .min-max-row {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+    .temp-low {
+      color: var(--blue-temp);
+    }
+    .temp-sep {
+      color: #cbd5e1;
+      font-weight: 400;
+    }
+    .temp-high {
+      color: var(--red-temp);
+    }
+
+    .dust-row {
+      font-size: 13px;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+    .dust-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .dust-status {
+      font-weight: 600;
+    }
+    .dust-status.good { color: var(--dust-good); }
+    .dust-status.normal { color: var(--dust-normal); }
+    .dust-status.bad { color: var(--dust-bad); }
+    .dust-status.very-bad { color: var(--dust-very-bad); }
+    .dust-dot {
+      color: #9ca3af;
+      font-size: 10px;
+    }
+
+    /* Right Section: Hourly Forecast with SVG Trend Graph */
+    .weather-right {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 140px;
+      padding-top: 6px;
+    }
+
+    .hourly-graph-svg {
+      width: 100%;
+      height: 75px;
+      overflow: visible;
+    }
+
+    .graph-line {
+      fill: none;
+      stroke: #d1d5db;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .graph-dot {
+      fill: #ffffff;
+      stroke: #9ca3af;
+      stroke-width: 2;
+      transition: r 0.2s, stroke 0.2s;
+    }
+    .graph-dot:hover {
+      r: 4.5;
+      stroke: var(--primary-color);
+      fill: var(--primary-color);
+    }
+
+    .graph-guide-line {
+      stroke: #e5e8eb;
+      stroke-width: 1;
+      stroke-dasharray: 2 2;
+    }
+
+    .graph-temp-text {
+      font-size: 12px;
+      font-weight: 600;
+      fill: #374151;
+      text-anchor: middle;
+      user-select: none;
+    }
+
+    /* Hourly Meta Row (Icons & Time) */
+    .hourly-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .hourly-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hourly-icon {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hourly-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hourly-time {
+      font-size: 13px;
+      color: #374151;
+      font-weight: 600;
+    }
+    .hourly-time.current {
+      color: #111827;
+      font-weight: 700;
+    }
+
+    /* Detail Metrics Grid */
+    .details-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .details-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px;
+      background: #f8fafc;
+      border-radius: var(--radius-md);
+    }
+    .detail-label {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .detail-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Weekly Forecast Section */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .weekly-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .weekly-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .weekly-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .weekly-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .weekly-day {
+      width: 70px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .weekly-condition {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 110px;
+      color: #475569;
+    }
+    .weekly-icon {
+      width: 22px;
+      height: 22px;
+    }
+    .weekly-bar-container {
+      flex: 1;
+      max-width: 180px;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      position: relative;
+      margin: 0 14px;
+    }
+    .weekly-bar-fill {
+      position: absolute;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-temp), var(--red-temp));
+      border-radius: 3px;
+    }
+    .weekly-temp-range {
+      display: flex;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      width: 60px;
+      justify-content: flex-end;
+    }
+
+    /* Loading Overlay & Toast */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      border-radius: var(--radius-lg);
+    }
+    .loading-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      background: #0f172a;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="app-title">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <span>지역별 날씨 예보</span>
+      </div>
+      <div class="header-actions">
+        <button id="paletteToggleBtn" class="palette-btn-pill active" title="색상 팔레트 생성기 열기/닫기">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary-color);"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          <span>색상 팔레트</span>
+        </button>
+        <button id="gpsBtn" class="icon-btn" title="현재 내 위치 찾기">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        </button>
+        <button id="refreshBtn" class="icon-btn" title="새로고침">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Color Palette Generator Studio -->
+    <section class="palette-studio-card" id="paletteStudioCard">
+      <div class="palette-top-bar">
+        <div class="palette-title-group">
+          <span style="font-size:15px; font-weight:800; color:var(--text-main);">🎨 색상 팔렛 생성기</span>
+          <span class="palette-badge">실시간 테마</span>
+        </div>
+        <div class="palette-controls">
+          <select id="weatherHarmonySelect" class="palette-select" title="배색 조화 규칙">
+            <option value="sky">🌤️ 스카이 &amp; 웨더 조화</option>
+            <option value="analogous">🌈 유사색 (Analogous)</option>
+            <option value="complementary">⚡ 보색 대비 (Complementary)</option>
+            <option value="pastel">🍬 소프트 파스텔 (Pastel)</option>
+            <option value="vivid">🔥 비비드 포인트 (Vivid)</option>
+            <option value="dark">🌙 다크 모드 팔레트 (Dark)</option>
+          </select>
+          <button type="button" id="btnGenWeatherPalette" class="palette-action-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+            <span>팔레트 생성</span>
+          </button>
+          <button type="button" id="btnResetWeatherPalette" class="palette-action-btn secondary" title="기본 네이버 날씨 테마로 초기화">
+            초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- 5-Column Interactive Swatch Grid -->
+      <div class="palette-swatch-grid" id="weatherPaletteGrid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Quick Theme Presets & Copy All -->
+      <div class="palette-presets-row">
+        <div class="preset-chips-wrap">
+          <span style="font-size:11px; font-weight:700; color:var(--text-muted); margin-right:2px;">추천 테마:</span>
+          <button type="button" class="theme-preset-chip" data-preset="naver">
+            <span class="preset-dot-group"><span class="preset-dot" style="background:#f1f3f6"></span><span class="preset-dot" style="background:#3b82f6"></span><span class="preset-dot" style="background:#dc2626"></span></span>
+            네이버 기본
+          </button>
+          <button type="button" class="theme-preset-chip" data-preset="ocean">
+            <span class="preset-dot-group"><span class="preset-dot" style="background:#e0f2fe"></span><span class="preset-dot" style="background:#0284c7"></span><span class="preset-dot" style="background:#f97316"></span></span>
+            오션 브리즈
+          </button>
+          <button type="button" class="theme-preset-chip" data-preset="sunset">
+            <span class="preset-dot-group"><span class="preset-dot" style="background:#fff1f2"></span><span class="preset-dot" style="background:#e11d48"></span><span class="preset-dot" style="background:#6366f1"></span></span>
+            노을빛 선셋
+          </button>
+          <button type="button" class="theme-preset-chip" data-preset="forest">
+            <span class="preset-dot-group"><span class="preset-dot" style="background:#ecfdf5"></span><span class="preset-dot" style="background:#059669"></span><span class="preset-dot" style="background:#d97706"></span></span>
+            포레스트 그린
+          </button>
+          <button type="button" class="theme-preset-chip" data-preset="midnight">
+            <span class="preset-dot-group"><span class="preset-dot" style="background:#0f172a"></span><span class="preset-dot" style="background:#38bdf8"></span><span class="preset-dot" style="background:#fb7185"></span></span>
+            미드나잇 다크
+          </button>
+        </div>
+        <button type="button" id="btnCopyWeatherPalette" class="palette-action-btn secondary" style="height:26px; font-size:11px; padding:0 10px;">
+          HEX 전체 복사
+        </button>
+      </div>
+    </section>
+
+    <!-- Search Input -->
+    <div class="search-bar">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="지역명을 검색하세요 (예: 김포, 서울, 해운대, 제주...)">
+    </div>
+
+    <!-- Quick Region Chips -->
+    <div class="chip-scroll-container" id="regionChips">
+      <!-- Generated by JS -->
+    </div>
+
+    <!-- Primary Naver-Style Weather Card -->
+    <div class="weather-card" id="primaryCard">
+      <!-- Loading Spinner Layer -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="spinning" style="animation: spin 0.8s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+      </div>
+
+      <!-- Card Top Info -->
+      <div class="card-header">
+        <div class="header-left">
+          <span class="badge-title">날씨</span>
+          <button class="pill-compare" id="compareBtn" title="예보 비교">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+            <span>예보 비교</span>
+          </button>
+        </div>
+        <div class="location-label">
+          <span id="locationName">김포시 풍무동</span>
+        </div>
+      </div>
+
+      <!-- Main Weather Body -->
+      <div class="card-body">
+        
+        <!-- Left: Current Temperature & Condition -->
+        <div class="weather-left">
+          <div class="current-temp-row">
+            <div class="hero-icon-box" id="heroIcon">
+              <!-- SVG Icon injected by JS -->
+            </div>
+            <div class="temp-status-group">
+              <div class="current-temp" id="currentTemp">11°</div>
+              <div class="current-status" id="currentStatus">흐림</div>
+            </div>
+          </div>
+
+          <!-- Min/Max Temp -->
+          <div class="min-max-row">
+            <span class="temp-low" id="minTemp">9°</span>
+            <span class="temp-sep">/</span>
+            <span class="temp-high" id="maxTemp">18°</span>
+          </div>
+
+          <!-- Air Quality (Fine Dust) -->
+          <div class="dust-row">
+            <span class="dust-item">
+              <span>미세</span>
+              <span class="dust-status good" id="pm10Status">좋음</span>
+            </span>
+            <span class="dust-dot">·</span>
+            <span class="dust-item">
+              <span>초미세</span>
+              <span class="dust-status normal" id="pm25Status">보통</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Hourly Forecast Graph -->
+        <div class="weather-right">
+          <!-- Interactive Trend Line Graph (SVG) -->
+          <svg class="hourly-graph-svg" id="hourlyGraph" viewBox="0 0 250 75" preserveAspectRatio="none">
+            <!-- Dynamic elements: guide lines, polylines, circles, temp labels -->
+          </svg>
+
+          <!-- Time and Weather Icons Grid -->
+          <div class="hourly-meta-grid" id="hourlyMeta">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Supplementary Weather Metrics -->
+    <div class="details-card">
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">체감 온도</span>
+          <span class="detail-val" id="apparentTemp">11.4°</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">습도</span>
+          <span class="detail-val" id="humidityVal">67%</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">강수량</span>
+          <span class="detail-val" id="precipitationVal">0.0 mm</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">풍속</span>
+          <span class="detail-val" id="windVal">1.8 m/s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Forecast Section -->
+    <div class="weekly-card">
+      <div class="section-title">
+        <span>주간 예보</span>
+        <span style="font-size:12px; font-weight:normal; color:#64748b;">향후 6일 전망</span>
+      </div>
+      <div class="weekly-list" id="weeklyList">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Message -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Script: Weather Logic, API, SVG Rendering -->
+  <script>
+    // 한국 주요 지역 데이터 (위도, 경도, 표시 이름)
+    const REGIONS = [
+      { id: "gimpo", name: "김포시 풍무동", shortName: "김포", lat: 37.6153, lon: 126.7156 },
+      { id: "seoul", name: "서울특별시 중구", shortName: "서울", lat: 37.5665, lon: 126.9780 },
+      { id: "gangnam", name: "서울시 강남구", shortName: "강남", lat: 37.4979, lon: 127.0276 },
+      { id: "incheon", name: "인천광역시", shortName: "인천", lat: 37.4563, lon: 126.7052 },
+      { id: "suwon", name: "수원시 팔달구", shortName: "수원", lat: 37.2636, lon: 127.0286 },
+      { id: "gangneung", name: "강원도 강릉시", shortName: "강릉", lat: 37.7519, lon: 128.8761 },
+      { id: "daejeon", name: "대전광역시", shortName: "대전", lat: 36.3504, lon: 127.3845 },
+      { id: "daegu", name: "대구광역시", shortName: "대구", lat: 35.8714, lon: 128.6014 },
+      { id: "busan", name: "부산시 해운대구", shortName: "부산", lat: 35.1796, lon: 129.0756 },
+      { id: "gwangju", name: "광주광역시", shortName: "광주", lat: 35.1595, lon: 126.8526 },
+      { id: "jeju", name: "제주특별자치도", shortName: "제주", lat: 33.4996, lon: 126.5312 }
+    ];
+
+    let currentRegion = REGIONS[0]; // 기본 김포시 풍무동 (제공된 이미지 일치)
+
+    // WMO Weather Codes 해석기
+    function interpretWeatherCode(code, isDay = 1) {
+      if (code === 0) {
+        return {
+          status: isDay ? "맑음" : "맑은 밤",
+          iconType: isDay ? "sun" : "moon"
+        };
+      } else if (code === 1 || code === 2) {
+        return {
+          status: "구름많음",
+          iconType: isDay ? "cloud-sun" : "cloud-moon"
+        };
+      } else if (code === 3) {
+        return {
+          status: "흐림",
+          iconType: "cloud"
+        };
+      } else if (code === 45 || code === 48) {
+        return {
+          status: "안개",
+          iconType: "fog"
+        };
+      } else if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) {
+        return {
+          status: code >= 65 ? "강한 비" : "비",
+          iconType: "rain"
+        };
+      } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
+        return {
+          status: "눈",
+          iconType: "snow"
+        };
+      } else if ([95, 96, 99].includes(code)) {
+        return {
+          status: "뇌우",
+          iconType: "thunder"
+        };
+      }
+      return { status: "흐림", iconType: "cloud" };
+    }
+
+    // 날씨 SVG 아이콘 생성기 (사용자 업로드 이미지 스타일의 깔끔한 톤)
+    function getWeatherSvg(iconType, size = "100%") {
+      switch (iconType) {
+        case "sun":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <defs>
+              <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#f59e0b"/>
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="18" fill="url(#sunGrad)"/>
+          </svg>`;
+        case "moon":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <defs>
+              <linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="16" fill="url(#moonGrad)"/>
+            <circle cx="40" cy="24" r="14" fill="#ffffff"/>
+            <circle cx="20" cy="22" r="2" fill="#fbbf24"/>
+          </svg>`;
+        case "cloud":
+          return `<svg viewBox="0 0 76 60" width="${size}" height="${size}">
+            <defs>
+              <linearGradient id="cloudBack" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#b0b5bc"/>
+                <stop offset="100%" stop-color="#9399a2"/>
+              </linearGradient>
+              <linearGradient id="cloudFront" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#f3f4f6"/>
+                <stop offset="100%" stop-color="#d1d5db"/>
+              </linearGradient>
+            </defs>
+            <!-- 뒤쪽 어두운 구름 -->
+            <path d="M22,32 a14,14 0 0,1 24,-6 a18,18 0 0,1 18,16 a10,10 0 0,1 -4,9 l-36,0 a11,11 0 0,1 -2,-19 z" fill="url(#cloudBack)"/>
+            <!-- 앞쪽 밝은 구름 -->
+            <path d="M30,48 a12,12 0 0,1 20,-5 a15,15 0 0,1 16,13 a8,8 0 0,1 -3,8 l-31,0 a9,9 0 0,1 -2,-16 z" fill="url(#cloudFront)"/>
+          </svg>`;
+        case "cloud-sun":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <circle cx="25" cy="23" r="11" fill="#f59e0b"/>
+            <path d="M18,48 a11,11 0 0,1 19,-5 a14,14 0 0,1 16,12 a8,8 0 0,1 -3,8 l-30,0 a8,8 0 0,1 -2,-15 z" fill="#b8bdc5"/>
+            <path d="M24,52 a9,9 0 0,1 16,-4 a12,12 0 0,1 13,10 a6,6 0 0,1 -2,6 l-25,0 a7,7 0 0,1 -2,-12 z" fill="#e5e7eb"/>
+          </svg>`;
+        case "cloud-moon":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <circle cx="24" cy="24" r="10" fill="#60a5fa"/>
+            <circle cx="28" cy="20" r="8" fill="#ffffff"/>
+            <circle cx="16" cy="18" r="1.5" fill="#fef08a"/>
+            <path d="M20,50 a11,11 0 0,1 19,-5 a14,14 0 0,1 16,12 a8,8 0 0,1 -3,8 l-30,0 a8,8 0 0,1 -2,-15 z" fill="#a4aab4"/>
+            <path d="M26,53 a9,9 0 0,1 15,-4 a12,12 0 0,1 13,10 a6,6 0 0,1 -2,6 l-24,0 a7,7 0 0,1 -2,-12 z" fill="#e2e8f0"/>
+          </svg>`;
+        case "rain":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <path d="M16,36 a11,11 0 0,1 19,-5 a14,14 0 0,1 16,12 a8,8 0 0,1 -3,8 l-30,0 a8,8 0 0,1 -2,-15 z" fill="#9ca3af"/>
+            <line x1="22" y1="48" x2="18" y2="58" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="32" y1="48" x2="28" y2="58" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="42" y1="48" x2="38" y2="58" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>`;
+        case "snow":
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <path d="M16,36 a11,11 0 0,1 19,-5 a14,14 0 0,1 16,12 a8,8 0 0,1 -3,8 l-30,0 a8,8 0 0,1 -2,-15 z" fill="#9ca3af"/>
+            <circle cx="22" cy="52" r="2.5" fill="#93c5fd"/>
+            <circle cx="32" cy="55" r="2.5" fill="#93c5fd"/>
+            <circle cx="42" cy="52" r="2.5" fill="#93c5fd"/>
+          </svg>`;
+        default:
+          return `<svg viewBox="0 0 64 64" width="${size}" height="${size}">
+            <circle cx="32" cy="32" r="16" fill="#cbd5e1"/>
+          </svg>`;
+      }
+    }
+
+    // 미세먼지 등급 산출
+    function getDustGrade(pm10) {
+      if (pm10 <= 30) return { text: "좋음", class: "good" };
+      if (pm10 <= 80) return { text: "보통", class: "normal" };
+      if (pm10 <= 150) return { text: "나쁨", class: "bad" };
+      return { text: "매우나쁨", class: "very-bad" };
+    }
+
+    function getPm25Grade(pm25) {
+      if (pm25 <= 15) return { text: "좋음", class: "good" };
+      if (pm25 <= 35) return { text: "보통", class: "normal" };
+      if (pm25 <= 75) return { text: "나쁨", class: "bad" };
+      return { text: "매우나쁨", class: "very-bad" };
+    }
+
+    // 날씨 데이터 가져오기 (Open-Meteo API + 에러 시 Fallback)
+    async function fetchWeatherData(lat, lon) {
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=7`;
+      const dustUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5`;
+
+      try {
+        const [wRes, dRes] = await Promise.allSettled([
+          fetch(weatherUrl),
+          fetch(dustUrl)
+        ]);
+
+        let weatherJson = null;
+        if (wRes.status === "fulfilled" && wRes.value.ok) {
+          weatherJson = await wRes.value.json();
+        }
+
+        let dustJson = null;
+        if (dRes.status === "fulfilled" && dRes.value.ok) {
+          dustJson = await dRes.value.json();
+        }
+
+        return parseApiData(weatherJson, dustJson);
+      } catch (err) {
+        console.warn("API 호출 실패, 기본 시뮬레이션 데이터를 불러옵니다:", err);
+        return getFallbackData();
+      }
+    }
+
+    // API 응답 데이터 파싱
+    function parseApiData(wData, dData) {
+      if (!wData || !wData.current) {
+        return getFallbackData();
+      }
+
+      const cur = wData.current;
+      const daily = wData.daily || {};
+      const hourly = wData.hourly || {};
+
+      // 현재 시각 기준 향후 5개 시간대 추출 (2시간 간격)
+      const now = new Date();
+      const currentHour = now.getHours();
+
+      // 현재 시각과 가장 가까운 인덱스 찾기
+      const hourlyTimes = hourly.time || [];
+      let startIdx = 0;
+      const nowStr = now.toISOString().slice(0, 13);
+      for (let i = 0; i < hourlyTimes.length; i++) {
+        if (hourlyTimes[i].startsWith(nowStr)) {
+          startIdx = i;
+          break;
+        }
+      }
+
+      const hourlyList = [];
+      const step = 2; // 2시간 간격 샘플링
+      for (let k = 0; k < 5; k++) {
+        const idx = startIdx + (k * step);
+        if (idx < (hourly.temperature_2m?.length || 0)) {
+          const tDate = new Date(hourly.time[idx]);
+          const h = tDate.getHours();
+          const temp = Math.round(hourly.temperature_2m[idx]);
+          const code = hourly.weather_code[idx];
+          const isDay = hourly.is_day[idx];
+          const weather = interpretWeatherCode(code, isDay);
+
+          let displayTime = `${h}`;
+          if (k === 0) displayTime = `${h}시`; // 첫 번째 항목에 '시' 표기
+
+          hourlyList.push({
+            time: displayTime,
+            isCurrent: k === 0,
+            temp: temp,
+            status: weather.status,
+            iconType: weather.iconType
+          });
+        }
+      }
+
+      // 주간 예보 (6일치)
+      const weeklyList = [];
+      const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+      if (daily.time) {
+        for (let i = 1; i < Math.min(daily.time.length, 7); i++) {
+          const dDate = new Date(daily.time[i]);
+          const dayName = i === 1 ? "내일" : (i === 2 ? "모레" : `${dayNames[dDate.getDay()]}요일`);
+          const code = daily.weather_code[i];
+          const min = Math.round(daily.temperature_2m_min[i]);
+          const max = Math.round(daily.temperature_2m_max[i]);
+          const weather = interpretWeatherCode(code, 1);
+
+          weeklyList.push({
+            day: dayName,
+            status: weather.status,
+            iconType: weather.iconType,
+            min: min,
+            max: max
+          });
+        }
+      }
+
+      // 미세먼지
+      const pm10 = dData?.current?.pm10 ?? 28;
+      const pm25 = dData?.current?.pm2_5 ?? 19;
+
+      const currentWeather = interpretWeatherCode(cur.weather_code, cur.is_day);
+
+      return {
+        currentTemp: Math.round(cur.temperature_2m),
+        status: currentWeather.status,
+        iconType: currentWeather.iconType,
+        minTemp: Math.round(daily.temperature_2m_min?.[0] ?? (cur.temperature_2m - 3)),
+        maxTemp: Math.round(daily.temperature_2m_max?.[0] ?? (cur.temperature_2m + 6)),
+        apparentTemp: Math.round(cur.apparent_temperature * 10) / 10,
+        humidity: cur.relative_humidity_2m,
+        precipitation: cur.precipitation,
+        wind: cur.wind_speed_10m,
+        pm10: pm10,
+        pm25: pm25,
+        hourly: hourlyList.length === 5 ? hourlyList : getFallbackData().hourly,
+        weekly: weeklyList.length > 0 ? weeklyList : getFallbackData().weekly
+      };
+    }
+
+    // 백업용 현실적 기본 데이터 (오프라인 상태 대비)
+    function getFallbackData() {
+      return {
+        currentTemp: 11,
+        status: "흐림",
+        iconType: "cloud",
+        minTemp: 9,
+        maxTemp: 18,
+        apparentTemp: 11.4,
+        humidity: 67,
+        precipitation: 0.0,
+        wind: 1.8,
+        pm10: 25,
+        pm25: 18,
+        hourly: [
+          { time: "23시", isCurrent: true, temp: 12, status: "구름많음", iconType: "cloud-moon" },
+          { time: "1", isCurrent: false, temp: 12, status: "흐림", iconType: "cloud" },
+          { time: "3", isCurrent: false, temp: 12, status: "흐림", iconType: "cloud" },
+          { time: "5", isCurrent: false, temp: 11, status: "맑음", iconType: "moon" },
+          { time: "7", isCurrent: false, temp: 10, status: "맑음", iconType: "sun" }
+        ],
+        weekly: [
+          { day: "내일", status: "맑음", iconType: "sun", min: 10, max: 20 },
+          { day: "모레", status: "구름많음", iconType: "cloud-sun", min: 11, max: 19 },
+          { day: "목요일", status: "흐림", iconType: "cloud", min: 12, max: 18 },
+          { day: "금요일", status: "비", iconType: "rain", min: 13, max: 17 },
+          { day: "토요일", status: "맑음", iconType: "sun", min: 9, max: 18 },
+          { day: "일요일", status: "맑음", iconType: "sun", min: 8, max: 17 }
+        ]
+      };
+    }
+
+    // UI 렌더링 함수
+    function renderWeather(data, region) {
+      // 위치명
+      document.getElementById("locationName").textContent = region.name;
+
+      // 대표 날씨 & 기온
+      document.getElementById("heroIcon").innerHTML = getWeatherSvg(data.iconType, "72px");
+      document.getElementById("currentTemp").textContent = `${data.currentTemp}°`;
+      document.getElementById("currentStatus").textContent = data.status;
+
+      // 최저 / 최고
+      document.getElementById("minTemp").textContent = `${data.minTemp}°`;
+      document.getElementById("maxTemp").textContent = `${data.maxTemp}°`;
+
+      // 미세먼지 / 초미세먼지
+      const pm10Grade = getDustGrade(data.pm10);
+      const pm10El = document.getElementById("pm10Status");
+      pm10El.textContent = pm10Grade.text;
+      pm10El.className = `dust-status ${pm10Grade.class}`;
+
+      const pm25Grade = getPm25Grade(data.pm25);
+      const pm25El = document.getElementById("pm25Status");
+      pm25El.textContent = pm25Grade.text;
+      pm25El.className = `dust-status ${pm25Grade.class}`;
+
+      // 세부 지표
+      document.getElementById("apparentTemp").textContent = `${data.apparentTemp}°`;
+      document.getElementById("humidityVal").textContent = `${data.humidity}%`;
+      document.getElementById("precipitationVal").textContent = `${data.precipitation.toFixed(1)} mm`;
+      document.getElementById("windVal").textContent = `${data.wind.toFixed(1)} m/s`;
+
+      // 시간별 SVG 그래프 및 메타 아이콘 렌더링
+      renderHourlyGraph(data.hourly);
+
+      // 주간 예보 렌더링
+      renderWeekly(data.weekly);
+    }
+
+    // 시간별 예보 그래프 (부드러운 SVG 폴리라인 & 가이드선)
+    function renderHourlyGraph(hourly) {
+      const svg = document.getElementById("hourlyGraph");
+      const metaContainer = document.getElementById("hourlyMeta");
+
+      svg.innerHTML = "";
+      metaContainer.innerHTML = "";
+
+      const count = hourly.length;
+      if (count === 0) return;
+
+      const width = 250;
+      const height = 75;
+      const paddingX = 25;
+      const plotWidth = width - (paddingX * 2);
+
+      // 기온 최대/최소값으로 Y좌표 정규화
+      const temps = hourly.map(h => h.temp);
+      let minT = Math.min(...temps);
+      let maxT = Math.max(...temps);
+      if (minT === maxT) {
+        minT -= 2;
+        maxT += 2;
+      }
+      const rangeT = maxT - minT;
+
+      const points = [];
+      for (let i = 0; i < count; i++) {
+        const x = paddingX + (i * (plotWidth / (count - 1)));
+        // 높은 기온은 위쪽(y값이 작음), 낮은 기온은 아래쪽(y값이 큼)
+        const normalized = (hourly[i].temp - minT) / rangeT;
+        // y 범위: 18px ~ 52px
+        const y = 52 - (normalized * 32);
+        points.push({ x, y, temp: hourly[i].temp, data: hourly[i] });
+      }
+
+      // 1. 수직 점선 가이드라인 그리기
+      points.forEach(p => {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", p.x);
+        line.setAttribute("y1", p.y + 4);
+        line.setAttribute("x2", p.x);
+        line.setAttribute("y2", height);
+        line.setAttribute("class", "graph-guide-line");
+        svg.appendChild(line);
+      });
+
+      // 2. 부드러운 연결선 (Polyline)
+      const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      const pointsAttr = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+      polyline.setAttribute("points", pointsAttr);
+      polyline.setAttribute("class", "graph-line");
+      svg.appendChild(polyline);
+
+      // 3. 기온 라벨 및 포인트 원
+      points.forEach(p => {
+        // 기온 텍스트 (점 위 12px)
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", p.x);
+        text.setAttribute("y", p.y - 8);
+        text.setAttribute("class", "graph-temp-text");
+        text.textContent = `${p.temp}°`;
+        svg.appendChild(text);
+
+        // 원형 포인트
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", p.x);
+        circle.setAttribute("cy", p.y);
+        circle.setAttribute("r", "3");
+        circle.setAttribute("class", "graph-dot");
+        svg.appendChild(circle);
+      });
+
+      // 4. 하단 날씨 아이콘 & 시간 그리드
+      hourly.forEach(h => {
+        const col = document.createElement("div");
+        col.className = "hourly-col";
+
+        const iconBox = document.createElement("div");
+        iconBox.className = "hourly-icon";
+        iconBox.innerHTML = getWeatherSvg(h.iconType, "22px");
+
+        const timeBox = document.createElement("div");
+        timeBox.className = `hourly-time ${h.isCurrent ? 'current' : ''}`;
+        timeBox.textContent = h.time;
+
+        col.appendChild(iconBox);
+        col.appendChild(timeBox);
+        metaContainer.appendChild(col);
+      });
+    }
+
+    // 주간 예보 렌더링
+    function renderWeekly(weekly) {
+      const container = document.getElementById("weeklyList");
+      container.innerHTML = "";
+
+      // 주간 최고/최저 기온 범위 산출
+      let minAll = Math.min(...weekly.map(w => w.min));
+      let maxAll = Math.max(...weekly.map(w => w.max));
+      if (minAll === maxAll) maxAll += 5;
+
+      weekly.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "weekly-row";
+
+        const leftPct = ((item.min - minAll) / (maxAll - minAll)) * 100;
+        const widthPct = Math.max(15, ((item.max - item.min) / (maxAll - minAll)) * 100);
+
+        row.innerHTML = `
+          <div class="weekly-day">${item.day}</div>
+          <div class="weekly-condition">
+            <div class="weekly-icon">${getWeatherSvg(item.iconType, "22px")}</div>
+            <span>${item.status}</span>
+          </div>
+          <div class="weekly-bar-container">
+            <div class="weekly-bar-fill" style="left:${leftPct}%; width:${widthPct}%;"></div>
+          </div>
+          <div class="weekly-temp-range">
+            <span class="temp-low">${item.min}°</span>
+            <span class="temp-high">${item.max}°</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // 지역 변경 처리
+    async function selectRegion(region) {
+      currentRegion = region;
+      updateActiveChip();
+      const overlay = document.getElementById("loadingOverlay");
+      overlay.classList.add("active");
+
+      try {
+        const data = await fetchWeatherData(region.lat, region.lon);
+        renderWeather(data, region);
+        showToast(`${region.name} 날씨 정보를 불러왔습니다.`);
+      } catch (e) {
+        showToast("날씨 정보를 불러오는 중 문제가 발생했습니다.");
+      } finally {
+        overlay.classList.remove("active");
+      }
+    }
+
+    // 지역 칩 버튼 초기화
+    function initRegionChips() {
+      const container = document.getElementById("regionChips");
+      container.innerHTML = "";
+
+      REGIONS.forEach(reg => {
+        const chip = document.createElement("button");
+        chip.className = `region-chip ${reg.id === currentRegion.id ? 'active' : ''}`;
+        chip.textContent = reg.shortName;
+        chip.addEventListener("click", () => {
+          selectRegion(reg);
+        });
+        container.appendChild(chip);
+      });
+    }
+
+    function updateActiveChip() {
+      const chips = document.querySelectorAll(".region-chip");
+      chips.forEach((c, idx) => {
+        if (REGIONS[idx] && REGIONS[idx].id === currentRegion.id) {
+          c.classList.add("active");
+          c.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        } else {
+          c.classList.remove("active");
+        }
+      });
+    }
+
+    // 토스트 메시지
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2500);
+    }
+
+    // 검색 기능
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const query = searchInput.value.trim().toLowerCase();
+        if (!query) return;
+
+        const found = REGIONS.find(r => r.name.toLowerCase().includes(query) || r.shortName.toLowerCase().includes(query));
+        if (found) {
+          selectRegion(found);
+          searchInput.value = "";
+        } else {
+          showToast(`"${query}" 지역을 찾을 수 없습니다. 기본 지원 지역을 선택해 주세요.`);
+        }
+      }
+    });
+
+    // 새로고침 버튼
+    const refreshBtn = document.getElementById("refreshBtn");
+    refreshBtn.addEventListener("click", () => {
+      refreshBtn.classList.add("spinning");
+      selectRegion(currentRegion).then(() => {
+        setTimeout(() => refreshBtn.classList.remove("spinning"), 600);
+      });
+    });
+
+    // 내 위치 (GPS) 버튼
+    const gpsBtn = document.getElementById("gpsBtn");
+    gpsBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        showToast("브라우저에서 위치 정보를 지원하지 않습니다.");
+        return;
+      }
+      showToast("현재 GPS 위치를 확인하는 중입니다...");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const customReg = {
+            id: "custom-gps",
+            name: "현재 내 위치 (GPS)",
+            shortName: "내 위치",
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude
+          };
+          selectRegion(customReg);
+        },
+        (err) => {
+          console.error(err);
+          showToast("위치 접근 권한이 거부되었거나 위치를 가져올 수 없습니다.");
+        },
+        { timeout: 7000 }
+      );
+    });
+
+    // 예보 비교 버튼 클릭 이벤트
+    document.getElementById("compareBtn").addEventListener("click", () => {
+      showToast("기상청, 아큐웨더, 노르웨이 기상청 등 다중 예보 모델 비교 화면입니다.");
+    });
+
+    // =========================================================================
+    // 색상 팔렛 생성기 (Color Palette Generator) & 실시간 날씨 테마 엔진
+    // =========================================================================
+    const WEATHER_THEME_PRESETS = {
+      naver:    ['#F1F3F6', '#FFFFFF', '#3B82F6', '#2563EB', '#DC2626'],
+      ocean:    ['#E0F2FE', '#FFFFFF', '#0284C7', '#0369A1', '#F97316'],
+      sunset:   ['#FFF1F2', '#FFFFFF', '#E11D48', '#6366F1', '#EA580C'],
+      forest:   ['#ECFDF5', '#FFFFFF', '#059669', '#0D9488', '#D97706'],
+      midnight: ['#0F172A', '#1E293B', '#38BDF8', '#60A5FA', '#FB7185']
+    };
+
+    const SWATCH_ROLES = [
+      { label: '배경 톤', cssVar: '--bg-color' },
+      { label: '카드 표면', cssVar: '--card-bg' },
+      { label: '메인 포인트', cssVar: '--primary-color' },
+      { label: '최저기온/쿨', cssVar: '--blue-temp' },
+      { label: '최고기온/웜', cssVar: '--red-temp' }
+    ];
+
+    let weatherPalette = JSON.parse(localStorage.getItem('weather_custom_palette')) || [
+      { hex: '#F1F3F6', locked: false },
+      { hex: '#FFFFFF', locked: false },
+      { hex: '#3B82F6', locked: false },
+      { hex: '#2563EB', locked: false },
+      { hex: '#DC2626', locked: false }
+    ];
+
+    function hslToHex(h, s, l) {
+      h = ((h % 360) + 360) % 360;
+      s = Math.max(0, Math.min(100, s)) / 100;
+      l = Math.max(0, Math.min(100, l)) / 100;
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = l - c / 2;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; }
+      else if (h < 120) { r = x; g = c; }
+      else if (h < 180) { g = c; b = x; }
+      else if (h < 240) { g = x; b = c; }
+      else if (h < 300) { r = x; b = c; }
+      else { r = c; b = x; }
+      const toHex = n => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+    }
+
+    function getLuminance(hex) {
+      const clean = hex.replace('#', '');
+      const r = parseInt(clean.substring(0, 2), 16) / 255;
+      const g = parseInt(clean.substring(2, 4), 16) / 255;
+      const b = parseInt(clean.substring(4, 6), 16) / 255;
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    function applyWeatherPaletteToDOM() {
+      const root = document.documentElement;
+      const bgHex = weatherPalette[0].hex;
+      const cardHex = weatherPalette[1].hex;
+      const primaryHex = weatherPalette[2].hex;
+      const lowTempHex = weatherPalette[3].hex;
+      const highTempHex = weatherPalette[4].hex;
+
+      root.style.setProperty('--bg-color', bgHex);
+      root.style.setProperty('--card-bg', cardHex);
+      root.style.setProperty('--primary-color', primaryHex);
+      root.style.setProperty('--primary-hover', primaryHex);
+      root.style.setProperty('--blue-temp', lowTempHex);
+      root.style.setProperty('--red-temp', highTempHex);
+
+      // 카드 배경의 밝기에 따라 텍스트와 테두리 색상 자동 보정
+      const isDarkCard = getLuminance(cardHex) < 0.38;
+      if (isDarkCard) {
+        root.style.setProperty('--text-main', '#F8FAFC');
+        root.style.setProperty('--text-sub', '#CBD5E1');
+        root.style.setProperty('--text-muted', '#94A3B8');
+        root.style.setProperty('--border-color', 'rgba(255,255,255,0.12)');
+      } else {
+        root.style.setProperty('--text-main', '#1F2328');
+        root.style.setProperty('--text-sub', '#57606A');
+        root.style.setProperty('--text-muted', '#8C959F');
+        root.style.setProperty('--border-color', 'rgba(0,0,0,0.08)');
+      }
+
+      localStorage.setItem('weather_custom_palette', JSON.stringify(weatherPalette));
+    }
+
+    function renderWeatherPaletteSwatches() {
+      const grid = document.getElementById('weatherPaletteGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      weatherPalette.forEach((slot, idx) => {
+        const isDark = getLuminance(slot.hex) < 0.5;
+        const fgColor = isDark ? '#FFFFFF' : '#0F172A';
+        const pillBg = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.1)';
+
+        const item = document.createElement('div');
+        item.className = 'palette-swatch';
+        item.style.backgroundColor = slot.hex;
+        item.style.color = fgColor;
+
+        item.innerHTML = `
+          <div class="swatch-top-actions">
+            <span class="swatch-role-tag" style="background:${pillBg}; color:${fgColor};">${SWATCH_ROLES[idx].label}</span>
+            <div class="swatch-btn-group">
+              <button type="button" class="swatch-icon-btn btn-lock-swatch" style="background:${pillBg}; color:${fgColor};" title="${slot.locked ? '잠금 해제' : '색상 고정'}">
+                ${slot.locked ? '🔒' : '🔓'}
+              </button>
+              <label class="swatch-icon-btn" style="background:${pillBg}; color:${fgColor};" title="직접 색상 선택">
+                🎨
+                <input type="color" class="swatch-color-input" value="${slot.hex}" style="opacity:0; position:absolute; width:1px; height:1px;" />
+              </label>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <span class="swatch-hex-code" title="클릭하여 HEX 복사">${slot.hex}</span>
+            <span style="font-size:10px; opacity:0.8;">복사</span>
+          </div>
+        `;
+
+        // Lock button
+        item.querySelector('.btn-lock-swatch').addEventListener('click', (e) => {
+          e.stopPropagation();
+          weatherPalette[idx].locked = !weatherPalette[idx].locked;
+          renderWeatherPaletteSwatches();
+          showToast(`${SWATCH_ROLES[idx].label} 색상이 ${weatherPalette[idx].locked ? '고정되었습니다 🔒' : '잠금 해제되었습니다 🔓'}`);
+        });
+
+        // Color picker
+        const picker = item.querySelector('.swatch-color-input');
+        picker.addEventListener('click', (e) => e.stopPropagation());
+        picker.addEventListener('input', (e) => {
+          weatherPalette[idx].hex = e.target.value.toUpperCase();
+          applyWeatherPaletteToDOM();
+          item.style.backgroundColor = weatherPalette[idx].hex;
+          item.querySelector('.swatch-hex-code').textContent = weatherPalette[idx].hex;
+        });
+        picker.addEventListener('change', () => renderWeatherPaletteSwatches());
+
+        // Click swatch to copy HEX
+        item.addEventListener('click', () => {
+          navigator.clipboard.writeText(slot.hex);
+          showToast(`${SWATCH_ROLES[idx].label} 색상 (${slot.hex})이 복사되었습니다!`);
+        });
+
+        grid.appendChild(item);
+      });
+    }
+
+    function generateNewWeatherPalette() {
+      const mode = document.getElementById('weatherHarmonySelect').value;
+      const baseH = Math.floor(Math.random() * 360);
+
+      let candidates = [];
+      if (mode === 'sky') {
+        candidates = [
+          hslToHex(baseH, 45, 95),
+          '#FFFFFF',
+          hslToHex(baseH, 82, 52),
+          hslToHex((baseH + 200) % 360, 80, 48),
+          hslToHex((baseH + 150) % 360, 82, 54)
+        ];
+      } else if (mode === 'analogous') {
+        candidates = [
+          hslToHex(baseH, 40, 95),
+          hslToHex((baseH + 15) % 360, 30, 99),
+          hslToHex((baseH + 30) % 360, 78, 50),
+          hslToHex((baseH + 55) % 360, 75, 45),
+          hslToHex((baseH - 35 + 360) % 360, 82, 52)
+        ];
+      } else if (mode === 'complementary') {
+        const comp = (baseH + 180) % 360;
+        candidates = [
+          hslToHex(baseH, 35, 95),
+          '#FFFFFF',
+          hslToHex(baseH, 80, 48),
+          hslToHex((baseH + 20) % 360, 75, 45),
+          hslToHex(comp, 84, 52)
+        ];
+      } else if (mode === 'pastel') {
+        candidates = [
+          hslToHex(baseH, 55, 96),
+          '#FFFFFF',
+          hslToHex((baseH + 40) % 360, 68, 62),
+          hslToHex((baseH + 120) % 360, 65, 55),
+          hslToHex((baseH + 240) % 360, 72, 62)
+        ];
+      } else if (mode === 'vivid') {
+        candidates = [
+          hslToHex(baseH, 60, 94),
+          '#FFFFFF',
+          hslToHex(baseH, 92, 50),
+          hslToHex((baseH + 110) % 360, 88, 44),
+          hslToHex((baseH + 220) % 360, 92, 52)
+        ];
+      } else if (mode === 'dark') {
+        candidates = [
+          hslToHex(baseH, 38, 10),
+          hslToHex(baseH, 32, 16),
+          hslToHex((baseH + 20) % 360, 88, 62),
+          hslToHex(198, 90, 64),
+          hslToHex(350, 88, 66)
+        ];
+      }
+
+      weatherPalette = weatherPalette.map((slot, i) => {
+        if (slot.locked) return slot;
+        return { hex: candidates[i], locked: false };
+      });
+
+      applyWeatherPaletteToDOM();
+      renderWeatherPaletteSwatches();
+      showToast('새로운 날씨 색상 팔레트가 생성되어 적용되었습니다!');
+    }
+
+    // 팔레트 스튜디오 열기/닫기 토글
+    document.getElementById('paletteToggleBtn').addEventListener('click', () => {
+      const studio = document.getElementById('paletteStudioCard');
+      const btn = document.getElementById('paletteToggleBtn');
+      studio.classList.toggle('collapsed');
+      btn.classList.toggle('active', !studio.classList.contains('collapsed'));
+    });
+
+    document.getElementById('btnGenWeatherPalette').addEventListener('click', generateNewWeatherPalette);
+    document.getElementById('weatherHarmonySelect').addEventListener('change', generateNewWeatherPalette);
+
+    document.getElementById('btnResetWeatherPalette').addEventListener('click', () => {
+      weatherPalette = WEATHER_THEME_PRESETS.naver.map(hex => ({ hex, locked: false }));
+      applyWeatherPaletteToDOM();
+      renderWeatherPaletteSwatches();
+      showToast('기본 네이버 날씨 테마로 복원되었습니다.');
+    });
+
+    document.querySelectorAll('.theme-preset-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const key = chip.getAttribute('data-preset');
+        const hexes = WEATHER_THEME_PRESETS[key];
+        if (!hexes) return;
+        weatherPalette = weatherPalette.map((slot, idx) => slot.locked ? slot : { hex: hexes[idx], locked: false });
+        applyWeatherPaletteToDOM();
+        renderWeatherPaletteSwatches();
+        showToast(`'${chip.textContent.trim()}' 팔레트 테마가 적용되었습니다.`);
+      });
+    });
+
+    document.getElementById('btnCopyWeatherPalette').addEventListener('click', () => {
+      const str = weatherPalette.map(s => s.hex).join(', ');
+      navigator.clipboard.writeText(str);
+      showToast(`전체 팔레트 복사 완료: ${str}`);
+    });
+
+    // 최초 실행
+    document.addEventListener("DOMContentLoaded", () => {
+      applyWeatherPaletteToDOM();
+      renderWeatherPaletteSwatches();
+      initRegionChips();
+      selectRegion(currentRegion);
+    });
+  </script>
+</body>
+</html>

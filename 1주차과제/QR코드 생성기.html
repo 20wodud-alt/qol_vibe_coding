@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Studio - 스마트 링크 QR 코드 생성기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- QR Matrix Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background: radial-gradient(circle at 50% 0%, #eef2ff 0%, #f8fafc 65%);
+      color: #0f172a;
+    }
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+    }
+    .qr-preview-shadow {
+      box-shadow: 0 20px 45px -15px rgba(79, 70, 229, 0.18), 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <span class="material-symbols-outlined text-[22px]">qr_code_2</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight text-slate-900">QR Studio</h1>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/60">스마트 QR 생성기</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">링크(URL)를 입력하면 즉시 스캔 가능한 고화질 QR 코드를 제작합니다</p>
+        </div>
+      </div>
+
+      <!-- Quick Sample Links -->
+      <div class="flex items-center gap-1.5 flex-wrap justify-end">
+        <span class="text-xs font-bold text-slate-400 mr-1 hidden md:inline">예시 링크:</span>
+        <button type="button" data-url="https://www.naver.com" class="sample-link-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-bold text-slate-700 transition-colors">
+          🟢 네이버
+        </button>
+        <button type="button" data-url="https://www.google.com" class="sample-link-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-xs font-bold text-slate-700 transition-colors">
+          🔵 구글
+        </button>
+        <button type="button" data-url="https://www.youtube.com" class="sample-link-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-xs font-bold text-slate-700 transition-colors">
+          🔴 유튜브
+        </button>
+        <button type="button" data-url="https://github.com" class="sample-link-btn px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors">
+          ⚫ GitHub
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-7 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- LEFT COLUMN: Link Input & Custom Design Controls -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- 1. 링크(URL) 입력 카드 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
+            <h2 class="text-base font-extrabold text-slate-900">링크(URL) 또는 텍스트 입력</h2>
+          </div>
+          <span id="inputStatusBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
+            실시간 자동 생성 중
+          </span>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-[20px] pointer-events-none">link</span>
+            <input
+              type="text"
+              id="qrUrlInput"
+              value="https://www.naver.com"
+              placeholder="https://example.com 또는 원하는 링크/텍스트를 입력하세요"
+              class="w-full h-12 pl-11 pr-24 rounded-xl bg-slate-50 border border-slate-200 text-sm sm:text-base font-medium text-slate-900 focus:bg-white focus:border-indigo-600 focus:ring-3 focus:ring-indigo-500/15 outline-none transition-all"
+            />
+            <button
+              type="button"
+              id="btnClearInput"
+              class="absolute right-2.5 px-2.5 py-1 rounded-lg bg-slate-200/70 hover:bg-slate-300/80 text-slate-600 text-xs font-bold transition-colors"
+              title="입력 지우기"
+            >
+              지우기
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+            <p class="text-xs text-slate-500 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px] text-indigo-500">info</span>
+              <span>입력하는 즉시 우측 미리보기에 반영되며, <code class="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[11px]">Enter</code> 또는 아래 버튼으로 히스토리에 저장할 수 있습니다.</span>
+            </p>
+          </div>
+
+          <button
+            type="button"
+            id="btnGenerateQr"
+            class="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-bold text-sm shadow-sm shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all"
+          >
+            <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+            <span>QR 코드 제작 및 히스토리 저장</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. QR 디자인 & 스타일 커스터마이징 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col gap-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center">2</span>
+            <h2 class="text-base font-extrabold text-slate-900">QR 코드 스타일 &amp; 색상 커스텀</h2>
+          </div>
+          <button type="button" id="btnResetStyle" class="text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors">
+            기본 스타일 복원
+          </button>
+        </div>
+
+        <!-- Color Theme Presets -->
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold text-slate-600">원클릭 컬러 테마</label>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <button type="button" data-fg="#0F172A" data-bg="#FFFFFF" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-slate-300" style="background:#0F172A;"></span>
+              <span class="text-[11px] font-bold text-slate-700">클래식 블랙</span>
+            </button>
+            <button type="button" data-fg="#4F46E5" data-bg="#EEF2FF" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-indigo-200" style="background:#4F46E5;"></span>
+              <span class="text-[11px] font-bold text-slate-700">인디고 블루</span>
+            </button>
+            <button type="button" data-fg="#059669" data-bg="#ECFDF5" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-emerald-200" style="background:#059669;"></span>
+              <span class="text-[11px] font-bold text-slate-700">에메랄드</span>
+            </button>
+            <button type="button" data-fg="#E11D48" data-bg="#FFF1F2" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-rose-200" style="background:#E11D48;"></span>
+              <span class="text-[11px] font-bold text-slate-700">체리 로즈</span>
+            </button>
+            <button type="button" data-fg="#7C3AED" data-bg="#F5F3FF" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-violet-200" style="background:#7C3AED;"></span>
+              <span class="text-[11px] font-bold text-slate-700">로얄 퍼플</span>
+            </button>
+            <button type="button" data-fg="#EA580C" data-bg="#FFF7ED" class="qr-theme-btn p-2 rounded-xl border border-slate-200 hover:border-indigo-500 flex flex-col items-center gap-1.5 bg-slate-50/60 transition-all">
+              <span class="w-6 h-6 rounded-full border border-orange-200" style="background:#EA580C;"></span>
+              <span class="text-[11px] font-bold text-slate-700">선셋 오렌지</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Color Pickers & Dot Shape -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div>
+              <span class="block text-xs font-bold text-slate-700">QR 코드 색상</span>
+              <span id="fgHexText" class="text-[11px] font-mono text-slate-500">#0F172A</span>
+            </div>
+            <input type="color" id="qrFgColor" value="#0f172a" class="w-9 h-9" />
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div>
+              <span class="block text-xs font-bold text-slate-700">배경 색상</span>
+              <span id="bgHexText" class="text-[11px] font-mono text-slate-500">#FFFFFF</span>
+            </div>
+            <input type="color" id="qrBgColor" value="#ffffff" class="w-9 h-9" />
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-center">
+            <label for="qrDotStyle" class="text-xs font-bold text-slate-700 mb-1">모듈(점) 모양</label>
+            <select id="qrDotStyle" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 outline-none">
+              <option value="rounded">🟦 라운드 스퀘어 (추천)</option>
+              <option value="square">⬛ 클래식 사각형</option>
+              <option value="dots">⚫ 서클 도트 (원형)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Center Icon & Size & Error Correction -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">중앙 로고 아이콘</label>
+            <select id="qrCenterBadge" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 outline-none focus:border-indigo-500">
+              <option value="">아이콘 없음 (기본)</option>
+              <option value="🔗">🔗 링크 배지</option>
+              <option value="🌐">🌐 웹사이트</option>
+              <option value="📱">📱 모바일 앱</option>
+              <option value="💬">💬 오픈채팅/SNS</option>
+              <option value="🎬">🎬 영상/유튜브</option>
+              <option value="🎁">🎁 이벤트/쿠폰</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">하단 캡션 문구 (선택)</label>
+            <input type="text" id="qrCaptionInput" placeholder="예: 카메라로 스캔해 보세요!" maxlength="28" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 outline-none focus:bg-white focus:border-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">해상도 크기 (<span id="sizeLabel">320px</span>)</label>
+            <input type="range" id="qrSizeSlider" min="220" max="480" step="20" value="320" class="w-full accent-indigo-600 mt-2 cursor-pointer" />
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 최근 제작한 QR 히스토리 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col gap-3.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-600 text-[20px]">history</span>
+            <h3 class="text-sm font-extrabold text-slate-900">최근 제작한 QR 코드 히스토리</h3>
+          </div>
+          <button type="button" id="btnClearHistory" class="text-xs font-semibold text-slate-400 hover:text-rose-600 transition-colors">
+            전체 삭제
+          </button>
+        </div>
+        <div id="qrHistoryList" class="flex flex-col gap-2">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Live QR Code Preview & Download Card -->
+    <div class="lg:col-span-5 lg:sticky lg:top-24 flex flex-col gap-5">
+      <section class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 qr-preview-shadow flex flex-col items-center gap-5">
+        <div class="w-full flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-extrabold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+            LIVE QR PREVIEW
+          </span>
+          <span id="qrVerifyStatus" class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+            스캔 가능
+          </span>
+        </div>
+
+        <!-- QR Canvas Wrapper -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 flex flex-col items-center justify-center">
+          <canvas id="qrCanvas" width="320" height="320" class="rounded-xl shadow-xs max-w-full h-auto"></canvas>
+        </div>
+
+        <!-- Target Link Display Pill -->
+        <div class="w-full bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-200/80 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-indigo-600 text-[18px] shrink-0">open_in_new</span>
+            <a id="previewTargetLink" href="https://www.naver.com" target="_blank" rel="noopener noreferrer" class="text-xs font-mono font-bold text-slate-700 hover:text-indigo-600 truncate underline decoration-slate-300">
+              https://www.naver.com
+            </a>
+          </div>
+          <button type="button" id="btnCopyUrl" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 text-[11px] font-bold text-slate-600 shrink-0 transition-colors">
+            링크 복사
+          </button>
+        </div>
+
+        <!-- Download & Copy Actions -->
+        <div class="w-full grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            id="btnDownloadPng"
+            class="h-12 rounded-xl bg-slate-900 hover:bg-indigo-600 active:scale-95 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 transition-all"
+          >
+            <span class="material-symbols-outlined text-[19px]">download</span>
+            <span>PNG 이미지 저장</span>
+          </button>
+          <button
+            type="button"
+            id="btnCopyQrImage"
+            class="h-12 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:scale-95 text-indigo-700 font-bold text-xs sm:text-sm border border-indigo-200/80 flex items-center justify-center gap-1.5 transition-all"
+          >
+            <span class="material-symbols-outlined text-[19px]">content_copy</span>
+            <span>QR 이미지 복사</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-1.5">
+    <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+    <span id="toastText">알림</span>
+  </div>
+
+  <!-- QR Studio Script -->
+  <script>
+    const urlInput = document.getElementById('qrUrlInput');
+    const fgColorInput = document.getElementById('qrFgColor');
+    const bgColorInput = document.getElementById('qrBgColor');
+    const fgHexText = document.getElementById('fgHexText');
+    const bgHexText = document.getElementById('bgHexText');
+    const dotStyleSelect = document.getElementById('qrDotStyle');
+    const centerBadgeSelect = document.getElementById('qrCenterBadge');
+    const captionInput = document.getElementById('qrCaptionInput');
+    const sizeSlider = document.getElementById('qrSizeSlider');
+    const sizeLabel = document.getElementById('sizeLabel');
+    const canvas = document.getElementById('qrCanvas');
+    const ctx = canvas.getContext('2d');
+    const previewTargetLink = document.getElementById('previewTargetLink');
+
+    let qrHistory = JSON.parse(localStorage.getItem('qr_studio_history') || '[]');
+    if (qrHistory.length === 0) {
+      qrHistory = [
+        { url: 'https://www.naver.com', fg: '#0F172A', bg: '#FFFFFF', badge: '🌐', time: '기본 예시' }
+      ];
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastText').textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    // URL 보정 (도메인 형태면 https:// 자동 완성)
+    function normalizeLink(raw) {
+      const trimmed = raw.trim();
+      if (!trimmed) return '';
+      if (/^[a-zA-Z]+:\/\//.test(trimmed)) return trimmed;
+      if (/^[\w-]+(\.[\w-]+)+/.test(trimmed) && !trimmed.includes(' ')) {
+        return 'https://' + trimmed;
+      }
+      return trimmed;
+    }
+
+    // 둥근 사각형 그리기 헬퍼
+    function drawRoundedRect(context, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.arcTo(x + w, y, x + w, y + h, radius);
+      context.arcTo(x + w, y + h, x, y + h, radius);
+      context.arcTo(x, y + h, x, y, radius);
+      context.arcTo(x, y, x + w, y, radius);
+      context.closePath();
+      context.fill();
+    }
+
+    // 한글/UTF-8 문자열을 QR 바이트 스트림으로 안전하게 인코딩
+    function toUtf8ByteString(str) {
+      return unescape(encodeURIComponent(str));
+    }
+
+    // 메인 QR 코드 캔버스 렌더링 함수
+    function renderQRCode() {
+      const rawValue = urlInput.value.trim();
+      const targetText = rawValue || 'https://www.naver.com';
+      const normalizedHref = normalizeLink(targetText);
+
+      // 하단 링크 프리뷰 업데이트
+      previewTargetLink.textContent = targetText;
+      previewTargetLink.href = normalizedHref.startsWith('http') ? normalizedHref : '#';
+
+      const size = parseInt(sizeSlider.value, 10) || 320;
+      const caption = captionInput.value.trim();
+      const extraCaptionHeight = caption ? Math.round(size * 0.12) : 0;
+
+      canvas.width = size;
+      canvas.height = size + extraCaptionHeight;
+
+      const fgColor = fgColorInput.value;
+      const bgColor = bgColorInput.value;
+      const dotStyle = dotStyleSelect.value;
+      const badgeEmoji = centerBadgeSelect.value;
+
+      fgHexText.textContent = fgColor.toUpperCase();
+      bgHexText.textContent = bgColor.toUpperCase();
+      sizeLabel.textContent = `${size}px`;
+
+      // 1. 배경 채우기
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      try {
+        // 중앙 로고가 있으면 오류 복원력을 H(30%)로, 없으면 M(15%)으로 설정
+        const ecLevel = badgeEmoji ? 'H' : 'M';
+        const qr = qrcode(0, ecLevel);
+        qr.addData(toUtf8ByteString(targetText));
+        qr.make();
+
+        const moduleCount = qr.getModuleCount();
+        const padding = Math.round(size * 0.075);
+        const availableSize = size - padding * 2;
+        const cellSize = availableSize / moduleCount;
+
+        ctx.fillStyle = fgColor;
+
+        // 2. 모듈(셀) 순회하며 그리기
+        for (let row = 0; row < moduleCount; row++) {
+          for (let col = 0; col < moduleCount; col++) {
+            if (!qr.isDark(row, col)) continue;
+
+            const x = padding + col * cellSize;
+            const y = padding + row * cellSize;
+
+            if (dotStyle === 'square') {
+              ctx.fillRect(x, y, Math.ceil(cellSize), Math.ceil(cellSize));
+            } else if (dotStyle === 'rounded') {
+              drawRoundedRect(ctx, x + 0.3, y + 0.3, cellSize - 0.5, cellSize - 0.5, cellSize * 0.32);
+            } else if (dotStyle === 'dots') {
+              // 코너 파인더 패턴(7x7)은 스캔 인식률을 위해 둥근 사각형으로 유지
+              const isFinder =
+                (row < 7 && col < 7) ||
+                (row < 7 && col >= moduleCount - 7) ||
+                (row >= moduleCount - 7 && col < 7);
+
+              if (isFinder) {
+                drawRoundedRect(ctx, x, y, cellSize, cellSize, cellSize * 0.25);
+              } else {
+                ctx.beginPath();
+                ctx.arc(x + cellSize / 2, y + cellSize / 2, (cellSize / 2) * 0.88, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+        }
+
+        // 3. 중앙 로고 배지 그리기
+        if (badgeEmoji) {
+          const badgeSize = size * 0.21;
+          const bx = (size - badgeSize) / 2;
+          const by = (size - badgeSize) / 2;
+
+          ctx.fillStyle = bgColor;
+          drawRoundedRect(ctx, bx - 4, by - 4, badgeSize + 8, badgeSize + 8, badgeSize * 0.28);
+
+          ctx.strokeStyle = fgColor;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(bx, by, badgeSize, badgeSize);
+
+          ctx.font = `${Math.round(badgeSize * 0.62)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = fgColor;
+          ctx.fillText(badgeEmoji, size / 2, size / 2 + 2);
+        }
+
+        // 4. 하단 캡션 문구 그리기
+        if (caption) {
+          ctx.fillStyle = fgColor;
+          ctx.font = `700 ${Math.max(12, Math.round(size * 0.045))}px "Plus Jakarta Sans", "Noto Sans KR", sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(caption, size / 2, size + extraCaptionHeight / 2 - 2);
+        }
+
+        document.getElementById('qrVerifyStatus').innerHTML = `
+          <span class="material-symbols-outlined text-[16px]">verified</span>
+          스캔 가능 (${moduleCount}×${moduleCount})
+        `;
+      } catch (err) {
+        console.error(err);
+        showToast('입력한 텍스트가 너무 길어 QR 코드 용량을 초과했습니다.');
+      }
+    }
+
+    // 히스토리 렌더링
+    function renderHistory() {
+      const list = document.getElementById('qrHistoryList');
+      list.innerHTML = '';
+
+      if (qrHistory.length === 0) {
+        list.innerHTML = `<div class="text-center py-4 text-xs text-slate-400">저장된 QR 코드 기록이 없습니다.</div>`;
+        return;
+      }
+
+      qrHistory.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-xl bg-slate-50 hover:bg-indigo-50/50 border border-slate-200/80 flex items-center justify-between gap-2 transition-colors cursor-pointer';
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold border border-black/10 shrink-0" style="background:${item.bg}; color:${item.fg};">
+              ${item.badge || 'QR'}
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-slate-800 truncate font-mono">${item.url}</p>
+              <p class="text-[10px] text-slate-400">${item.time}</p>
+            </div>
+          </div>
+          <button type="button" data-idx="${idx}" class="btn-del-history w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        `;
+
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-del-history')) return;
+          urlInput.value = item.url;
+          fgColorInput.value = item.fg;
+          bgColorInput.value = item.bg;
+          centerBadgeSelect.value = item.badge || '';
+          renderQRCode();
+          showToast('히스토리에서 QR 설정을 불러왔습니다.');
+        });
+
+        row.querySelector('.btn-del-history').addEventListener('click', (e) => {
+          e.stopPropagation();
+          qrHistory.splice(idx, 1);
+          localStorage.setItem('qr_studio_history', JSON.stringify(qrHistory));
+          renderHistory();
+        });
+
+        list.appendChild(row);
+      });
+    }
+
+    function saveCurrentToHistory() {
+      const raw = urlInput.value.trim();
+      if (!raw) {
+        showToast('링크(URL) 또는 텍스트를 먼저 입력해 주세요!');
+        urlInput.focus();
+        return;
+      }
+      const normalized = normalizeLink(raw);
+      urlInput.value = normalized;
+      renderQRCode();
+
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} 제작`;
+
+      // 중복 제거 후 맨 앞에 추가
+      qrHistory = qrHistory.filter(h => h.url !== normalized);
+      qrHistory.unshift({
+        url: normalized,
+        fg: fgColorInput.value,
+        bg: bgColorInput.value,
+        badge: centerBadgeSelect.value,
+        time: timeStr
+      });
+      if (qrHistory.length > 8) qrHistory.pop();
+
+      localStorage.setItem('qr_studio_history', JSON.stringify(qrHistory));
+      renderHistory();
+      showToast('QR 코드가 제작되어 히스토리에 저장되었습니다!');
+    }
+
+    // 이벤트 바인딩
+    urlInput.addEventListener('input', renderQRCode);
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveCurrentToHistory();
+      }
+    });
+
+    document.getElementById('btnGenerateQr').addEventListener('click', saveCurrentToHistory);
+
+    document.getElementById('btnClearInput').addEventListener('click', () => {
+      urlInput.value = '';
+      urlInput.focus();
+      renderQRCode();
+    });
+
+    [fgColorInput, bgColorInput, dotStyleSelect, centerBadgeSelect, captionInput, sizeSlider].forEach(el => {
+      el.addEventListener('input', renderQRCode);
+      el.addEventListener('change', renderQRCode);
+    });
+
+    // 컬러 테마 프리셋 버튼
+    document.querySelectorAll('.qr-theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fgColorInput.value = btn.getAttribute('data-fg');
+        bgColorInput.value = btn.getAttribute('data-bg');
+        renderQRCode();
+      });
+    });
+
+    // 기본 스타일 복원
+    document.getElementById('btnResetStyle').addEventListener('click', () => {
+      fgColorInput.value = '#0f172a';
+      bgColorInput.value = '#ffffff';
+      dotStyleSelect.value = 'rounded';
+      centerBadgeSelect.value = '';
+      captionInput.value = '';
+      sizeSlider.value = '320';
+      renderQRCode();
+      showToast('기본 QR 스타일로 복원되었습니다.');
+    });
+
+    // 예시 링크 버튼
+    document.querySelectorAll('.sample-link-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        urlInput.value = btn.getAttribute('data-url');
+        saveCurrentToHistory();
+      });
+    });
+
+    // 히스토리 전체 삭제
+    document.getElementById('btnClearHistory').addEventListener('click', () => {
+      qrHistory = [];
+      localStorage.removeItem('qr_studio_history');
+      renderHistory();
+      showToast('히스토리가 모두 삭제되었습니다.');
+    });
+
+    // 링크 복사
+    document.getElementById('btnCopyUrl').addEventListener('click', () => {
+      const target = normalizeLink(urlInput.value.trim() || 'https://www.naver.com');
+      navigator.clipboard.writeText(target);
+      showToast(`링크가 복사되었습니다: ${target}`);
+    });
+
+    // PNG 이미지 다운로드
+    document.getElementById('btnDownloadPng').addEventListener('click', () => {
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `QRCode_${Date.now()}.png`;
+      a.click();
+      showToast('고화질 PNG QR 코드 이미지가 저장되었습니다!');
+    });
+
+    // 클립보드에 QR 이미지 복사
+    document.getElementById('btnCopyQrImage').addEventListener('click', () => {
+      canvas.toBlob(async (blob) => {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          showToast('QR 코드 이미지가 클립보드에 복사되었습니다! (Ctrl+V로 붙여넣기 가능)');
+        } catch (err) {
+          showToast('이 브라우저에서는 이미지 복사를 지원하지 않아 PNG 다운로드를 권장합니다.');
+        }
+      });
+    });
+
+    // 초기 실행
+    document.addEventListener('DOMContentLoaded', () => {
+      renderQRCode();
+      renderHistory();
+    });
+  </script>
+</body>
+</html>
+

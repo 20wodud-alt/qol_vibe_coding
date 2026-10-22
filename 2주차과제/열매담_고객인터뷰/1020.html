@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>1020 고객 인터뷰 결과 및 가설 검증 발표 슬라이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0f172a;
+      font-family: 'Pretendard', sans-serif;
+      color: #1e293b;
+      display: grid;
+      gap: 32px;
+      grid-template-columns: 1fr;
+      padding: 40px 0;
+      place-items: center;
+    }
+
+    .slide-container {
+      width: 1280px;
+      height: 720px;
+      margin: 0 auto;
+      overflow: hidden;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      padding: 46px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    .slide-container.light-slide::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, #ea580c 0%, #f59e0b 50%, #10b981 100%);
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 22px;
+      width: 100%;
+    }
+
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #c2410c;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+    }
+
+    .slide-title span {
+      color: #ea580c;
+    }
+
+    .slide-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .content-area {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .insight-banner {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border: 1px solid #fed7aa;
+      border-left: 6px solid #ea580c;
+      border-radius: 10px;
+      padding: 14px 22px;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .insight-banner p {
+      font-size: 16px;
+      font-weight: 700;
+      color: #9a3412;
+      line-height: 1.45;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .custom-table th, .custom-table td {
+      padding: 15px 18px;
+      text-align: left;
+      font-size: 14.5px;
+      border-bottom: 1px solid #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .custom-table th {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .custom-table td {
+      background-color: #ffffff;
+      color: #334155;
+    }
+
+    .custom-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .highlight-col {
+      background-color: #fff7ed !important;
+      color: #9a3412 !important;
+      font-weight: 600;
+    }
+
+    .pivot-col {
+      background-color: #ecfdf5 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+
+    .card-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .card-grid-3 {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    .card {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 22px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .voc-quote {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #ea580c;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #334155;
+      font-style: italic;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide-container" id="slide1" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; justify-content: center; align-items: center;">
+    <div style="text-align: center; max-width: 920px;">
+      <div style="display: inline-block; background: rgba(234, 88, 12, 0.2); border: 1px solid #ea580c; color: #fb923c; padding: 7px 20px; border-radius: 20px; font-weight: 700; font-size: 14px; margin-bottom: 24px;">
+        <i class="fa-solid fa-comments" style="margin-right: 8px;"></i> CUSTOMER DISCOVERY &amp; PIVOT REPORT
+      </div>
+      <h1 contenteditable="true" style="font-size: 50px; font-weight: 900; line-height: 1.25; margin-bottom: 20px; color: #ffffff;">
+        [열매담] 1차 현장/온라인<br><span style="color: #f97316;">고객 인터뷰 결과 및 가설 검증 보고</span>
+      </h1>
+      <p contenteditable="true" style="font-size: 19px; color: #94a3b8; line-height: 1.6; margin-bottom: 36px;">
+        산지 농가 · 도매 유통사 · 위탁판매 셀러 강사 · 농업기술센터 5개처 입체 검증을 통한 핵심 타겟 재정의
+      </p>
+      
+      <!-- 5 Interviewees Badges -->
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px;">
+        <span style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0;">
+          <i class="fa-solid fa-tractor" style="color:#fb923c; margin-right:6px;"></i> 산지 농가 (자연농원)
+        </span>
+        <span style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0;">
+          <i class="fa-solid fa-building" style="color:#fb923c; margin-right:6px;"></i> 대형 유통사 (최고집)
+        </span>
+        <span style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0;">
+          <i class="fa-solid fa-boxes-packing" style="color:#fb923c; margin-right:6px;"></i> B2B 도매공급 (과일그로브)
+        </span>
+        <span style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0;">
+          <i class="fa-solid fa-chalkboard-user" style="color:#fb923c; margin-right:6px;"></i> 위탁셀러 강사 (카르)
+        </span>
+        <span style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0;">
+          <i class="fa-solid fa-landmark" style="color:#fb923c; margin-right:6px;"></i> 지자체 (농업기술센터)
+        </span>
+      </div>
+
+      <div style="display: flex; gap: 32px; justify-content: center; font-size: 15px; color: #cbd5e1;">
+        <span><i class="fa-solid fa-user-tie" style="color: #f97316; margin-right: 6px;"></i> 발표자: 김재영 대표</span>
+        <span><i class="fa-solid fa-calendar-check" style="color: #f97316; margin-right: 6px;"></i> 조사 일시: 2026년 10월 20일</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: EXECUTIVE SUMMARY (AS-IS vs TO-BE) -->
+  <div class="slide-container light-slide" id="slide2">
+    <div class="slide-header">
+      <div>
+        <div class="slide-tag" contenteditable="true">
+          <i class="fa-solid fa-compass"></i> 01. EXECUTIVE SUMMARY (가설 vs 현장 검증)
+        </div>
+        <h1 class="slide-title" contenteditable="true">
+          책상 위 가설의 맹점 발견 및 <span>핵심 타겟(Early Adopter) 재정의</span>
+        </h1>
+      </div>
+      <div class="slide-number" contenteditable="true">01 / 04</div>
+    </div>
+
+    <div class="insight-banner">
+      <p contenteditable="true">
+        <i class="fa-solid fa-lightbulb" style="margin-right: 8px;"></i> 핵심 발견: 영세·고령 농가는 온라인 판매 여력 자체가 없으며, 도매처에서 '사진만 받아' 직접 상세페이지를 만들어야 하는 위탁 셀러와 3040 직거래 농가가 진짜 고객입니다.
+      </p>
+    </div>
+
+    <div class="content-area">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th style="width: 14%;">검증 영역</th>
+            <th style="width: 26%;">기존 사업 가설 (As-Is)</th>
+            <th style="width: 30%;">현장 인터뷰 팩트 (To-Be / Fact)</th>
+            <th style="width: 30%;">전략 수정 및 피봇 (Action / Pivot)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>핵심 타겟<br>(Customer)</b></td>
+            <td contenteditable="true">1~5인 소규모 산지 농가가 직접 온라인 판매를 하며 상세페이지에 고통받을 것이다.</td>
+            <td class="highlight-col" contenteditable="true">
+              • <b>영세 농가(자연농원):</b> 인력 부족으로 온라인 판매 안 함 (로컬푸드로 충분)<br>
+              • <b>고령층(농기센):</b> 40대 이상 중년층만 관심, 고령층은 자동화 툴도 어려워함
+            </td>
+            <td class="pivot-col" contenteditable="true">
+              [타겟 정교화] 영세/고령 농가 제외 &rarr;<br>
+              ① <b>3040 청년·중견 직거래 농가</b><br>
+              ② 사진만 받아 직접 제작하는 <b>'과일 위탁 셀러'</b>로 투트랙 전환
+            </td>
+          </tr>
+          <tr>
+            <td><b>핵심 문제<br>(Problem)</b></td>
+            <td contenteditable="true">AI가 글을 못 써서 힘들 것이다 vs 과장 광고 신고가 두려울 것이다.</td>
+            <td class="highlight-col" contenteditable="true">
+              • <b>생성형 AI의 진짜 문제(최고집):</b> AI가 빈번하게 만드는 <b>'정보 표기 누락 및 오표기'</b> 때문에 결국 사람이 다시 검수함<br>
+              • 판매팀-디자이너 간 콘티 소통 병목 심각
+            </td>
+            <td class="pivot-col" contenteditable="true">
+              [기능 검증 완료] 범용 AI의 고질병인 '정보 누락/오표기'를 잡아주는 당사의 <b>[농산물 팩트 체크 &amp; 사전 검수 엔진]</b> 가치 100% 입증
+            </td>
+          </tr>
+          <tr>
+            <td><b>유통의 빈틈<br>(Channel)</b></td>
+            <td contenteditable="true">농가가 상세페이지를 다 만들어서 올릴 것이다.</td>
+            <td class="highlight-col" contenteditable="true">
+              • <b>도매업체(과일그로브):</b> 셀러에게 <b>'과일 사진만 제공'</b>, 상세페이지는 셀러가 알아서 제작<br>
+              • <b>셀러 강사(카르):</b> 저렴한 자동화 툴 추천 중이나 <b>키워드·상품등록·상위노출</b> 연계 희망
+            </td>
+            <td class="pivot-col" contenteditable="true">
+              [B2B2C 제휴 발굴] 사진만 주는 도매처(`과일그로브`) 및 셀러 강사(`카르`)와 제휴하여 소속 위탁 셀러에게 <b>기본 툴로 번들링 공급</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: INTERVIEW DEEP DIVE 1 (FARM, GOV, AGENCY) -->
+  <div class="slide-container light-slide" id="slide3">
+    <div class="slide-header">
+      <div>
+        <div class="slide-tag" contenteditable="true">
+          <i class="fa-solid fa-magnifying-glass"></i> 02. FIELD INTERVIEW INSIGHTS (산지 농가 · 기관 · 대형 유통사)
+        </div>
+        <h1 class="slide-title" contenteditable="true">
+          누가 온라인 판매를 하며, <span>어디서 AI 병목이 터지는가?</span>
+        </h1>
+      </div>
+      <div class="slide-number" contenteditable="true">02 / 04</div>
+    </div>
+
+    <div class="content-area">
+      <div class="card-grid-3">
+        <!-- Card 1: 자연농원 -->
+        <div class="card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span class="badge" style="background:#e2e8f0; color:#475569;">산지 농가</span>
+              <span style="font-size:13px; font-weight:700; color:#ef4444;"><i class="fa-solid fa-ban"></i> 영세 농가 타겟 제외</span>
+            </div>
+            <h3 contenteditable="true" style="font-size:19px; color:#0f172a; margin-bottom:8px;">① 과일농사 『자연농원』</h3>
+            <div class="voc-quote" contenteditable="true">
+              "농사일도 바쁜데 온라인 판매를 하려면 전담 인력이 최소 1명 있어야 한다. 인원이 적은 농가는 엄두를 못 내고 로컬푸드 직매장만으로 충분하다."
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:12px; font-size:13.5px; color:#334155;">
+            <b style="color:#ea580c;"><i class="fa-solid fa-check"></i> 인사이트:</b><br>
+            1~2인 영세 농가는 '상세페이지' 이전에 '택배·CS 여력'이 없음. <b>이미 스토어를 운영 중인 3~5인 규모 농가</b>로 타겟을 좁혀야 함.
+          </div>
+        </div>
+
+        <!-- Card 2: 농업기술센터 -->
+        <div class="card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span class="badge" style="background:#dbeafe; color:#1e40af;">지자체 기관</span>
+              <span style="font-size:13px; font-weight:700; color:#2563eb;"><i class="fa-solid fa-filter"></i> 3040 연령대 핀셋 타겟팅</span>
+            </div>
+            <h3 contenteditable="true" style="font-size:19px; color:#0f172a; margin-bottom:8px;">② 『농업기술센터』 특산물담당</h3>
+            <div class="voc-quote" contenteditable="true">
+              "온라인 상세페이지 자동화 시스템은 40대 정도 되는 층에서 관심이 높다. 나이가 있으신 고령 농가분들은 어려워하셔서 추천드리기 어렵다."
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:12px; font-size:13.5px; color:#334155;">
+            <b style="color:#ea580c;"><i class="fa-solid fa-check"></i> 인사이트:</b><br>
+            농기센 B2G 교육 제안 시 전체 농민이 아닌 <b>'3040 청년농업인 분과' 및 '강소농 이커머스 심화반'</b>을 핀셋 공략해야 전환율 확보 가능.
+          </div>
+        </div>
+
+        <!-- Card 3: 최고집 -->
+        <div class="card" style="background:#fff7ed; border-color:#fed7aa;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span class="badge" style="background:#ffedd5; color:#c2410c;">중대형 유통사</span>
+              <span style="font-size:13px; font-weight:700; color:#ea580c;"><i class="fa-solid fa-star"></i> 핵심 기능(검수) 정당성 입증</span>
+            </div>
+            <h3 contenteditable="true" style="font-size:19px; color:#9a3412; margin-bottom:8px;">③ 도매유통업체 『최고집』</h3>
+            <div class="voc-quote" style="border-left-color:#c2410c;" contenteditable="true">
+              "판매팀-디자이너 간 콘티 컨펌이 가장 오래 걸립니다. 자체 AI 툴(GPT 연결)을 쓰지만 <b>AI가 아주 빈번하게 만드는 정보 표기 누락·오표기</b> 때문에 결국 사람이 최종 검수합니다."
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #fdba74; border-radius:8px; padding:12px; font-size:13.5px; color:#7c2d12;">
+            <b style="color:#c2410c;"><i class="fa-solid fa-fire"></i> 결정적 인사이트:</b><br>
+            내부 개발팀이 있는 대형사는 타겟 제외. 단, 이들이 겪는 <b>[콘티 소통 병목 + AI 정보 누락/오표기 검수]</b>는 중소 셀러에게 똑같이 발생하므로 열매담 검수 엔진의 필요성 100% 입증!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: INTERVIEW DEEP DIVE 2 (NEW GOLDMINE: WHOLESALE & SELLERS) -->
+  <div class="slide-container light-slide" id="slide4">
+    <div class="slide-header">
+      <div>
+        <div class="slide-tag" contenteditable="true">
+          <i class="fa-solid fa-gem"></i> 03. NEW OPPORTUNITY (도매 공급사 &amp; 위탁판매 생태계)
+        </div>
+        <h1 class="slide-title" contenteditable="true">
+          가장 빠르게 돈을 낼 <span>진짜 얼리어답터(Early Adopter)의 발견</span>
+        </h1>
+      </div>
+      <div class="slide-number" contenteditable="true">03 / 04</div>
+    </div>
+
+    <div class="content-area" style="gap: 20px;">
+      <!-- Top Two Cards -->
+      <div class="card-grid-2">
+        <!-- 과일그로브 -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:22px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 contenteditable="true" style="font-size:20px; color:#0f172a;">
+              <i class="fa-solid fa-boxes-packing" style="color:#ea580c; margin-right:8px;"></i> ④ B2B 도매공급사 『과일그로브』
+            </h3>
+            <span class="badge" style="background:#dcfce7; color:#15803d;">핵심 유통 빈틈 포착!</span>
+          </div>
+          <div class="voc-quote" contenteditable="true">
+            "우리는 상세페이지 자동화 시스템을 쓰지 않습니다. <b>과일 사진만 제공하고, 고객(위탁 셀러)이 알아서 직접 상세페이지를 만들어야 합니다.</b>"
+          </div>
+          <p contenteditable="true" style="font-size:14.5px; color:#334155; line-height:1.55; margin-top:10px;">
+            • <b>발견한 기회:</b> 과일 도매업체는 셀러들에게 '원물 사진 몇 장'과 '단가표'만 던져줍니다.<br>
+            • 즉, `과일그로브`에서 과일을 받아 파는 <b>수백~수천 명의 소규모 위탁 셀러들이 매일 그 사진 몇 장으로 상세페이지를 직접 만드느라 고통받고 있는 진짜 타겟</b>입니다.
+          </p>
+        </div>
+
+        <!-- 위탁셀러 강사 카르 -->
+        <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:22px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 contenteditable="true" style="font-size:20px; color:#c2410c;">
+              <i class="fa-solid fa-chalkboard-user" style="color:#ea580c; margin-right:8px;"></i> ⑤ 위탁판매 전문 강사 『카르』
+            </h3>
+            <span class="badge" style="background:#ea580c; color:#ffffff;">최적의 GTM 파트너</span>
+          </div>
+          <div class="voc-quote" style="border-left-color:#ea580c;" contenteditable="true">
+            "1:1 위탁판매 강의를 하며 이미 자동화 툴을 사용 중이고, <b>수강생들에게 더 저렴하게 이용할 수 있는 툴을 적극 추천 중</b>입니다. 상세페이지뿐 아니라 <b>키워드 선택, 상품 등록, 상위 노출</b>까지 신경 쓸 게 많습니다."
+          </div>
+          <p contenteditable="true" style="font-size:14.5px; color:#7c2d12; line-height:1.55; margin-top:10px;">
+            • <b>발견한 기회:</b> 수강생들에게 유료 툴을 직접 추천·결제하게 만드는 강력한 B2B2C 인플루언서입니다.<br>
+            • <b>제품 반영:</b> 단순 이미지 생성을 넘어 <b>[과일 황금 키워드 자동 추천 + 스마트스토어 API 원클릭 등록]</b>이 위탁 셀러의 니즈에 100% 부합합니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- Bottom Ecosystem Flow Diagram -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border-radius:12px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="text-align:center;">
+          <div style="font-size:13px; color:#94a3b8;">B2B 도매공급처 (과일그로브)</div>
+          <div style="font-size:17px; font-weight:800; color:#ffffff; margin-top:4px;">과일 원물 사진만 제공</div>
+        </div>
+        <div style="color:#fb923c; font-size:22px;"><i class="fa-solid fa-arrow-right-long"></i></div>
+        <div style="background:rgba(234, 88, 12, 0.25); border:1px solid #ea580c; padding:10px 20px; border-radius:10px; text-align:center;">
+          <div style="font-size:12px; color:#fb923c; font-weight:700;">★ 신규 발굴 핵심 타겟 (Pain Point 극대화)</div>
+          <div style="font-size:17px; font-weight:800; color:#ffffff; margin-top:2px;">과일 위탁 셀러 &amp; 카르 강사 수강생</div>
+        </div>
+        <div style="color:#fb923c; font-size:22px;"><i class="fa-solid fa-arrow-right-long"></i></div>
+        <div style="text-align:center;">
+          <div style="font-size:13px; color:#10b981; font-weight:700;">열매담 솔루션 도입 효과</div>
+          <div style="font-size:17px; font-weight:800; color:#ffffff; margin-top:4px;">사진 3장으로 10분 제작 + 오표기 검수 + 상품 등록</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: ACTION PLAN & PIVOT STRATEGY -->
+  <div class="slide-container light-slide" id="slide5">
+    <div class="slide-header">
+      <div>
+        <div class="slide-tag" contenteditable="true">
+          <i class="fa-solid fa-rocket"></i> 04. ACTION PLAN &amp; GTM PIVOT
+        </div>
+        <h1 class="slide-title" contenteditable="true">
+          인터뷰 결과를 반영한 <span>향후 3대 실행 전략 (Action Plan)</span>
+        </h1>
+      </div>
+      <div class="slide-number" contenteditable="true">04 / 04</div>
+    </div>
+
+    <div class="content-area" style="justify-content: space-between;">
+      <div class="card-grid-3">
+        <!-- Strategy 1 -->
+        <div class="card" style="border-top: 4px solid #ea580c;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:#ea580c; margin-bottom:6px;">STRATEGY 01</div>
+            <h3 contenteditable="true" style="font-size:19px; color:#0f172a; margin-bottom:12px;">거점 고객 Two-Track 재설정</h3>
+            <p contenteditable="true" style="font-size:14.5px; color:#475569; line-height:1.55; margin-bottom:12px;">
+              막연한 1~5인 영세 농가 전체에서 <b>실제 결제력과 결핍이 있는 두 그룹</b>으로 압축합니다.
+            </p>
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; font-size:13.5px; color:#334155; line-height:1.5;">
+              • <b>Track A (산지):</b> 농업기술센터 내 <b>3040 청년농·강소농</b> 직거래 농가<br>
+              • <b>Track B (셀러):</b> 도매처에서 사진만 받아 매주 수십 개 상품을 올리는 <b>과일 위탁 셀러</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 2 -->
+        <div class="card" style="border-top: 4px solid #f59e0b;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:#d97706; margin-bottom:6px;">STRATEGY 02</div>
+            <h3 contenteditable="true" style="font-size:19px; color:#0f172a; margin-bottom:12px;">UVP 강화: 오표기 검수 &amp; 키워드</h3>
+            <p contenteditable="true" style="font-size:14.5px; color:#475569; line-height:1.55; margin-bottom:12px;">
+              `최고집`과 `카르` 인터뷰에서 확인된 현업의 진짜 페인포인트를 기능 전면에 배치합니다.
+            </p>
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; font-size:13.5px; color:#334155; line-height:1.5;">
+              • <b>AI 오표기·누락 검수:</b> 일반 GPT의 중량/당도 표기 누락으로 인한 반품 원천 차단 강조<br>
+              • <b>상위노출 키워드 추천:</b> 상세페이지 생성 시 스마트스토어용 <b>과일 황금 키워드(상품명) 자동 추천</b> 추가
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 3 -->
+        <div class="card" style="border-top: 4px solid #10b981; background:#ecfdf5; border-color:#a7f3d0;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:#059669; margin-bottom:6px;">STRATEGY 03 (즉시 실행)</div>
+            <h3 contenteditable="true" style="font-size:19px; color:#065f46; margin-bottom:12px;">도매처 &amp; 셀러 강사 번들링 제휴</h3>
+            <p contenteditable="true" style="font-size:14.5px; color:#047857; line-height:1.55; margin-bottom:12px;">
+              개별 농가를 한 명씩 설득하는 대신, 타겟이 모여 있는 허브(Hub)와 즉시 제휴합니다.
+            </p>
+            <div style="background:#fff; border:1px solid #a7f3d0; border-radius:8px; padding:12px; font-size:13.5px; color:#065f46; line-height:1.5;">
+              • <b>`카르` 강사 제휴:</b> 수강생 전용 할인 코드(9,900원&rarr;6,900원) 제공 및 <b>수강생 10명 유료 파일럿(PoC) 즉시 착수</b><br>
+              • <b>`과일그로브` 역제안:</b> 과일 사진 배포 시 열매담 제작 링크 동시 배포 (Win-Win)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Summary Message -->
+      <div style="background:#0f172a; color:#ffffff; border-radius:10px; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
+        <div style="font-size:16px; font-weight:700;">
+          <i class="fa-solid fa-quote-left" style="color:#fb923c; margin-right:8px;"></i>
+          현장 인터뷰를 통해 '막연한 농가'에서 <span style="color:#fb923c;">'사진만 받아 파는 과일 위탁 셀러 &amp; 3040 직거래 농가'</span>로 가장 확실한 유료 결제 파이프라인을 찾았습니다.
+        </div>
+        <span style="background:#ea580c; color:#fff; font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px; flex-shrink:0;">Next: 수강생 파일럿 테스트</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PPT SLIDE PRESENTATION BAR & PPTX EXPORTER ================= -->
+  <style>
+    body.ppt-slide-mode {
+      height: 100vh;
+      overflow: hidden;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #090d16;
+    }
+    body.ppt-slide-mode .slide-container {
+      display: none;
+      margin: 0;
+      transform-origin: center center;
+    }
+    body.ppt-slide-mode .slide-container.active-ppt-slide {
+      display: flex;
+    }
+    .ppt-Floating-Bar {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .ppt-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .ppt-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .ppt-btn.primary-ppt {
+      background: #ea580c;
+      border-color: #f97316;
+      color: #ffffff;
+    }
+    .ppt-btn.primary-ppt:hover {
+      background: #c2410c;
+    }
+    .ppt-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .ppt-dot.active {
+      width: 24px;
+      border-radius: 999px;
+      background: #f97316;
+    }
+    @media print {
+      .ppt-Floating-Bar { display: none !important; }
+      body { background: #fff !important; padding: 0 !important; display: block !important; }
+      .slide-container { page-break-after: always; box-shadow: none !important; margin: 0 auto !important; display: flex !important; transform: none !important; }
+    }
+  </style>
+
+  <div class="ppt-Floating-Bar" id="pptToolbar">
+    <button class="ppt-btn" onclick="togglePptMode()" id="btnToggleMode" title="슬라이드 1장씩 보기 / 전체 스크롤 보기 전환">
+      <i class="fa-solid fa-tv"></i> <span id="modeBtnLabel">슬라이드 모드 ON</span>
+    </button>
+    <button class="ppt-btn" onclick="prevSlide()" title="이전 슬라이드 (←)">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div id="pptDots" style="display:flex; align-items:center; gap:6px; padding:0 4px;"></div>
+    <span id="pptPageLabel" style="font-size:13px; font-weight:800; color:#fb923c; min-width:44px; text-align:center;">1 / 5</span>
+    <button class="ppt-btn" onclick="nextSlide()" title="다음 슬라이드 (→)">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <button class="ppt-btn" onclick="toggleFullScreen()" title="전체화면 프레젠테이션 (F)">
+      <i class="fa-solid fa-expand"></i> 전체화면
+    </button>
+    <button class="ppt-btn primary-ppt" onclick="window.print()" title="PDF 슬라이드로 저장">
+      <i class="fa-solid fa-file-pdf"></i> PDF 저장
+    </button>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide-container'));
+    let currentSlideIdx = 0;
+    let isSlideMode = true;
+
+    function renderDots() {
+      const dotsWrap = document.getElementById('pptDots');
+      dotsWrap.innerHTML = slides.map((_, i) =>
+        `<span class="ppt-dot ${i === currentSlideIdx ? 'active' : ''}" onclick="goToSlide(${i})" title="슬라이드 ${i + 1}"></span>`
+      ).join('');
+    }
+
+    function fitSlideScale() {
+      if (!isSlideMode) {
+        slides.forEach(s => { s.style.transform = ''; });
+        return;
+      }
+      const scaleX = (window.innerWidth - 48) / 1280;
+      const scaleY = (window.innerHeight - 96) / 720;
+      const scale = Math.min(1.12, Math.max(0.4, Math.min(scaleX, scaleY)));
+      slides.forEach(s => {
+        s.style.transform = `scale(${scale})`;
+      });
+    }
+
+    function updateSlideView() {
+      document.body.classList.toggle('ppt-slide-mode', isSlideMode);
+      document.getElementById('modeBtnLabel').textContent = isSlideMode ? '전체 스크롤 보기' : '슬라이드 발표 모드';
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active-ppt-slide', idx === currentSlideIdx);
+      });
+      document.getElementById('pptPageLabel').textContent = `${currentSlideIdx + 1} / ${slides.length}`;
+      renderDots();
+      fitSlideScale();
+      if (!isSlideMode) {
+        slides[currentSlideIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function goToSlide(idx) {
+      currentSlideIdx = (idx + slides.length) % slides.length;
+      updateSlideView();
+    }
+
+    function nextSlide() { goToSlide(currentSlideIdx + 1); }
+    function prevSlide() { goToSlide(currentSlideIdx - 1); }
+
+    function togglePptMode() {
+      isSlideMode = !isSlideMode;
+      updateSlideView();
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    window.addEventListener('resize', fitSlideScale);
+    window.addEventListener('keydown', (e) => {
+      if (document.activeElement && document.activeElement.isContentEditable) return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    // Start in 16:9 PPT Slide Presentation mode
+    updateSlideView();
+  </script>
+</body>
+</html>

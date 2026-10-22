@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="mobile_tab" name="shell-type"/>
+  <title>DayCount - 스마트 D-Day 카운터 & 기념일 계산기</title>
+
+  <!-- Google Fonts & Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS & Forest Chrono Theme Tokens -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-tint": "#006c4e",
+            "outline-variant": "#bdc9c1",
+            "on-error-container": "#93000a",
+            "surface-container-highest": "#caeadb",
+            "on-secondary-fixed": "#002113",
+            "surface-container-low": "#f0fdf4",
+            "primary-fixed-dim": "#7bd8b1",
+            "inverse-surface": "#1a352c",
+            "secondary": "#006c49",
+            "surface-container": "#e6f8ef",
+            "tertiary-fixed-dim": "#8bd6b6",
+            "on-secondary-container": "#00714d",
+            "tertiary-container": "#29765b",
+            "surface-variant": "#caeadb",
+            "on-primary-fixed": "#002115",
+            "mint-surface": "#ecfdf5",
+            "on-secondary-fixed-variant": "#005236",
+            "on-tertiary-fixed": "#002116",
+            "urgent-accent": "#e11d48",
+            "error": "#ba1a1a",
+            "mint-border": "#a7f3d0",
+            "tertiary-fixed": "#a6f2d1",
+            "surface": "#f6fdf9",
+            "surface-bright": "#f6fdf9",
+            "on-surface-variant": "#3e4943",
+            "on-primary-fixed-variant": "#00513a",
+            "on-tertiary-fixed-variant": "#00513b",
+            "warning-accent": "#f59e0b",
+            "inverse-on-surface": "#d8f8e9",
+            "tertiary": "#025d44",
+            "on-secondary": "#ffffff",
+            "on-background": "#032017",
+            "on-error": "#ffffff",
+            "secondary-container": "#6cf8bb",
+            "on-tertiary-container": "#aefad8",
+            "on-surface": "#032017",
+            "on-primary": "#ffffff",
+            "outline": "#6e7a73",
+            "milestone-accent": "#059669",
+            "background": "#f6fdf9",
+            "inverse-primary": "#7bd8b1",
+            "secondary-fixed": "#6ffbbe",
+            "surface-dim": "#c2e1d2",
+            "primary-container": "#047857",
+            "secondary-fixed-dim": "#4edea3",
+            "surface-container-high": "#d8f5e7",
+            "on-tertiary": "#ffffff",
+            "on-primary-container": "#9ffdd3",
+            "primary": "#005d42",
+            "error-container": "#ffdad6",
+            "primary-fixed": "#97f5cc"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.75rem",
+            "xl": "2.5rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "margin-sm": "1rem",
+            "margin-lg": "2rem",
+            "margin": "1.25rem",
+            "space-md": "1rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "gutter-sm": "0.75rem",
+            "gutter-lg": "1.5rem",
+            "gutter": "1rem"
+          },
+          fontFamily: {
+            "display-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "headline-md": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "body-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "headline-lg-mobile": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "label-sm": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "headline-sm": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "label-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "display-lg-mobile": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "headline-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "label-md": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "title-md": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "body-md": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "counter-hero": ["Plus Jakarta Sans", "Noto Sans KR"]
+          },
+          fontSize: {
+            "display-lg": ["44px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-lg-mobile": ["34px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "counter-hero": ["52px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "800" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background-color: #f6fdf9;
+      }
+      .pb-safe {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      main > :first-child {
+        margin-top: 0 !important;
+      }
+      main > :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .view-pane {
+      display: none;
+    }
+    .view-pane.active {
+      display: flex;
+    }
+
+    /* Dynamic Palette Generator Theme Variables */
+    :root {
+      --dday-primary: #005d42;
+      --dday-container: #047857;
+      --dday-fixed: #97f5cc;
+      --dday-urgent: #e11d48;
+      --dday-surface: #f6fdf9;
+      --dday-card: #ffffff;
+      --dday-low: #f0fdf4;
+      --dday-text: #032017;
+      --dday-subtext: #3e4943;
+      --dday-border: #a7f3d0;
+    }
+    html, body {
+      background-color: var(--dday-surface) !important;
+      color: var(--dday-text) !important;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .bg-surface { background-color: var(--dday-surface) !important; }
+    .bg-surface\/85, .bg-surface\/90 { background-color: color-mix(in srgb, var(--dday-surface) 88%, transparent) !important; }
+    .bg-surface-container-lowest { background-color: var(--dday-card) !important; }
+    .bg-surface-container-low, .bg-surface-container { background-color: var(--dday-low) !important; }
+    .bg-primary { background-color: var(--dday-primary) !important; }
+    .text-primary { color: var(--dday-primary) !important; }
+    .bg-primary-fixed, .bg-emerald-100, .bg-emerald-50 { background-color: var(--dday-fixed) !important; }
+    .text-primary-fixed { color: var(--dday-fixed) !important; }
+    .bg-urgent-accent { background-color: var(--dday-urgent) !important; }
+    .text-urgent-accent { color: var(--dday-urgent) !important; }
+    .text-on-surface { color: var(--dday-text) !important; }
+    .text-on-surface-variant { color: var(--dday-subtext) !important; }
+    .border-mint-border, .border-mint-border\/60, .border-mint-border\/50, .border-mint-border\/40, .border-mint-border\/30 {
+      border-color: var(--dday-border) !important;
+    }
+    #hero-progress-fill {
+      background: linear-gradient(90deg, var(--dday-primary), var(--dday-container)) !important;
+    }
+    #calc-hero-card {
+      background: linear-gradient(135deg, var(--dday-primary), var(--dday-container), #0f172a) !important;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen relative overflow-x-hidden selection:bg-primary-fixed selection:text-on-primary-fixed">
+
+  <!-- Ambient Background Glow -->
+  <div class="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(4,120,87,0.14),rgba(246,253,249,0))]"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,33,21,0.04)] border-b border-mint-border/30">
+    <div class="h-16 max-w-md mx-auto px-margin flex items-center justify-between gap-space-sm">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-fixed shadow-sm">
+          <span class="material-symbols-outlined text-[20px]" id="app-header-icon">event_upcoming</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="font-headline-sm text-headline-sm text-primary tracking-tight font-extrabold" id="app-header-title">D-day Count</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-[10px] font-bold">
+            <span class="material-symbols-outlined text-[12px] mr-0.5">today</span>오늘
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button aria-label="색상 팔레트 생성기" class="h-8 px-2.5 flex items-center gap-1 rounded-full bg-primary-fixed text-primary hover:opacity-90 active:scale-95 transition-all font-label-sm text-[11px] font-bold shadow-2xs" id="btn-header-palette" type="button" title="색상 팔렛 생성기 열기">
+          <span class="material-symbols-outlined text-[16px]">palette</span>
+          <span>팔레트</span>
+        </button>
+        <button aria-label="Notifications" class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" id="btn-quick-notif" type="button" title="알림 확인">
+          <span class="material-symbols-outlined text-[21px]">notifications</span>
+        </button>
+        <button class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-xs hover:opacity-90 active:scale-95 transition-all" id="btn-header-profile" type="button">
+          <span class="material-symbols-outlined text-[18px]">person</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="flex flex-col relative w-full max-w-md mx-auto pt-16 pb-28 min-h-screen bg-transparent z-10">
+
+    <!-- ========================================================
+         VIEW 1: 홈 (Home - D-Day Feed & Live Hero)
+    ======================================================== -->
+    <div class="view-pane active flex-col w-full px-margin pb-space-xl gap-space-lg" id="view-home">
+      
+      <!-- Status & Sync Header Bar -->
+      <div class="flex items-center justify-between pt-space-xs">
+        <div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-1.5 rounded-full shadow-sm border border-mint-border/50">
+          <span class="w-2 h-2 rounded-full bg-urgent-accent animate-pulse"></span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="home-today-text">2026년 10월 20일 (월)</span>
+          <span class="font-label-sm text-label-sm text-primary font-bold ml-0.5">실시간</span>
+        </div>
+        <button class="flex items-center gap-1 px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high active:scale-95 transition-all shadow-sm group border border-outline-variant/30" id="syncBtn">
+          <span class="material-symbols-outlined text-[17px] text-primary transition-transform duration-500" id="syncIcon">sync</span>
+          <span class="font-label-sm text-label-sm text-on-surface font-semibold">동기화</span>
+        </button>
+      </div>
+
+      <!-- Hero Milestone Card (여름 발리 휴가까지 / 가장 임박한 D-Day) -->
+      <div class="relative overflow-hidden rounded-lg bg-surface-container-lowest p-space-lg shadow-xl shadow-primary/10 border border-mint-border/60">
+        <!-- Atmospheric Ambient Gradient -->
+        <div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-primary-fixed-dim/35 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-6 -bottom-6 w-36 h-36 rounded-full bg-secondary-fixed/40 blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col gap-space-md">
+          <!-- Card Top: Tag & Category -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-space-xs">
+              <span class="px-space-sm py-0.5 rounded-full bg-urgent-accent text-on-primary font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-sm" id="hero-status-pill">
+                <span class="material-symbols-outlined text-[13px]" id="hero-cat-icon">flight_takeoff</span>
+                <span id="hero-pill-dday">D-68</span>
+              </span>
+              <span class="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-medium" id="hero-cat-name">여행 &amp; 휴식</span>
+            </div>
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" id="hero-more-btn" title="옵션">
+              <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+            </button>
+          </div>
+
+          <!-- Main Target Title & D-Day Big Counter -->
+          <div class="flex items-end justify-between">
+            <div class="flex flex-col">
+              <span class="font-label-md text-label-md text-on-surface-variant" id="hero-date-sub">2026. 12. 27 출발</span>
+              <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight" id="hero-main-title">여름 발리 휴가까지</h2>
+            </div>
+            <div class="text-right">
+              <span class="font-counter-hero text-counter-hero text-primary tracking-tighter leading-none font-black" id="hero-big-number">68</span>
+              <span class="font-title-md text-title-md text-on-surface font-bold ml-0.5" id="hero-big-unit">일전</span>
+            </div>
+          </div>
+
+          <!-- Live Countdown Breakdown Pill Matrix -->
+          <div class="grid grid-cols-3 gap-space-xs bg-surface-container-low p-space-sm rounded-DEFAULT text-center border border-mint-border/40">
+            <div class="flex flex-col py-1">
+              <span class="font-headline-sm text-headline-sm text-on-surface font-extrabold font-mono" id="heroHours">1,632</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">시간</span>
+            </div>
+            <div class="flex flex-col py-1 border-x border-outline-variant/30">
+              <span class="font-headline-sm text-headline-sm text-on-surface font-extrabold font-mono" id="heroMins">48</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">분</span>
+            </div>
+            <div class="flex flex-col py-1">
+              <span class="font-headline-sm text-headline-sm text-urgent-accent font-extrabold font-mono" id="heroSecs">24</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">초</span>
+            </div>
+          </div>
+
+          <!-- Progress Track & Milestone Stats -->
+          <div class="flex flex-col gap-1.5 pt-space-xs">
+            <div class="flex justify-between items-center font-label-sm text-label-sm">
+              <span class="text-on-surface-variant font-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-primary">timelapse</span>
+                전체 여정의 <strong class="text-on-surface font-bold" id="hero-progress-pct">62%</strong> 경과
+              </span>
+              <span class="text-primary font-semibold" id="hero-progress-days-left">112일 중 44일 남음</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden p-0.5">
+              <div class="h-full rounded-full bg-gradient-to-r from-primary to-primary-container transition-all duration-1000 ease-out" id="hero-progress-fill" style="width: 62%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestone Quick Tracker: 100일 / 200일 / 1주년 자동 계산 배너 -->
+      <div class="flex flex-col gap-space-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-space-xs">
+            <span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">기념일 자동 계산</h3>
+          </div>
+          <button class="font-label-sm text-label-sm text-primary font-medium hover:underline" id="btn-see-all-calc">계산기 열기</button>
+        </div>
+        <!-- Horizontal Scroll Snap Milestones -->
+        <div class="flex items-center gap-space-sm overflow-x-auto pb-1 -mx-margin px-margin no-scrollbar" id="quick-milestone-chips">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Filter Category Chips -->
+      <div class="flex items-center gap-space-xs overflow-x-auto -mx-margin px-margin py-1 no-scrollbar" id="home-cat-filters">
+        <button class="cat-chip active px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold whitespace-nowrap shadow-sm shadow-primary/25" data-cat="all">전체</button>
+        <button class="cat-chip px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-mint-border/60 text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-medium whitespace-nowrap shadow-sm" data-cat="couple">커플 &amp; 연애</button>
+        <button class="cat-chip px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-mint-border/60 text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-medium whitespace-nowrap shadow-sm" data-cat="career">시험 &amp; 커리어</button>
+        <button class="cat-chip px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-mint-border/60 text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-medium whitespace-nowrap shadow-sm" data-cat="work">직장 &amp; 프로젝트</button>
+      </div>
+
+      <!-- Milestone Cards List / Grid -->
+      <div class="flex flex-col gap-space-sm" id="home-cards-list">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Encouraging Milestone Tip Note -->
+      <div class="bg-surface-container-high/60 border border-mint-border p-space-md rounded-DEFAULT flex items-start gap-space-sm" id="home-tip-box">
+        <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">tips_and_updates</span>
+        <div class="flex flex-col">
+          <span class="font-label-md text-label-md text-on-primary-fixed font-bold">다가오는 기념일 팁</span>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-0.5" id="home-tip-text">
+            가장 가까운 기념일 일정을 확인하고 소중한 순간을 미리 준비해 보세요!
+          </p>
+        </div>
+      </div>
+
+      <!-- Floating Action Button (FAB) for Quick Add D-Day -->
+      <div class="fixed bottom-20 right-margin z-40 max-w-md mx-auto">
+        <button aria-label="기념일 추가" class="w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg shadow-primary/35 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 focus:outline-none" id="addDdayFab" type="button">
+          <span class="material-symbols-outlined text-[30px]">add</span>
+        </button>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 2: 계산기 (Calculator - Precision Date Tool)
+    ======================================================== -->
+    <div class="view-pane flex-col w-full px-margin space-y-space-lg pb-12" id="view-calculator">
+      
+      <!-- Live Clock & Status Bar -->
+      <div class="relative overflow-hidden bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-emerald-900/5">
+        <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-primary/5 rounded-full pointer-events-none blur-2xl"></div>
+        <div class="flex items-center justify-between gap-space-sm mb-space-xs">
+          <div class="flex items-center gap-space-xs">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+            </span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant font-bold tracking-wider">KST 실시간 동기화</span>
+          </div>
+          <button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm hover:bg-primary hover:text-on-primary transition-all active:scale-95" id="btn-sync-now" type="button">
+            <span class="material-symbols-outlined text-[14px]">sync</span>
+            <span>실시간 갱신</span>
+          </button>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-baseline gap-space-xs">
+            <span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-extrabold tracking-tight" id="live-time-display">--:--:--</span>
+            <span class="font-label-sm text-label-sm text-primary font-bold w-12" id="live-ms-display">.---</span>
+          </div>
+          <div class="flex items-center gap-space-xs mt-0.5 text-on-surface-variant">
+            <span class="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+            <span class="font-body-md text-body-md" id="live-date-display">2026년 10월 20일 (월)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero D-day Counter Card -->
+      <div class="relative overflow-hidden bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] text-on-primary rounded-lg p-space-lg shadow-xl border border-emerald-500/20" id="calc-hero-card">
+        <div class="absolute top-0 right-0 -mt-8 -mr-8 w-44 h-44 bg-emerald-300/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-center justify-between relative z-10 mb-space-sm">
+          <div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/10">
+            <span class="material-symbols-outlined text-[14px] text-emerald-200">flag</span>
+            <span class="font-label-sm text-label-sm text-white font-semibold" id="hero-target-label">목표 기념일</span>
+          </div>
+          <span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-300/20 backdrop-blur-md font-medium text-emerald-100" id="hero-calc-mode-badge">남은 일수</span>
+        </div>
+        <!-- Big Counter Number -->
+        <div class="flex items-center justify-center my-space-xs relative z-10">
+          <div class="flex items-baseline justify-center">
+            <span class="font-counter-hero text-counter-hero text-white tracking-tighter drop-shadow" id="hero-dday-number">D-42</span>
+          </div>
+        </div>
+        <p class="text-center font-label-md text-label-md text-emerald-100/80 relative z-10 mb-space-md" id="hero-target-fulldate">목표일: 2026. 12. 01 (화)</p>
+        <!-- Sub Breakdown Grid -->
+        <div class="grid grid-cols-4 gap-space-xs relative z-10">
+          <div class="bg-emerald-950/40 border border-white/10 backdrop-blur-md rounded-DEFAULT p-space-xs flex flex-col items-center">
+            <span class="font-headline-sm text-headline-sm font-bold text-white" id="unit-days">42</span>
+            <span class="font-label-sm text-label-sm text-emerald-200/80">일</span>
+          </div>
+          <div class="bg-emerald-950/40 border border-white/10 backdrop-blur-md rounded-DEFAULT p-space-xs flex flex-col items-center">
+            <span class="font-headline-sm text-headline-sm font-bold text-white" id="unit-hours">14</span>
+            <span class="font-label-sm text-label-sm text-emerald-200/80">시간</span>
+          </div>
+          <div class="bg-emerald-950/40 border border-white/10 backdrop-blur-md rounded-DEFAULT p-space-xs flex flex-col items-center">
+            <span class="font-headline-sm text-headline-sm font-bold text-white" id="unit-minutes">28</span>
+            <span class="font-label-sm text-label-sm text-emerald-200/80">분</span>
+          </div>
+          <div class="bg-emerald-950/40 border border-white/10 backdrop-blur-md rounded-DEFAULT p-space-xs flex flex-col items-center">
+            <span class="font-headline-sm text-headline-sm font-bold text-emerald-300" id="unit-seconds">09</span>
+            <span class="font-label-sm text-label-sm text-emerald-200/80">초</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="flex p-1 bg-surface-container rounded-full gap-1 shadow-sm">
+        <button class="calc-tab-btn flex-1 py-2 px-space-xs rounded-full bg-surface-container-lowest text-primary font-bold font-label-sm text-label-sm shadow-sm transition-all text-center" data-mode="dday" type="button">
+          남은 일수 (D-Day)
+        </button>
+        <button class="calc-tab-btn flex-1 py-2 px-space-xs rounded-full text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-all text-center" data-mode="offset" type="button">
+          날짜 더하기/빼기
+        </button>
+        <button class="calc-tab-btn flex-1 py-2 px-space-xs rounded-full text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-all text-center" data-mode="span" type="button">
+          두 날짜 간격
+        </button>
+      </div>
+
+      <!-- Mode 1: D-Day Calculation Panel -->
+      <div class="calc-mode-panel bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-emerald-900/5 space-y-space-md" id="panel-mode-dday">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-space-xs">
+            <span class="material-symbols-outlined text-[20px] text-primary">edit_calendar</span>
+            <span class="font-title-md text-title-md text-on-surface font-bold">목표 날짜 설정</span>
+          </div>
+          <span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-bold">실시간 계산중</span>
+        </div>
+        <!-- Date Input Trigger Panel -->
+        <div class="flex flex-col gap-space-xs">
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-medium" for="target-date-input">기준/목표 날짜 선택</label>
+          <div class="flex items-center gap-space-sm bg-surface-container-low border border-emerald-900/10 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all px-space-md py-3 rounded-full">
+            <span class="material-symbols-outlined text-[20px] text-primary">event</span>
+            <input class="bg-transparent font-title-md text-title-md text-on-surface w-full focus:outline-none" id="target-date-input" type="date"/>
+          </div>
+        </div>
+        <!-- Quick Presets Carousel -->
+        <div class="space-y-space-xs">
+          <span class="font-label-sm text-label-sm text-on-surface-variant">빠른 프리셋 선택</span>
+          <div class="flex items-center gap-space-xs overflow-x-auto pb-1 no-scrollbar">
+            <button class="preset-btn shrink-0 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:bg-primary-fixed hover:text-primary transition-colors active:scale-95" data-preset="100" type="button">+100일</button>
+            <button class="preset-btn shrink-0 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:bg-primary-fixed hover:text-primary transition-colors active:scale-95" data-preset="200" type="button">+200일</button>
+            <button class="preset-btn shrink-0 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:bg-primary-fixed hover:text-primary transition-colors active:scale-95" data-preset="anniversary" type="button">1주년 (365일)</button>
+            <button class="preset-btn shrink-0 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:bg-primary-fixed hover:text-primary transition-colors active:scale-95" data-preset="yearend" type="button">올해 연말 (12.31)</button>
+            <button class="preset-btn shrink-0 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:bg-primary-fixed hover:text-primary transition-colors active:scale-95" data-preset="exam" type="button">수능/시험</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode 2: Offset (+ / -) Calculation Panel -->
+      <div class="calc-mode-panel hidden bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-emerald-900/5 space-y-space-md" id="panel-mode-offset">
+        <div class="flex items-center justify-between">
+          <span class="font-title-md text-title-md text-on-surface font-bold">날짜 더하기 / 빼기 계산</span>
+          <span class="font-label-sm text-label-sm text-primary font-bold">오프셋 모드</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex flex-col gap-1">
+            <label class="font-label-sm text-on-surface-variant">기준일</label>
+            <input class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md outline-none" id="offset-base-date" type="date"/>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-label-sm text-on-surface-variant">일수 입력 (음수가능)</label>
+            <input class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md outline-none" id="offset-days-input" placeholder="예: 100 또는 -50" type="number" value="100"/>
+          </div>
+        </div>
+        <div class="p- space-md bg-surface-container rounded-lg p-3 text-center">
+          <span class="font-label-sm text-on-surface-variant">계산된 결과 날짜</span>
+          <div class="font-headline-sm text-headline-sm text-primary font-bold mt-1" id="offset-result-text">계산중...</div>
+        </div>
+      </div>
+
+      <!-- Mode 3: Span (두 날짜 간격) Panel -->
+      <div class="calc-mode-panel hidden bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-emerald-900/5 space-y-space-md" id="panel-mode-span">
+        <div class="flex items-center justify-between">
+          <span class="font-title-md text-title-md text-on-surface font-bold">두 날짜 사이 간격 계산</span>
+          <span class="font-label-sm text-label-sm text-primary font-bold">간격 모드</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex flex-col gap-1">
+            <label class="font-label-sm text-on-surface-variant">시작 날짜</label>
+            <input class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md outline-none" id="span-start-date" type="date"/>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-label-sm text-on-surface-variant">종료 날짜</label>
+            <input class="px-3 py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md outline-none" id="span-end-date" type="date"/>
+          </div>
+        </div>
+        <div class="p- space-md bg-surface-container rounded-lg p-3 text-center">
+          <span class="font-label-sm text-on-surface-variant">두 날짜 사이 차이</span>
+          <div class="font-headline-sm text-headline-sm text-primary font-bold mt-1" id="span-result-text">계산중...</div>
+        </div>
+      </div>
+
+      <!-- Smart Calculation Highlights (Result Cards) -->
+      <div class="space-y-space-xs">
+        <div class="flex items-center justify-between px-1">
+          <span class="font-title-md text-title-md text-on-surface font-bold">주요 기념일 요약</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">자동 계산</span>
+        </div>
+        <div class="grid grid-cols-1 gap-space-xs">
+          <!-- 100 days item -->
+          <div class="flex items-center justify-between p-space-md rounded-DEFAULT bg-surface-container-lowest border border-emerald-900/5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[20px]">celebration</span>
+              </div>
+              <div>
+                <p class="font-label-lg text-label-lg text-on-surface font-bold">오늘부터 100일 뒤</p>
+                <p class="font-body-md text-body-md text-on-surface-variant" id="card-100d-date">계산중...</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-bold">+100일</span>
+          </div>
+          <!-- Year-end item -->
+          <div class="flex items-center justify-between p-space-md rounded-DEFAULT bg-surface-container-lowest border border-emerald-900/5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[20px]">flag</span>
+              </div>
+              <div>
+                <p class="font-label-lg text-label-lg text-on-surface font-bold">올해의 마지막 날</p>
+                <p class="font-body-md text-body-md text-on-surface-variant" id="card-yearend-date">2026. 12. 31</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 font-label-sm text-label-sm font-bold" id="card-yearend-dday">D-...</span>
+          </div>
+          <!-- Next Public Holiday -->
+          <div class="flex items-center justify-between p-space-md rounded-DEFAULT bg-surface-container-lowest border border-emerald-900/5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-space-sm">
+              <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-[20px]">beach_access</span>
+              </div>
+              <div>
+                <p class="font-label-lg text-label-lg text-on-surface font-bold">다음 공휴일 (신정 / 설날)</p>
+                <p class="font-body-md text-body-md text-on-surface-variant" id="card-holiday-date">2027. 01. 01</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-primary font-label-sm text-label-sm font-bold" id="card-holiday-dday">D-...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time JavaScript Date Object Inspector -->
+      <div class="bg-surface-container-low rounded-lg p-space-md shadow-inner border border-emerald-900/10 space-y-space-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px] text-primary">terminal</span>
+            <span class="font-title-md text-title-md text-on-surface font-bold">Date 인스펙터 콘솔</span>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">Realtime</span>
+        </div>
+        <div class="space-y-space-xs font-mono text-[11px] leading-relaxed">
+          <div class="p-2.5 bg-surface-container-lowest rounded-DEFAULT flex flex-col border border-emerald-900/5">
+            <span class="text-on-surface-variant font-semibold">new Date().toISOString()</span>
+            <span class="text-primary truncate font-bold" id="inspector-iso">...</span>
+          </div>
+          <div class="grid grid-cols-2 gap-space-xs">
+            <div class="p-2.5 bg-surface-container-lowest rounded-DEFAULT flex flex-col border border-emerald-900/5">
+              <span class="text-on-surface-variant font-semibold">KST Local Time</span>
+              <span class="text-on-surface truncate" id="inspector-local">...</span>
+            </div>
+            <div class="p-2.5 bg-surface-container-lowest rounded-DEFAULT flex flex-col border border-emerald-900/5">
+              <span class="text-on-surface-variant font-semibold">Timestamp (ms)</span>
+              <span class="text-primary font-bold truncate" id="inspector-timestamp">...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 3: 기념일 목록 (Anniversaries - Full Directory)
+    ======================================================== -->
+    <div class="view-pane flex-col w-full px-margin space-y-space-md pb-12" id="view-anniversaries">
+      
+      <div class="flex items-center justify-between pt-space-xs">
+        <div class="flex items-center gap-2">
+          <span class="font-headline-sm text-headline-sm text-primary font-bold">등록된 기념일</span>
+          <span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-bold" id="anniversary-total-badge">4개</span>
+        </div>
+        <button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white font-label-sm text-label-sm font-bold shadow-sm" id="btn-add-from-list">
+          <span class="material-symbols-outlined text-[16px]">add</span>
+          <span>추가하기</span>
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative flex items-center">
+        <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+        <input class="w-full h-11 pl-10 pr-4 rounded-full bg-surface-container-lowest text-on-surface text-body-md placeholder:text-on-surface-variant/60 shadow-sm border border-mint-border focus:outline-none focus:ring-2 focus:ring-primary/20" id="anniversary-search" placeholder="기념일 이름 또는 카테고리 검색" type="text"/>
+      </div>
+
+      <!-- Anniversaries Container -->
+      <div class="flex flex-col gap-space-sm" id="anniversaries-full-list">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 4: 설정 (Settings - App Configuration)
+    ======================================================== -->
+    <div class="view-pane flex-col w-full px-margin space-y-space-md pb-12" id="view-settings">
+      
+      <div class="pt-space-xs">
+        <span class="font-headline-sm text-headline-sm text-primary font-bold">앱 환경 설정</span>
+        <p class="font-body-sm text-on-surface-variant mt-0.5">D-Day 계산 방식 및 알림 옵션을 관리합니다.</p>
+      </div>
+
+      <!-- Settings Cards -->
+      <div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-emerald-900/5 space-y-space-md">
+        
+        <!-- Setting 1: Calculation Logic -->
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="font-title-md text-title-md text-on-surface font-bold">시작일 1일 포함 계산</span>
+            <span class="font-body-sm text-on-surface-variant">커플 기념일처럼 첫날을 1일로 셀 때 켬</span>
+          </div>
+          <input class="w-5 h-5 rounded text-primary focus:ring-primary/20" id="toggle-include-first-day" type="checkbox"/>
+        </div>
+
+        <div class="h-[1px] bg-mint-border/50"></div>
+
+        <!-- Setting 2: Daily Notification -->
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="font-title-md text-title-md text-on-surface font-bold">기념일 아침 리마인더</span>
+            <span class="font-body-sm text-on-surface-variant">D-7, D-1, 당일 오전 9시 알림</span>
+          </div>
+          <input checked class="w-5 h-5 rounded text-primary focus:ring-primary/20" id="toggle-morning-notif" type="checkbox"/>
+        </div>
+
+        <div class="h-[1px] bg-mint-border/50"></div>
+
+        <!-- Setting 3: Theme -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="font-title-md text-title-md text-on-surface font-bold">테마 스타일 &amp; 팔레트</span>
+            <button class="text-xs font-bold text-primary flex items-center gap-1 hover:underline" id="btn-open-palette-from-settings" type="button">
+              <span class="material-symbols-outlined text-[15px]">palette</span>
+              <span>색상 팔렛 생성기 열기</span>
+            </button>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="py-2 rounded-lg bg-primary text-white font-label-sm font-bold shadow-sm" id="theme-forest-btn">포레스트</button>
+            <button class="py-2 rounded-lg bg-surface-container text-on-surface-variant font-label-sm font-medium hover:text-primary" id="theme-clean-btn">로즈 쿼츠</button>
+            <button class="py-2 rounded-lg bg-surface-container text-on-surface-variant font-label-sm font-medium hover:text-primary" id="theme-dark-btn">다크 에메랄드</button>
+          </div>
+        </div>
+
+        <div class="h-[1px] bg-mint-border/50"></div>
+
+        <!-- Data Management -->
+        <div class="flex items-center justify-between pt-1">
+          <button class="flex items-center gap-1 text-primary hover:underline text-xs font-semibold" id="btn-export-json">
+            <span class="material-symbols-outlined text-[16px]">file_download</span>
+            <span>데이터 백업</span>
+          </button>
+          <button class="flex items-center gap-1 text-primary hover:underline text-xs font-semibold" id="btn-export-csv">
+            <span class="material-symbols-outlined text-[16px]">table_view</span>
+            <span>CSV 내보내기</span>
+          </button>
+          <button class="text-urgent-accent hover:underline text-xs font-semibold" id="btn-reset-dday-all">
+            전체 초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- App Info -->
+      <div class="bg-surface-container-low p-space-md rounded-DEFAULT text-center text-xs text-on-surface-variant space-y-1">
+        <p class="font-semibold text-primary">DayCount v2.4 Premium</p>
+        <p>정밀 밀리초 KST 기준 D-Day 계산 시스템</p>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 5: 색상 팔렛 생성기 (Color Palette Generator Studio)
+    ======================================================== -->
+    <div class="view-pane flex-col w-full px-margin space-y-space-md pb-12" id="view-palette">
+
+      <!-- Top Studio Header -->
+      <div class="flex items-center justify-between pt-space-xs">
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-primary text-[22px]">palette</span>
+            <h2 class="font-headline-sm text-headline-sm text-primary font-extrabold">색상 팔렛 생성기</h2>
+            <span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-[10px] font-bold">LIVE THEME</span>
+          </div>
+          <p class="font-body-sm text-xs text-on-surface-variant mt-0.5">생성된 5가지 배색이 D-day Count 앱 전체에 실시간 적용됩니다.</p>
+        </div>
+        <button class="px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-xs font-bold transition-all active:scale-95" id="btn-reset-dday-palette" type="button">
+          기본 테마 복원
+        </button>
+      </div>
+
+      <!-- Harmony Rule & Generate Bar -->
+      <div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-mint-border/50 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+          <select class="flex-1 h-10 px-3 rounded-DEFAULT bg-surface-container-low text-on-surface font-label-md text-xs font-bold border border-mint-border/50 outline-none cursor-pointer" id="dday-harmony-select">
+            <option value="smart">✨ 스마트 조화 (자동 배색)</option>
+            <option value="analogous">🌈 유사색 조화 (Analogous)</option>
+            <option value="complementary">⚡ 보색 대비 (Complementary)</option>
+            <option value="pastel">🍬 소프트 파스텔 (Pastel)</option>
+            <option value="vivid">🔥 네온 &amp; 비비드 (Vivid)</option>
+            <option value="dark">🌙 다크 모드 팔레트 (Dark)</option>
+          </select>
+          <button class="h-10 px-4 rounded-DEFAULT bg-primary text-white font-label-md text-xs font-bold shadow-sm flex items-center gap-1.5 hover:opacity-95 active:scale-95 transition-all" id="btn-gen-dday-palette" type="button">
+            <span class="material-symbols-outlined text-[18px]">autorenew</span>
+            <span>팔레트 생성</span>
+          </button>
+        </div>
+
+        <!-- 5 Interactive Color Swatches -->
+        <div class="flex flex-col gap-2" id="dday-palette-swatches">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <!-- Action Row: Copy All & Save Palette -->
+        <div class="flex items-center justify-between pt-1 border-t border-mint-border/30">
+          <button class="flex items-center gap-1 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" id="btn-copy-all-dday-hex" type="button">
+            <span class="material-symbols-outlined text-[16px]">content_copy</span>
+            <span>전체 HEX 복사</span>
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-fixed text-primary text-xs font-bold hover:opacity-90 active:scale-95 transition-all" id="btn-save-dday-palette" type="button">
+            <span class="material-symbols-outlined text-[15px]">bookmark_add</span>
+            <span>현재 팔레트 보관</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Theme Presets -->
+      <div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-mint-border/50 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-title-md text-sm text-on-surface font-bold">추천 D-Day 테마 프리셋</span>
+          <span class="font-label-sm text-[11px] text-on-surface-variant">원클릭 적용</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2" id="dday-preset-grid">
+          <button class="dday-preset-btn flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low border border-mint-border/40 hover:border-primary transition-all text-left" data-preset="forest" type="button">
+            <span class="text-xs font-bold text-on-surface">🌲 포레스트 크로노</span>
+            <span class="flex -space-x-1">
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#005D42"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#97F5CC"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#E11D48"></span>
+            </span>
+          </button>
+          <button class="dday-preset-btn flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low border border-mint-border/40 hover:border-primary transition-all text-left" data-preset="rose" type="button">
+            <span class="text-xs font-bold text-on-surface">🌸 로즈 쿼츠 (커플)</span>
+            <span class="flex -space-x-1">
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#BE123C"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#FFE4E6"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#7C3AED"></span>
+            </span>
+          </button>
+          <button class="dday-preset-btn flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low border border-mint-border/40 hover:border-primary transition-all text-left" data-preset="ocean" type="button">
+            <span class="text-xs font-bold text-on-surface">🌊 오션 사파이어</span>
+            <span class="flex -space-x-1">
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#1D4ED8"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#DBEAFE"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#F59E0B"></span>
+            </span>
+          </button>
+          <button class="dday-preset-btn flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low border border-mint-border/40 hover:border-primary transition-all text-left" data-preset="sunset" type="button">
+            <span class="text-xs font-bold text-on-surface">🌅 선셋 앰버 (여행)</span>
+            <span class="flex -space-x-1">
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#C2410C"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#FFEDD5"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#E11D48"></span>
+            </span>
+          </button>
+          <button class="dday-preset-btn col-span-2 flex items-center justify-between p-2.5 rounded-DEFAULT bg-surface-container-low border border-mint-border/40 hover:border-primary transition-all text-left" data-preset="dark" type="button">
+            <span class="text-xs font-bold text-on-surface">🌌 다크 에메랄드 나이트 (다크 모드)</span>
+            <span class="flex -space-x-1">
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#34D399"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#064E3B"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background:#061512"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Saved Custom Palettes -->
+      <div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm border border-mint-border/50 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-title-md text-sm text-on-surface font-bold">보관된 나만의 팔레트</span>
+          <span class="font-label-sm text-[11px] text-primary font-bold" id="dday-saved-palette-count">0개</span>
+        </div>
+        <div class="flex flex-col gap-2" id="dday-saved-palettes-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Add D-Day Modal Dialog -->
+  <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200" id="addModal">
+    <div class="w-full max-w-sm bg-surface-container-lowest rounded-xl p-space-lg shadow-2xl border border-mint-border/60 flex flex-col gap-space-md transform scale-95 transition-transform duration-200" id="modalBox">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[22px]">event_star</span>
+          <span class="font-title-md text-title-md text-on-surface font-bold">새 기념일 등록</span>
+        </div>
+        <button class="text-on-surface-variant hover:text-on-surface" id="btn-close-modal">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="font-label-sm text-on-surface-variant font-medium">기념일 이름</label>
+          <input class="px-3.5 py-2.5 rounded-DEFAULT bg-surface-container-low text-on-surface font-body-md outline-none focus:ring-2 focus:ring-primary/20 border border-mint-border/40" id="modal-title-input" placeholder="예: 여자친구와 100일, 자격증 시험" type="text"/>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="font-label-sm text-on-surface-variant font-medium">목표 날짜</label>
+          <input class="px-3.5 py-2.5 rounded-DEFAULT bg-surface-container-low text-on-surface font-body-md outline-none focus:ring-2 focus:ring-primary/20 border border-mint-border/40 cursor-pointer" id="modal-date-input" type="date"/>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="font-label-sm text-on-surface-variant font-medium">카테고리</label>
+          <select class="px-3.5 py-2.5 rounded-DEFAULT bg-surface-container-low text-on-surface font-body-md outline-none focus:ring-2 focus:ring-primary/20 border border-mint-border/40" id="modal-cat-select">
+            <option value="couple">커플 &amp; 연애</option>
+            <option value="career">시험 &amp; 커리어</option>
+            <option value="work">직장 &amp; 프로젝트</option>
+            <option value="travel">여행 &amp; 휴식</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="font-label-sm text-on-surface-variant font-medium">메모 (선택사항)</label>
+          <input class="px-3.5 py-2 rounded-DEFAULT bg-surface-container-low text-on-surface font-body-md outline-none focus:ring-2 focus:ring-primary/20 border border-mint-border/40" id="modal-note-input" placeholder="예: 레스토랑 예약 완료" type="text"/>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button class="flex-1 py-2.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-md font-semibold hover:bg-surface-container-high transition-colors" id="btn-cancel-modal" type="button">취소</button>
+        <button class="flex-1 py-2.5 rounded-DEFAULT bg-primary text-white font-label-md font-bold shadow-md hover:opacity-95 active:scale-95 transition-all" id="btn-save-modal" type="button">등록하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Pop -->
+  <div class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-1.5" id="toast-msg">
+    <span class="material-symbols-outlined text-[16px] text-primary-fixed">check_circle</span>
+    <span id="toast-text">알림 메시지</span>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,33,21,0.05)] border-t border-mint-border/30">
+    <div class="grid grid-cols-5 items-center h-16 max-w-md mx-auto px-space-xs">
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-1 transition-colors text-primary font-bold" data-target="view-home" type="button">
+        <span class="material-symbols-outlined text-[22px]">event_upcoming</span>
+        <span class="font-label-sm text-label-sm mt-0.5">홈</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-target="view-calculator" type="button">
+        <span class="material-symbols-outlined text-[22px]">calculate</span>
+        <span class="font-label-sm text-label-sm mt-0.5">계산기</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-target="view-anniversaries" type="button">
+        <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+        <span class="font-label-sm text-label-sm mt-0.5">기념일</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-target="view-palette" type="button">
+        <span class="material-symbols-outlined text-[22px]">palette</span>
+        <span class="font-label-sm text-label-sm mt-0.5">팔레트</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[44px] min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors" data-target="view-settings" type="button">
+        <span class="material-symbols-outlined text-[22px]">settings</span>
+        <span class="font-label-sm text-label-sm mt-0.5">설정</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Complete Application JavaScript Engine -->
+  <script>
+    (function() {
+      const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+      function pad(n, len = 2) {
+        return String(n).padStart(len, '0');
+      }
+
+      function formatKoreanDate(d) {
+        return `${d.getFullYear()}년 ${pad(d.getMonth() + 1)}월 ${pad(d.getDate())}일 (${WEEK_DAYS[d.getDay()]})`;
+      }
+
+      function formatShortDate(d) {
+        return `${d.getFullYear()}. ${pad(d.getMonth() + 1)}. ${pad(d.getDate())} (${WEEK_DAYS[d.getDay()]})`;
+      }
+
+      // Default Anniversary Sample Data
+      const defaultEvents = [
+        {
+          id: "ev_1",
+          title: "여름 발리 휴가까지",
+          date: "2026-12-27",
+          startDate: "2026-09-01",
+          category: "travel",
+          icon: "flight_takeoff",
+          note: "항공권 및 리조트 예약 완료",
+          isHero: true
+        },
+        {
+          id: "ev_2",
+          title: "우리 사랑 1000일째",
+          date: "2026-11-03",
+          startDate: "2024-02-07",
+          category: "couple",
+          icon: "favorite",
+          note: "반지 예약 및 기념 레스토랑"
+        },
+        {
+          id: "ev_3",
+          title: "빅데이터 분석기사 실기",
+          date: "2026-11-21",
+          startDate: "2026-10-01",
+          category: "career",
+          icon: "school",
+          note: "기출 모의고사 풀이 및 합격"
+        },
+        {
+          id: "ev_4",
+          title: "토스 입사 1주년",
+          date: "2026-02-22",
+          startDate: "2025-02-22",
+          category: "work",
+          icon: "celebration",
+          note: "연봉 협상 및 기념 디너"
+        },
+        {
+          id: "ev_5",
+          title: "글로벌 2.0 신제품 런칭",
+          date: "2027-02-15",
+          startDate: "2026-10-15",
+          category: "work",
+          icon: "rocket_launch",
+          note: "베타 테스트 완료 후 런칭"
+        }
+      ];
+
+      let ddayList = JSON.parse(localStorage.getItem('daycount_events') || JSON.stringify(defaultEvents));
+      let currentFilterCat = 'all';
+
+      // Toast Function
+      const toast = document.getElementById('toast-msg');
+      const toastText = document.getElementById('toast-text');
+      function showToast(msg) {
+        toastText.innerText = msg;
+        toast.classList.remove('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2200);
+      }
+
+      // Tab Switching
+      const navBtns = document.querySelectorAll('.nav-tab-btn');
+      const viewPanes = document.querySelectorAll('.view-pane');
+      const appHeaderTitle = document.getElementById('app-header-title');
+      const appHeaderIcon = document.getElementById('app-header-icon');
+
+      const tabTitles = {
+        'view-home': { title: 'D-day Count', icon: 'event_upcoming' },
+        'view-calculator': { title: 'D-Day 계산기', icon: 'calculate' },
+        'view-anniversaries': { title: '기념일 목록', icon: 'calendar_month' },
+        'view-palette': { title: '색상 팔렛 생성기', icon: 'palette' },
+        'view-settings': { title: '환경 설정', icon: 'settings' }
+      };
+
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.target;
+
+          navBtns.forEach(b => {
+            b.classList.remove('text-primary', 'font-bold');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('text-primary', 'font-bold');
+          btn.classList.remove('text-on-surface-variant');
+
+          viewPanes.forEach(pane => {
+            pane.classList.toggle('active', pane.id === target);
+          });
+
+          if (tabTitles[target]) {
+            appHeaderTitle.textContent = tabTitles[target].title;
+            appHeaderIcon.textContent = tabTitles[target].icon;
+          }
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      document.getElementById('btn-see-all-calc').addEventListener('click', () => {
+        document.querySelector('[data-target="view-calculator"]').click();
+      });
+
+      // ==========================================
+      // VIEW 1: HOME LOGIC & TICKER
+      // ==========================================
+      function renderHomeFeed() {
+        const now = new Date();
+        document.getElementById('home-today-text').textContent = formatKoreanDate(now);
+
+        // Find primary hero item (first marked hero or first future item)
+        let heroItem = ddayList.find(e => e.isHero) || ddayList[0];
+        if (heroItem) {
+          updateHeroDisplay(heroItem, now);
+        }
+
+        // Render Quick Milestone Chips
+        renderQuickChips(now);
+
+        // Render Filtered Cards
+        renderCardsStack(now);
+
+        // Update Tip Box
+        updateTipBox(now);
+      }
+
+      function updateHeroDisplay(item, now) {
+        const target = new Date(item.date + 'T00:00:00');
+        const diffMs = target - now;
+        const totalDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const isPast = totalDays < 0;
+        const absDays = Math.abs(totalDays);
+
+        document.getElementById('hero-pill-dday').textContent = absDays === 0 ? 'D-Day!' : (isPast ? `D+${absDays}` : `D-${absDays}`);
+        document.getElementById('hero-cat-icon').textContent = item.icon || 'flight_takeoff';
+        
+        const catMap = {
+          'travel': '여행 & 휴식',
+          'couple': '커플 & 연애',
+          'career': '시험 & 커리어',
+          'work': '직장 & 프로젝트'
+        };
+        document.getElementById('hero-cat-name').textContent = catMap[item.category] || '기념일';
+        document.getElementById('hero-date-sub').textContent = `${item.date.replaceAll('-', '. ')} ${isPast ? '시작' : '예정'}`;
+        document.getElementById('hero-main-title').textContent = item.title;
+        document.getElementById('hero-big-number').textContent = absDays;
+        document.getElementById('hero-big-unit').textContent = isPast ? '일째' : '일전';
+
+        // Ticking calculations
+        let absDiff = Math.abs(diffMs);
+        const hours = Math.floor(absDiff / (1000 * 60 * 60));
+        const mins = Math.floor((absDiff / (1000 * 60)) % 60);
+        const secs = Math.floor((absDiff / 1000) % 60);
+
+        document.getElementById('heroHours').textContent = hours.toLocaleString();
+        document.getElementById('heroMins').textContent = pad(mins);
+        document.getElementById('heroSecs').textContent = pad(secs);
+
+        // Progress calculation
+        let startDate = item.startDate ? new Date(item.startDate + 'T00:00:00') : new Date(now.getFullYear(), 0, 1);
+        const totalSpan = target - startDate;
+        const elapsed = now - startDate;
+        let pct = totalSpan > 0 ? Math.min(100, Math.max(0, Math.floor((elapsed / totalSpan) * 100))) : 50;
+
+        document.getElementById('hero-progress-pct').textContent = `${pct}%`;
+        document.getElementById('hero-progress-fill').style.width = `${pct}%`;
+        document.getElementById('hero-progress-days-left').textContent = isPast ? `${absDays}일 순항 중` : `${absDays}일 남음`;
+      }
+
+      function renderQuickChips(now) {
+        const container = document.getElementById('quick-milestone-chips');
+        container.innerHTML = "";
+
+        const presets = [
+          { label: "100일 뒤", date: new Date(now.getTime() + 100 * 86400000), badge: "100" },
+          { label: "200일 뒤", date: new Date(now.getTime() + 200 * 86400000), badge: "200" },
+          { label: "올해 마지막 날", date: new Date(now.getFullYear(), 11, 31), badge: "12/31" },
+          { label: "1주년 (365일)", date: new Date(now.getTime() + 365 * 86400000), badge: "1Y" }
+        ];
+
+        presets.forEach(p => {
+          const diff = Math.ceil((p.date - now) / 86400000);
+          const chip = document.createElement('div');
+          chip.className = "flex-shrink-0 flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-space-sm rounded-DEFAULT shadow-sm border border-mint-border/50 cursor-pointer hover:border-primary transition-all";
+          chip.innerHTML = `
+            <div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+              ${p.badge}
+            </div>
+            <div class="flex flex-col">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">${p.label}</span>
+              <span class="font-title-md text-title-md text-primary font-bold">D-${diff} (${p.date.getMonth() + 1}.${p.date.getDate()})</span>
+            </div>
+          `;
+          chip.addEventListener('click', () => {
+            document.getElementById('target-date-input').value = p.date.toISOString().split('T')[0];
+            document.querySelector('[data-target="view-calculator"]').click();
+          });
+          container.appendChild(chip);
+        });
+      }
+
+      function renderCardsStack(now) {
+        const container = document.getElementById('home-cards-list');
+        container.innerHTML = "";
+
+        const filtered = ddayList.filter(e => currentFilterCat === 'all' || e.category === currentFilterCat);
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-8 text-on-surface-variant text-sm">
+              해당 카테고리의 기념일이 없습니다. '+' 버튼으로 등록해보세요!
+            </div>
+          `;
+          return;
+        }
+
+        filtered.forEach(item => {
+          const target = new Date(item.date + 'T00:00:00');
+          const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+          const isPast = diffDays < 0;
+          const abs = Math.abs(diffDays);
+          const ddayLabel = abs === 0 ? "D-Day" : (isPast ? `D+${abs}` : `D-${abs}`);
+
+          const card = document.createElement('div');
+          card.className = "relative overflow-hidden bg-surface-container-lowest rounded-DEFAULT p-space-md shadow-sm border border-mint-border/50 flex items-center justify-between transition-transform active:scale-[0.99] hover:shadow-md cursor-pointer";
+          
+          card.innerHTML = `
+            <div class="flex items-center gap-space-md min-w-0">
+              <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full bg-primary-fixed text-primary">
+                <span class="material-symbols-outlined text-[22px]">${item.icon || 'event'}</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-title-md text-title-md text-on-surface font-bold truncate">${item.title}</span>
+                  <span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px] font-semibold">${item.category}</span>
+                </div>
+                <span class="font-body-md text-body-md text-on-surface-variant truncate">${item.date.replaceAll('-', '. ')} • ${item.note || 'D-Day 카운트'}</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end flex-shrink-0 ml-space-sm">
+              <span class="px-space-sm py-1 rounded-full ${isPast ? 'bg-surface-container text-primary' : 'bg-error-container text-urgent-accent'} font-label-md text-label-md font-black tracking-tight">
+                ${ddayLabel}
+              </span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant mt-1">${isPast ? '순항 중' : `${abs}일 남음`}</span>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            // Set as hero item
+            ddayList.forEach(e => e.isHero = false);
+            item.isHero = true;
+            renderHomeFeed();
+            showToast(`'${item.title}'을(를) 메인 카운터로 지정했습니다.`);
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function updateTipBox(now) {
+        const futureItems = ddayList
+          .map(e => ({ ...e, diff: Math.ceil((new Date(e.date) - now) / 86400000) }))
+          .filter(e => e.diff >= 0)
+          .sort((a, b) => a.diff - b.diff);
+
+        const tipText = document.getElementById('home-tip-text');
+        if (futureItems.length > 0) {
+          const next = futureItems[0];
+          tipText.innerHTML = `가장 가까운 기념일인 ‘<strong>${next.title}</strong>’까지 <strong>${next.diff}일</strong> 남았습니다. 일정을 점검해보세요!`;
+        } else {
+          tipText.textContent = "새로운 목표나 여행, 기념일을 등록하여 설레는 카운트다운을 시작해보세요!";
+        }
+      }
+
+      // Home Category Filter Chips
+      const catChips = document.querySelectorAll('.cat-chip');
+      catChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          catChips.forEach(c => {
+            c.className = "cat-chip px-space-md py-1.5 rounded-full bg-surface-container-lowest border border-mint-border/60 text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-medium whitespace-nowrap shadow-sm";
+          });
+          chip.className = "cat-chip active px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold whitespace-nowrap shadow-sm shadow-primary/25";
+          currentFilterCat = chip.dataset.cat;
+          renderCardsStack(new Date());
+        });
+      });
+
+      // Sync button
+      const syncBtn = document.getElementById('syncBtn');
+      const syncIcon = document.getElementById('syncIcon');
+      syncBtn.addEventListener('click', () => {
+        syncIcon.classList.add('rotate-180');
+        renderHomeFeed();
+        showToast('실시간 D-Day 데이터가 동기화되었습니다.');
+        setTimeout(() => syncIcon.classList.remove('rotate-180'), 500);
+      });
+
+      // ==========================================
+      // VIEW 2: CALCULATOR ENGINE
+      // ==========================================
+      const targetDateInput = document.getElementById('target-date-input');
+      const liveTimeDisplay = document.getElementById('live-time-display');
+      const liveMsDisplay = document.getElementById('live-ms-display');
+      const liveDateDisplay = document.getElementById('live-date-display');
+      
+      const heroDdayNumber = document.getElementById('hero-dday-number');
+      const heroTargetLabel = document.getElementById('hero-target-label');
+      const heroTargetFullDate = document.getElementById('hero-target-fulldate');
+      const heroCalcModeBadge = document.getElementById('hero-calc-mode-badge');
+      
+      const unitDays = document.getElementById('unit-days');
+      const unitHours = document.getElementById('unit-hours');
+      const unitMinutes = document.getElementById('unit-minutes');
+      const unitSeconds = document.getElementById('unit-seconds');
+
+      const inspectorIso = document.getElementById('inspector-iso');
+      const inspectorLocal = document.getElementById('inspector-local');
+      const inspectorTimestamp = document.getElementById('inspector-timestamp');
+
+      const card100dDate = document.getElementById('card-100d-date');
+      const cardYearendDday = document.getElementById('card-yearend-dday');
+      const cardHolidayDday = document.getElementById('card-holiday-dday');
+
+      // Initialize default date 42 days ahead
+      const initTarget = new Date();
+      initTarget.setDate(initTarget.getDate() + 42);
+      targetDateInput.value = initTarget.toISOString().split('T')[0];
+
+      function updateLiveClock() {
+        const now = new Date();
+        
+        // Live Clock
+        const hours = pad(now.getHours());
+        const minutes = pad(now.getMinutes());
+        const seconds = pad(now.getSeconds());
+        const ms = pad(Math.floor(now.getMilliseconds() / 10));
+
+        if (liveTimeDisplay) liveTimeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+        if (liveMsDisplay) liveMsDisplay.textContent = `.${ms}`;
+        if (liveDateDisplay) liveDateDisplay.textContent = formatKoreanDate(now);
+
+        // Inspector
+        if (inspectorIso) inspectorIso.textContent = now.toISOString();
+        if (inspectorLocal) inspectorLocal.textContent = `${hours}:${minutes}:${seconds} KST`;
+        if (inspectorTimestamp) inspectorTimestamp.textContent = now.getTime();
+
+        // Calculator Hero Countdown
+        if (targetDateInput.value) {
+          const chosen = new Date(targetDateInput.value + 'T00:00:00');
+          const diffMs = chosen.getTime() - now.getTime();
+          let isPast = diffMs < 0;
+          let absDiff = Math.abs(diffMs);
+
+          const totalDays = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+          const totalHours = Math.floor((absDiff / (1000 * 60 * 60)) % 24);
+          const totalMins = Math.floor((absDiff / (1000 * 60)) % 60);
+          const totalSecs = Math.floor((absDiff / 1000) % 60);
+
+          if (heroDdayNumber) {
+            heroDdayNumber.textContent = totalDays === 0 ? 'D-Day!' : (isPast ? `D+${totalDays}` : `D-${totalDays}`);
+          }
+          if (unitDays) unitDays.textContent = totalDays;
+          if (unitHours) unitHours.textContent = pad(totalHours);
+          if (unitMinutes) unitMinutes.textContent = pad(totalMins);
+          if (unitSeconds) unitSeconds.textContent = pad(totalSecs);
+          if (heroTargetFullDate) heroTargetFullDate.textContent = `목표일: ${formatShortDate(chosen)}`;
+        }
+      }
+
+      function updateStaticCalculations() {
+        const now = new Date();
+        
+        // 100 days
+        const d100 = new Date(now);
+        d100.setDate(d100.getDate() + 100);
+        if (card100dDate) card100dDate.textContent = formatShortDate(d100);
+
+        // Year end
+        const yEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+        const diffYEnd = Math.ceil((yEnd - now) / 86400000);
+        if (cardYearendDday) cardYearendDday.textContent = `D-${diffYEnd}`;
+
+        // Next holiday
+        let nextHoliday = new Date(now.getFullYear() + 1, 0, 1);
+        const diffH = Math.ceil((nextHoliday - now) / 86400000);
+        if (cardHolidayDday) cardHolidayDday.textContent = `D-${diffH}`;
+      }
+
+      // Presets
+      const presetButtons = document.querySelectorAll('.preset-btn');
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.getAttribute('data-preset');
+          const now = new Date();
+          let newDate = new Date();
+
+          if (type === '100') {
+            newDate.setDate(now.getDate() + 100);
+            heroTargetLabel.textContent = '100일 기념일';
+          } else if (type === '200') {
+            newDate.setDate(now.getDate() + 200);
+            heroTargetLabel.textContent = '200일 기념일';
+          } else if (type === 'anniversary') {
+            newDate.setDate(now.getDate() + 365);
+            heroTargetLabel.textContent = '1주년 기념일';
+          } else if (type === 'yearend') {
+            newDate = new Date(now.getFullYear(), 11, 31);
+            heroTargetLabel.textContent = '올해 마지막 날';
+          } else if (type === 'exam') {
+            newDate = new Date(now.getFullYear(), 10, 19);
+            if (now > newDate) newDate.setFullYear(now.getFullYear() + 1);
+            heroTargetLabel.textContent = '대학수학능력시험';
+          }
+
+          targetDateInput.value = newDate.toISOString().split('T')[0];
+          updateLiveClock();
+          showToast(`'${heroTargetLabel.textContent}' 프리셋이 적용되었습니다.`);
+        });
+      });
+
+      // Mode Switcher
+      const tabButtons = document.querySelectorAll('.calc-tab-btn');
+      const panels = {
+        'dday': document.getElementById('panel-mode-dday'),
+        'offset': document.getElementById('panel-mode-offset'),
+        'span': document.getElementById('panel-mode-span')
+      };
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach(b => {
+            b.classList.remove('bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-sm');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-sm');
+          btn.classList.remove('text-on-surface-variant');
+
+          const mode = btn.dataset.mode;
+          Object.keys(panels).forEach(k => {
+            panels[k].classList.toggle('hidden', k !== mode);
+          });
+
+          if (mode === 'dday') {
+            heroCalcModeBadge.textContent = '남은 일수';
+          } else if (mode === 'offset') {
+            heroCalcModeBadge.textContent = '날짜 연산';
+            calcOffset();
+          } else {
+            heroCalcModeBadge.textContent = '두 날짜 간격';
+            calcSpan();
+          }
+        });
+      });
+
+      // Offset Mode Handler
+      const offsetBase = document.getElementById('offset-base-date');
+      const offsetDays = document.getElementById('offset-days-input');
+      const offsetResult = document.getElementById('offset-result-text');
+      offsetBase.value = new Date().toISOString().split('T')[0];
+
+      function calcOffset() {
+        const base = new Date(offsetBase.value + 'T00:00:00');
+        const days = parseInt(offsetDays.value || 0, 10);
+        if (isNaN(base.getTime())) return;
+
+        const res = new Date(base.getTime() + days * 86400000);
+        offsetResult.textContent = `${formatShortDate(res)} (${days >= 0 ? `+${days}일` : `${days}일`})`;
+      }
+      offsetBase.addEventListener('change', calcOffset);
+      offsetDays.addEventListener('input', calcOffset);
+
+      // Span Mode Handler
+      const spanStart = document.getElementById('span-start-date');
+      const spanEnd = document.getElementById('span-end-date');
+      const spanResult = document.getElementById('span-result-text');
+      spanStart.value = new Date().toISOString().split('T')[0];
+      const endDefault = new Date();
+      endDefault.setDate(endDefault.getDate() + 100);
+      spanEnd.value = endDefault.toISOString().split('T')[0];
+
+      function calcSpan() {
+        const d1 = new Date(spanStart.value + 'T00:00:00');
+        const d2 = new Date(spanEnd.value + 'T00:00:00');
+        if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return;
+
+        const diff = Math.round((d2 - d1) / 86400000);
+        const weeks = (Math.abs(diff) / 7).toFixed(1);
+        spanResult.textContent = `총 ${Math.abs(diff)}일 차이 (약 ${weeks}주)`;
+      }
+      spanStart.addEventListener('change', calcSpan);
+      spanEnd.addEventListener('change', calcSpan);
+
+      targetDateInput.addEventListener('change', () => {
+        heroTargetLabel.textContent = '지정한 목표일';
+        updateLiveClock();
+      });
+
+      document.getElementById('btn-sync-now').addEventListener('click', () => {
+        updateLiveClock();
+        updateStaticCalculations();
+        showToast('실시간 시간과 시계가 갱신되었습니다.');
+      });
+
+      // ==========================================
+      // VIEW 3: ANNIVERSARIES LIST
+      // ==========================================
+      function renderFullAnniversaries() {
+        const container = document.getElementById('anniversaries-full-list');
+        const badge = document.getElementById('anniversary-total-badge');
+        const query = document.getElementById('anniversary-search').value.trim().toLowerCase();
+        container.innerHTML = "";
+
+        const filtered = ddayList.filter(e => {
+          return !query || e.title.toLowerCase().includes(query) || (e.note && e.note.toLowerCase().includes(query));
+        });
+
+        badge.textContent = `${filtered.length}개`;
+
+        filtered.forEach(item => {
+          const now = new Date();
+          const target = new Date(item.date + 'T00:00:00');
+          const diff = Math.ceil((target - now) / 86400000);
+          const isPast = diff < 0;
+          const abs = Math.abs(diff);
+          const ddayLabel = abs === 0 ? "D-Day" : (isPast ? `D+${abs}` : `D-${abs}`);
+
+          const row = document.createElement('div');
+          row.className = "flex items-center justify-between p-space-md rounded-DEFAULT bg-surface-container-lowest border border-mint-border/50 shadow-sm";
+          row.innerHTML = `
+            <div class="flex items-center gap-space-sm min-w-0">
+              <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+                <span class="material-symbols-outlined text-[20px]">${item.icon || 'event'}</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-title-md text-on-surface font-bold truncate">${item.title}</span>
+                <span class="font-body-sm text-on-surface-variant">${item.date} (${item.category})</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full ${isPast ? 'bg-surface-container text-primary' : 'bg-error-container text-urgent-accent'} font-label-md font-bold">
+                ${ddayLabel}
+              </span>
+              <button class="w-8 h-8 rounded-full text-on-surface-variant hover:text-urgent-accent hover:bg-error-container/30 flex items-center justify-center transition-colors btn-delete" data-id="${item.id}" title="삭제">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            </div>
+          `;
+
+          row.querySelector('.btn-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`'${item.title}' 기념일을 삭제하시겠습니까?`)) {
+              ddayList = ddayList.filter(x => x.id !== item.id);
+              saveDdayList();
+              renderHomeFeed();
+              renderFullAnniversaries();
+              showToast(`'${item.title}'이(가) 삭제되었습니다.`);
+            }
+          });
+
+          container.appendChild(row);
+        });
+      }
+
+      document.getElementById('anniversary-search').addEventListener('input', renderFullAnniversaries);
+      document.getElementById('btn-add-from-list').addEventListener('click', () => {
+        openAddModal();
+      });
+
+      // ==========================================
+      // MODAL: ADD D-DAY
+      // ==========================================
+      const addModal = document.getElementById('addModal');
+      const modalBox = document.getElementById('modalBox');
+
+      function openAddModal() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 30);
+        document.getElementById('modal-date-input').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('modal-title-input').value = '';
+        document.getElementById('modal-note-input').value = '';
+
+        addModal.classList.remove('opacity-0', 'pointer-events-none');
+        modalBox.classList.remove('scale-95');
+        modalBox.classList.add('scale-100');
+      }
+
+      function closeAddModal() {
+        addModal.classList.add('opacity-0', 'pointer-events-none');
+        modalBox.classList.remove('scale-100');
+        modalBox.classList.add('scale-95');
+      }
+
+      document.getElementById('addDdayFab').addEventListener('click', openAddModal);
+      document.getElementById('btn-close-modal').addEventListener('click', closeAddModal);
+      document.getElementById('btn-cancel-modal').addEventListener('click', closeAddModal);
+
+      document.getElementById('btn-save-modal').addEventListener('click', () => {
+        const title = document.getElementById('modal-title-input').value.trim();
+        const date = document.getElementById('modal-date-input').value;
+        const category = document.getElementById('modal-cat-select').value;
+        const note = document.getElementById('modal-note-input').value.trim();
+
+        if (!title || !date) {
+          showToast('기념일 이름과 날짜를 올바르게 입력해주세요.');
+          return;
+        }
+
+        const icons = {
+          'couple': 'favorite',
+          'career': 'school',
+          'work': 'work',
+          'travel': 'flight_takeoff'
+        };
+
+        const newItem = {
+          id: `ev_${Date.now()}`,
+          title: title,
+          date: date,
+          startDate: new Date().toISOString().split('T')[0],
+          category: category,
+          icon: icons[category] || 'event',
+          note: note,
+          isHero: false
+        };
+
+        ddayList.unshift(newItem);
+        saveDdayList();
+        closeAddModal();
+        renderHomeFeed();
+        renderFullAnniversaries();
+        showToast(`'${title}' 기념일이 성공적으로 등록되었습니다!`);
+      });
+
+      function saveDdayList() {
+        localStorage.setItem('daycount_events', JSON.stringify(ddayList));
+      }
+
+      // ==========================================
+      // VIEW 4: SETTINGS & BACKUP
+      // ==========================================
+      document.getElementById('btn-export-json').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(ddayList, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `DayCount_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        showToast('JSON 백업 파일이 다운로드되었습니다.');
+      });
+
+      document.getElementById('btn-export-csv').addEventListener('click', () => {
+        let csv = "이름,날짜,카테고리,메모\n";
+        ddayList.forEach(e => {
+          csv += `"${e.title}","${e.date}","${e.category}","${e.note || ''}"\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `DayCount_list_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        showToast('CSV 파일이 다운로드되었습니다.');
+      });
+
+      document.getElementById('btn-reset-dday-all').addEventListener('click', () => {
+        if (confirm('기념일 목록을 초기 상태로 복구하시겠습니까?')) {
+          localStorage.removeItem('daycount_events');
+          ddayList = [...defaultEvents];
+          renderHomeFeed();
+          renderFullAnniversaries();
+          showToast('기본 데이터로 초기화되었습니다.');
+        }
+      });
+
+      // ==========================================
+      // VIEW 5: COLOR PALETTE GENERATOR ENGINE
+      // ==========================================
+      const DDAY_THEME_PRESETS = {
+        forest: ['#005D42', '#047857', '#97F5CC', '#E11D48', '#F6FDF9'],
+        rose:   ['#BE123C', '#E11D48', '#FFE4E6', '#7C3AED', '#FFF1F2'],
+        ocean:  ['#1D4ED8', '#2563EB', '#DBEAFE', '#F59E0B', '#F0F9FF'],
+        sunset: ['#C2410C', '#EA580C', '#FFEDD5', '#E11D48', '#FFF7ED'],
+        dark:   ['#34D399', '#059669', '#064E3B', '#FB7185', '#061512']
+      };
+
+      const DDAY_SWATCH_ROLES = [
+        { label: '메인 테마 (Primary)', desc: '헤더·카운터·버튼 메인 색상' },
+        { label: '서브 그라디언트 (Container)', desc: '히어로 카드·프로그레스 바' },
+        { label: '배지 하이라이트 (Fixed)', desc: '아이콘 배경·칩 포인트' },
+        { label: '긴급/강조 (Urgent)', desc: 'D-Day 임박·초시계 포인트' },
+        { label: '앱 배경 톤 (Surface)', desc: '전체 화면 바탕 테마 톤' }
+      ];
+
+      let ddayPalette = JSON.parse(localStorage.getItem('dday_active_palette')) || [
+        { hex: '#005D42', locked: false },
+        { hex: '#047857', locked: false },
+        { hex: '#97F5CC', locked: false },
+        { hex: '#E11D48', locked: false },
+        { hex: '#F6FDF9', locked: false }
+      ];
+
+      let ddaySavedPalettes = JSON.parse(localStorage.getItem('dday_saved_palettes')) || [
+        ['#005D42', '#047857', '#97F5CC', '#E11D48', '#F6FDF9'],
+        ['#BE123C', '#E11D48', '#FFE4E6', '#7C3AED', '#FFF1F2']
+      ];
+
+      function hslToHex(h, s, l) {
+        h = ((h % 360) + 360) % 360;
+        s = Math.max(0, Math.min(100, s)) / 100;
+        l = Math.max(0, Math.min(100, l)) / 100;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = l - c / 2;
+        let r = 0, g = 0, b = 0;
+        if (h < 60) { r = c; g = x; }
+        else if (h < 120) { r = x; g = c; }
+        else if (h < 180) { g = c; b = x; }
+        else if (h < 240) { g = x; b = c; }
+        else if (h < 300) { r = x; b = c; }
+        else { r = c; b = x; }
+        const toHex = n => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+      }
+
+      function getLuminance(hex) {
+        const clean = hex.replace('#', '');
+        const r = parseInt(clean.substring(0, 2), 16) / 255;
+        const g = parseInt(clean.substring(2, 4), 16) / 255;
+        const b = parseInt(clean.substring(4, 6), 16) / 255;
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      }
+
+      function applyDdayPaletteToTheme() {
+        const root = document.documentElement;
+        const primary = ddayPalette[0].hex;
+        const container = ddayPalette[1].hex;
+        const fixed = ddayPalette[2].hex;
+        const urgent = ddayPalette[3].hex;
+        const surface = ddayPalette[4].hex;
+
+        root.style.setProperty('--dday-primary', primary);
+        root.style.setProperty('--dday-container', container);
+        root.style.setProperty('--dday-fixed', fixed);
+        root.style.setProperty('--dday-urgent', urgent);
+        root.style.setProperty('--dday-surface', surface);
+
+        const isDarkSurface = getLuminance(surface) < 0.35;
+        if (isDarkSurface) {
+          root.style.setProperty('--dday-card', '#0F241D');
+          root.style.setProperty('--dday-low', '#163027');
+          root.style.setProperty('--dday-text', '#ECFDF5');
+          root.style.setProperty('--dday-subtext', '#A7F3D0');
+          root.style.setProperty('--dday-border', 'rgba(167,243,208,0.18)');
+        } else {
+          root.style.setProperty('--dday-card', '#FFFFFF');
+          root.style.setProperty('--dday-low', surface);
+          root.style.setProperty('--dday-text', '#0F172A');
+          root.style.setProperty('--dday-subtext', '#475569');
+          root.style.setProperty('--dday-border', fixed);
+        }
+
+        localStorage.setItem('dday_active_palette', JSON.stringify(ddayPalette));
+      }
+
+      function renderDdayPaletteSwatches() {
+        const wrap = document.getElementById('dday-palette-swatches');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+
+        ddayPalette.forEach((slot, idx) => {
+          const isDark = getLuminance(slot.hex) < 0.5;
+          const fg = isDark ? '#FFFFFF' : '#0F172A';
+          const pillBg = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.1)';
+
+          const row = document.createElement('div');
+          row.className = 'h-14 rounded-DEFAULT px-3.5 flex items-center justify-between shadow-2xs transition-transform hover:scale-[1.01] cursor-pointer';
+          row.style.backgroundColor = slot.hex;
+          row.style.color = fg;
+          row.style.border = '1px solid rgba(0,0,0,0.08)';
+
+          row.innerHTML = `
+            <div class="flex flex-col">
+              <span class="text-xs font-extrabold tracking-tight">${DDAY_SWATCH_ROLES[idx].label}</span>
+              <span class="text-[10px] opacity-80">${DDAY_SWATCH_ROLES[idx].desc}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono text-xs font-black px-2 py-0.5 rounded" style="background:${pillBg};">${slot.hex}</span>
+              <button type="button" class="w-7 h-7 rounded-full flex items-center justify-center btn-lock-dday" style="background:${pillBg}; color:${fg};" title="${slot.locked ? '잠금 해제' : '색상 고정'}">
+                <span class="material-symbols-outlined text-[15px]">${slot.locked ? 'lock' : 'lock_open'}</span>
+              </button>
+              <label class="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer relative overflow-hidden" style="background:${pillBg}; color:${fg};" title="직접 색상 선택">
+                <span class="material-symbols-outlined text-[15px]">colorize</span>
+                <input type="color" class="dday-color-picker absolute inset-0 opacity-0 cursor-pointer" value="${slot.hex}" />
+              </label>
+            </div>
+          `;
+
+          row.querySelector('.btn-lock-dday').addEventListener('click', (e) => {
+            e.stopPropagation();
+            ddayPalette[idx].locked = !ddayPalette[idx].locked;
+            renderDdayPaletteSwatches();
+            showToast(`${DDAY_SWATCH_ROLES[idx].label} ${ddayPalette[idx].locked ? '고정됨 🔒' : '잠금 해제 🔓'}`);
+          });
+
+          const picker = row.querySelector('.dday-color-picker');
+          picker.addEventListener('click', (e) => e.stopPropagation());
+          picker.addEventListener('input', (e) => {
+            ddayPalette[idx].hex = e.target.value.toUpperCase();
+            applyDdayPaletteToTheme();
+            row.style.backgroundColor = ddayPalette[idx].hex;
+            row.querySelector('.font-mono').textContent = ddayPalette[idx].hex;
+          });
+          picker.addEventListener('change', () => renderDdayPaletteSwatches());
+
+          row.addEventListener('click', () => {
+            navigator.clipboard.writeText(slot.hex);
+            showToast(`${slot.hex} 색상 코드가 복사되었습니다!`);
+          });
+
+          wrap.appendChild(row);
+        });
+      }
+
+      function generateNewDdayPalette() {
+        const mode = document.getElementById('dday-harmony-select').value;
+        const baseH = Math.floor(Math.random() * 360);
+        let generated = [];
+
+        if (mode === 'smart') {
+          generated = [
+            hslToHex(baseH, 78, 34),
+            hslToHex((baseH + 15) % 360, 74, 42),
+            hslToHex(baseH, 75, 88),
+            hslToHex((baseH + 185) % 360, 82, 52),
+            hslToHex(baseH, 48, 97)
+          ];
+        } else if (mode === 'analogous') {
+          generated = [
+            hslToHex(baseH, 75, 36),
+            hslToHex((baseH + 28) % 360, 72, 44),
+            hslToHex((baseH + 12) % 360, 70, 88),
+            hslToHex((baseH - 35 + 360) % 360, 82, 52),
+            hslToHex(baseH, 42, 97)
+          ];
+        } else if (mode === 'complementary') {
+          const comp = (baseH + 180) % 360;
+          generated = [
+            hslToHex(baseH, 80, 35),
+            hslToHex(baseH, 72, 46),
+            hslToHex(baseH, 76, 89),
+            hslToHex(comp, 85, 52),
+            hslToHex(baseH, 40, 97)
+          ];
+        } else if (mode === 'pastel') {
+          generated = [
+            hslToHex(baseH, 60, 46),
+            hslToHex((baseH + 35) % 360, 62, 56),
+            hslToHex(baseH, 75, 90),
+            hslToHex((baseH + 160) % 360, 72, 60),
+            hslToHex(baseH, 55, 98)
+          ];
+        } else if (mode === 'vivid') {
+          generated = [
+            hslToHex(baseH, 90, 40),
+            hslToHex((baseH + 40) % 360, 88, 48),
+            hslToHex(baseH, 85, 86),
+            hslToHex((baseH + 190) % 360, 92, 54),
+            hslToHex(baseH, 50, 96)
+          ];
+        } else if (mode === 'dark') {
+          generated = [
+            hslToHex(baseH, 78, 60),
+            hslToHex(baseH, 70, 36),
+            hslToHex(baseH, 60, 22),
+            hslToHex((baseH + 170) % 360, 85, 65),
+            hslToHex(baseH, 40, 8)
+          ];
+        }
+
+        ddayPalette = ddayPalette.map((slot, i) => slot.locked ? slot : { hex: generated[i], locked: false });
+        applyDdayPaletteToTheme();
+        renderDdayPaletteSwatches();
+        showToast('새로운 D-Day 색상 팔레트가 생성되어 적용되었습니다!');
+      }
+
+      function applyPresetByName(presetKey, labelText) {
+        const hexes = DDAY_THEME_PRESETS[presetKey];
+        if (!hexes) return;
+        ddayPalette = ddayPalette.map((slot, i) => slot.locked ? slot : { hex: hexes[i], locked: false });
+        applyDdayPaletteToTheme();
+        renderDdayPaletteSwatches();
+        showToast(`'${labelText}' 테마 팔레트가 적용되었습니다.`);
+      }
+
+      function renderSavedDdayPalettes() {
+        const listEl = document.getElementById('dday-saved-palettes-list');
+        const countEl = document.getElementById('dday-saved-palette-count');
+        if (!listEl || !countEl) return;
+
+        countEl.textContent = `${ddaySavedPalettes.length}개`;
+        listEl.innerHTML = '';
+
+        if (ddaySavedPalettes.length === 0) {
+          listEl.innerHTML = `<div class="text-center py-3 text-xs text-on-surface-variant">보관된 팔레트가 없습니다.</div>`;
+          return;
+        }
+
+        ddaySavedPalettes.forEach((hexArr, idx) => {
+          const item = document.createElement('div');
+          item.className = 'flex items-center justify-between p-2 rounded-DEFAULT bg-surface-container-low border border-mint-border/40';
+          item.innerHTML = `
+            <div class="flex items-center gap-1.5 flex-1 cursor-pointer saved-palette-apply">
+              <div class="flex rounded-md overflow-hidden border border-black/10">
+                ${hexArr.map(h => `<span class="w-6 h-6 block" style="background:${h}" title="${h}"></span>`).join('')}
+              </div>
+              <span class="text-[11px] font-mono text-on-surface-variant ml-1 truncate">${hexArr[0]} 외 4색</span>
+            </div>
+            <button type="button" class="w-7 h-7 rounded-full text-on-surface-variant hover:text-urgent-accent flex items-center justify-center btn-del-saved" title="삭제">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          `;
+
+          item.querySelector('.saved-palette-apply').addEventListener('click', () => {
+            ddayPalette = hexArr.map(h => ({ hex: h, locked: false }));
+            applyDdayPaletteToTheme();
+            renderDdayPaletteSwatches();
+            showToast('보관된 팔레트가 앱 테마에 적용되었습니다!');
+          });
+
+          item.querySelector('.btn-del-saved').addEventListener('click', () => {
+            ddaySavedPalettes.splice(idx, 1);
+            localStorage.setItem('dday_saved_palettes', JSON.stringify(ddaySavedPalettes));
+            renderSavedDdayPalettes();
+            showToast('보관된 팔레트를 삭제했습니다.');
+          });
+
+          listEl.appendChild(item);
+        });
+      }
+
+      // Header Palette Button & Settings Palette Button -> Switch to Palette View
+      document.getElementById('btn-header-palette').addEventListener('click', () => {
+        document.querySelector('[data-target="view-palette"]').click();
+      });
+      const openFromSettingsBtn = document.getElementById('btn-open-palette-from-settings');
+      if (openFromSettingsBtn) {
+        openFromSettingsBtn.addEventListener('click', () => {
+          document.querySelector('[data-target="view-palette"]').click();
+        });
+      }
+
+      document.getElementById('btn-gen-dday-palette').addEventListener('click', generateNewDdayPalette);
+      document.getElementById('dday-harmony-select').addEventListener('change', generateNewDdayPalette);
+
+      document.getElementById('btn-reset-dday-palette').addEventListener('click', () => {
+        ddayPalette = DDAY_THEME_PRESETS.forest.map(hex => ({ hex, locked: false }));
+        applyDdayPaletteToTheme();
+        renderDdayPaletteSwatches();
+        showToast('기본 포레스트 크로노 테마로 복원되었습니다.');
+      });
+
+      document.getElementById('btn-copy-all-dday-hex').addEventListener('click', () => {
+        const str = ddayPalette.map(s => s.hex).join(', ');
+        navigator.clipboard.writeText(str);
+        showToast(`전체 HEX 복사 완료: ${str}`);
+      });
+
+      document.getElementById('btn-save-dday-palette').addEventListener('click', () => {
+        const currentHexes = ddayPalette.map(s => s.hex);
+        ddaySavedPalettes.unshift(currentHexes);
+        localStorage.setItem('dday_saved_palettes', JSON.stringify(ddaySavedPalettes));
+        renderSavedDdayPalettes();
+        showToast('현재 5색 팔레트가 보관함에 저장되었습니다!');
+      });
+
+      document.querySelectorAll('.dday-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-preset');
+          applyPresetByName(key, btn.innerText.trim());
+        });
+      });
+
+      // Theme toggle buttons in Settings connected to Palette Engine
+      document.getElementById('theme-forest-btn').addEventListener('click', () => {
+        applyPresetByName('forest', '포레스트 크로노');
+      });
+      document.getElementById('theme-clean-btn').addEventListener('click', () => {
+        applyPresetByName('rose', '로즈 쿼츠');
+      });
+      document.getElementById('theme-dark-btn').addEventListener('click', () => {
+        applyPresetByName('dark', '다크 에메랄드');
+      });
+
+      // Quick Notification button
+      document.getElementById('btn-quick-notif').addEventListener('click', () => {
+        showToast('다가오는 기념일 알림이 정상 활성화되어 있습니다.');
+      });
+
+      // Master Initialize & Run Ticker
+      applyDdayPaletteToTheme();
+      renderDdayPaletteSwatches();
+      renderSavedDdayPalettes();
+      renderHomeFeed();
+      renderFullAnniversaries();
+      updateStaticCalculations();
+      updateLiveClock();
+
+      // Millisecond precision live clock ticker
+      setInterval(updateLiveClock, 50);
+    })();
+  </script>
+</body>
+</html>
+

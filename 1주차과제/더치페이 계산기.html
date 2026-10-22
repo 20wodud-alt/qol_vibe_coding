@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스마트 더치페이 계산기 - 메뉴별·할인 정산</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background: radial-gradient(circle at 50% 0%, #eef2ff 0%, #f8fafc 60%);
+      color: #0f172a;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+          <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight text-slate-900">스마트 더치페이 계산기</h1>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200/60">1주차 과제</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">인원수 · 각자 먹은 메뉴 · 할인 조건 분기 · 배열 반복문 자동 정산</p>
+        </div>
+      </div>
+
+      <!-- Preset Scenarios -->
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <span class="text-xs font-bold text-slate-400 hidden md:inline">예시 불러오기:</span>
+        <button type="button" data-preset="dinner" class="preset-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-bold text-slate-700 transition-colors">
+          🥩 고기집 모임 (4인)
+        </button>
+        <button type="button" data-preset="cafe" class="preset-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-xs font-bold text-slate-700 transition-colors">
+          ☕ 카페 디저트 (3인)
+        </button>
+        <button type="button" id="btnResetAll" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-600 transition-colors">
+          초기화
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Inputs (Participants, Menus, Discounts) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- STEP 1: 인원수 및 참여자 관리 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
+            <h2 class="text-base font-extrabold text-slate-900">인원수 및 참석자 설정</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500">총 인원</span>
+            <div class="inline-flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200">
+              <button type="button" id="btnDecPerson" class="w-7 h-7 rounded-lg hover:bg-white text-slate-700 font-bold flex items-center justify-center transition-colors">-</button>
+              <span id="personCountBadge" class="px-3 text-sm font-extrabold text-indigo-600 font-mono">4명</span>
+              <button type="button" id="btnIncPerson" class="w-7 h-7 rounded-lg hover:bg-white text-slate-700 font-bold flex items-center justify-center transition-colors">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Custom Person Input -->
+        <div class="flex gap-2">
+          <input type="text" id="newPersonName" placeholder="참석자 이름 입력 (예: 민수, 지영, 철수...)" class="flex-1 h-10 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:border-indigo-500 outline-none transition-all" />
+          <button type="button" id="btnAddPerson" class="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1 shadow-xs transition-all">
+            <span class="material-symbols-outlined text-[16px]">person_add</span>
+            <span>인원 추가</span>
+          </button>
+        </div>
+
+        <!-- Participants Chips List -->
+        <div id="participantsContainer" class="flex flex-wrap gap-2">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- STEP 2: 각자 먹은 메뉴 및 공용 메뉴 등록 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center">2</span>
+            <h2 class="text-base font-extrabold text-slate-900">각자 먹는 메뉴 &amp; 주문 내역</h2>
+          </div>
+          <span class="text-xs text-slate-500">메뉴별로 먹은 사람을 체크하면 정확히 분배됩니다</span>
+        </div>
+
+        <!-- Menu Add Form -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 flex flex-col gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div class="sm:col-span-5">
+              <label class="block text-[11px] font-bold text-slate-500 mb-1">메뉴 이름</label>
+              <input type="text" id="menuNameInput" placeholder="예: 삼겹살 3인분, 아메리카노" class="w-full h-10 px-3 rounded-lg bg-white border border-slate-200 text-sm outline-none focus:border-indigo-500" />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[11px] font-bold text-slate-500 mb-1">가격 (단가, 원)</label>
+              <input type="number" id="menuPriceInput" placeholder="15000" step="500" min="0" class="w-full h-10 px-3 rounded-lg bg-white border border-slate-200 text-sm font-mono outline-none focus:border-indigo-500" />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="block text-[11px] font-bold text-slate-500 mb-1">수량</label>
+              <input type="number" id="menuQtyInput" value="1" min="1" max="99" class="w-full h-10 px-3 rounded-lg bg-white border border-slate-200 text-sm font-mono outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+
+          <!-- Who ate this menu? -->
+          <div id="eatersSelectionBox" class="flex flex-col gap-1.5 p-3 rounded-xl bg-white/70 border border-slate-200/80 transition-all">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-bold text-slate-600">누가 먹었나요? (먹은 사람 선택)</span>
+                <span id="eatersLockHint" class="px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-600 text-[10px] font-bold">메뉴·가격·수량 입력 후 선택 가능</span>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" id="btnSelectAllEaters" class="text-[11px] font-bold text-indigo-600 hover:underline disabled:opacity-40 disabled:pointer-events-none">전체 선택(공용)</button>
+                <span class="text-slate-300">|</span>
+                <button type="button" id="btnClearAllEaters" class="text-[11px] font-semibold text-slate-500 hover:underline disabled:opacity-40 disabled:pointer-events-none">선택 해제</button>
+              </div>
+            </div>
+            <div id="menuEatersCheckboxes" class="flex flex-wrap gap-1.5 pt-0.5">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <button type="button" id="btnAddMenu" class="w-full h-10 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all">
+            <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+            <span>메뉴 추가하기</span>
+          </button>
+        </div>
+
+        <!-- Menu Items List -->
+        <div id="menuListContainer" class="flex flex-col gap-2.5 max-h-[340px] overflow-y-auto custom-scroll pr-1">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- STEP 3: 할인 적용 및 정산 조건 분기 -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center">3</span>
+            <h2 class="text-base font-extrabold text-slate-900">할인 적용 &amp; 조건 분기 설정</h2>
+          </div>
+          <span id="activeDiscountBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">할인 미적용</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- 할인 유형 선택 (조건 분기 1) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">할인 방식 (조건 분기)</label>
+            <select id="discountTypeSelect" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 outline-none focus:border-indigo-500">
+              <option value="none">할인 없음 (기본 정산)</option>
+              <option value="percent">💳 퍼센트(%) 멤버십/카드 할인</option>
+              <option value="fixed">🎟️ 정액 쿠폰 할인 (원 단위 차감)</option>
+              <option value="tier">🏆 결제 금액대별 자동 등급 할인</option>
+            </select>
+          </div>
+
+          <!-- 할인 값 입력 -->
+          <div id="discountValueWrap">
+            <label id="discountValueLabel" class="block text-xs font-bold text-slate-600 mb-1.5">할인율 / 할인금액</label>
+            <input type="number" id="discountValueInput" value="10" min="0" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono outline-none focus:border-indigo-500" />
+          </div>
+
+          <!-- 할인 배분 기준 (조건 분기 2) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">할인 혜택 분배 방식</label>
+            <select id="discountSplitMode" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 outline-none focus:border-indigo-500">
+              <option value="proportional">주문 금액 비례 할인 (공정 분배)</option>
+              <option value="equal">1/N 인원 균등 할인 (동일 차감)</option>
+            </select>
+          </div>
+
+          <!-- 잔돈 절사 규칙 (조건 분기 3) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">자투리 잔돈 처리 규칙</label>
+            <select id="roundingModeSelect" class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 outline-none focus:border-indigo-500">
+              <option value="exact">1원 단위까지 정확히 정산</option>
+              <option value="floor100">100원 단위 버림 (차액은 총무 부담)</option>
+              <option value="ceil100">100원 단위 올림 (남는 돈은 모임통장)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 금액대별 자동 할인 안내 배너 -->
+        <div id="tierInfoBanner" class="hidden rounded-xl bg-amber-50 border border-amber-200/80 p-3 text-xs text-amber-800 leading-relaxed">
+          <strong>[조건 분기 규칙]</strong> 총 주문금액 <strong>100,000원 이상</strong> 시 <span class="font-bold underline">15% VIP 할인</span>, <strong>50,000원 이상</strong> 시 <span class="font-bold underline">10% 골드 할인</span>, <strong>30,000원 이상</strong> 시 <span class="font-bold underline">5% 기본 할인</span>이 자동 적용됩니다.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Real-Time Calculation Results & Code Logic Inspector -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+
+      <!-- Total Summary Hero Card -->
+      <section class="rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-6 shadow-xl flex flex-col gap-4 relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-indigo-500/20 blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">calculate</span>
+            실시간 정산 요약
+          </span>
+          <span id="summaryMenuCount" class="text-xs text-slate-300 font-medium">총 0개 메뉴 · 0명</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 pt-1 border-b border-white/10 pb-4">
+          <div>
+            <span class="text-[11px] text-slate-400 block">총 주문 금액</span>
+            <strong id="totalOriginalDisplay" class="text-lg font-extrabold font-mono text-white">0원</strong>
+          </div>
+          <div>
+            <span class="text-[11px] text-emerald-300 block">할인 차감액</span>
+            <strong id="totalDiscountDisplay" class="text-lg font-extrabold font-mono text-emerald-400">-0원</strong>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] text-indigo-200 block">최종 결제 금액</span>
+            <strong id="totalFinalDisplay" class="text-2xl font-black font-mono text-amber-300">0원</strong>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-300">
+          <span id="roundingDiffNotice">정산 합계와 최종 결제 금액이 일치합니다.</span>
+          <button type="button" id="btnCopyReceipt" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center gap-1 shadow-sm transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[15px]">content_copy</span>
+            <span>카톡 정산표 복사</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Per-Person Breakdown List -->
+      <section class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col gap-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-indigo-600 text-[20px]">groups</span>
+            개인별 정산 명세서
+          </h3>
+          <span class="text-xs text-slate-400">각자 먹은 메뉴 합산 + 할인 반영</span>
+        </div>
+
+        <div id="perPersonResultList" class="flex flex-col gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Array Loop & Conditional Branching Inspector (과제 핵심 요건 시각화) -->
+      <section class="bg-slate-900 text-slate-100 rounded-2xl p-5 shadow-md flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-emerald-400 text-[19px]">terminal</span>
+            <h3 class="text-sm font-extrabold text-white">배열 반복문 &amp; 조건 분기 실행 로그</h3>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">JS Engine Live</span>
+        </div>
+        <div id="algorithmLogBox" class="bg-slate-950/90 rounded-xl p-3.5 font-mono text-xs text-slate-300 leading-relaxed space-y-1.5 border border-slate-800 max-h-60 overflow-y-auto custom-scroll">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-1.5">
+    <span class="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
+    <span id="toastText">복사되었습니다.</span>
+  </div>
+
+  <!-- Application Script: 배열 반복문 + 조건 분기 기반 더치페이 엔진 -->
+  <script>
+    // =========================================================================
+    // 1. 상태 데이터 (배열 구조: 참석자 배열 & 주문 메뉴 배열)
+    // =========================================================================
+    let participants = [
+      { id: 'p1', name: '민수 (총무)' },
+      { id: 'p2', name: '지영' },
+      { id: 'p3', name: '현우' },
+      { id: 'p4', name: '수빈' }
+    ];
+
+    let menus = [
+      { id: 'm1', name: '숙성 삼겹살 (공용)', price: 16000, qty: 4, eaters: ['p1', 'p2', 'p3', 'p4'] },
+      { id: 'm2', name: '소주 & 맥주 (음주자만)', price: 5000, qty: 4, eaters: ['p1', 'p3'] },
+      { id: 'm3', name: '차돌 된장찌개', price: 8000, qty: 1, eaters: ['p1', 'p2', 'p3', 'p4'] },
+      { id: 'm4', name: '비빔냉면 (개별)', price: 7000, qty: 2, eaters: ['p2', 'p4'] }
+    ];
+
+    // 새 메뉴 추가 폼에서 현재 체크된 참석자 ID 배열 (초기 상태: 아무도 선택되지 않음)
+    let selectedEatersForNewMenu = [];
+
+    // 메뉴 이름, 가격, 수량이 모두 유효하게 입력되었는지 확인하는 조건 함수
+    function isMenuInputReady() {
+      const nameEl = document.getElementById('menuNameInput');
+      const priceEl = document.getElementById('menuPriceInput');
+      const qtyEl = document.getElementById('menuQtyInput');
+      if (!nameEl || !priceEl || !qtyEl) return false;
+
+      const name = nameEl.value.trim();
+      const price = parseInt(priceEl.value, 10);
+      const qty = parseInt(qtyEl.value, 10);
+
+      return name.length > 0 && !isNaN(price) && price > 0 && !isNaN(qty) && qty >= 1;
+    }
+
+    // 숫자 포맷 헬퍼
+    function formatKRW(num) {
+      return Math.round(num).toLocaleString('ko-KR') + '원';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastText').textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    // =========================================================================
+    // 2. 핵심 더치페이 계산 함수 (배열 반복문 + 조건 분기)
+    // =========================================================================
+    function calculateDutchPay() {
+      const logs = [];
+      const personCount = participants.length;
+
+      // [배열 반복문 1] 참석자별 정산 객체 초기화 (map)
+      const settlementMap = {};
+      for (let i = 0; i < participants.length; i++) {
+        const p = participants[i];
+        settlementMap[p.id] = {
+          id: p.id,
+          name: p.name,
+          items: [],        // 각자 먹은 메뉴 내역 배열
+          rawSubtotal: 0,   // 할인 전 개인 주문 합계
+          discountAmount: 0,// 개인별 할인 혜택 금액
+          finalAmount: 0    // 최종 납부할 금액
+        };
+      }
+      logs.push(`🔄 [for 반복문] 참석자 ${personCount}명의 정산 계좌 배열을 초기화했습니다.`);
+
+      // [배열 반복문 2] 전체 메뉴 배열을 순회하며 각자 먹은 메뉴 금액 분배 (for...of)
+      let totalOrderAmount = 0;
+      for (const menu of menus) {
+        const itemTotal = menu.price * menu.qty;
+        totalOrderAmount += itemTotal;
+
+        // 현재 남아있는 유효 참석자 필터링 (filter)
+        const validEaters = menu.eaters.filter(eaterId => settlementMap[eaterId] !== undefined);
+
+        // [조건 분기 1] 먹은 사람이 1명 이상인지, 공용 메뉴인지 개별 메뉴인지 분기
+        if (validEaters.length > 0) {
+          const splitPrice = itemTotal / validEaters.length;
+          const isSharedAll = validEaters.length === personCount;
+
+          // 먹은 사람들의 정산 내역에 반복문으로 합산 (forEach)
+          validEaters.forEach(eaterId => {
+            settlementMap[eaterId].rawSubtotal += splitPrice;
+            settlementMap[eaterId].items.push({
+              menuName: menu.name,
+              shareCount: validEaters.length,
+              isSharedAll: isSharedAll,
+              mySharePrice: splitPrice
+            });
+          });
+        }
+      }
+      logs.push(`🍱 [for...of & forEach 반복문] 메뉴 ${menus.length}건(총 ${formatKRW(totalOrderAmount)})을 먹은 사람별로 분배 완료.`);
+
+      // [조건 분기 2] 할인 방식(none / percent / fixed / tier)에 따른 총 할인액 계산
+      const discountType = document.getElementById('discountTypeSelect').value;
+      const discountValInput = parseFloat(document.getElementById('discountValueInput').value) || 0;
+      const discountSplitMode = document.getElementById('discountSplitMode').value;
+      const roundingMode = document.getElementById('roundingModeSelect').value;
+
+      let totalDiscount = 0;
+      let discountBadgeText = '할인 미적용';
+
+      if (discountType === 'none' || totalOrderAmount === 0) {
+        totalDiscount = 0;
+        discountBadgeText = '할인 미적용';
+        logs.push(`🏷️ [조건 분기: if (none)] 적용된 할인이 없습니다.`);
+      } else if (discountType === 'percent') {
+        const clampedRate = Math.min(100, Math.max(0, discountValInput));
+        totalDiscount = Math.round(totalOrderAmount * (clampedRate / 100));
+        discountBadgeText = `${clampedRate}% 할인 적용 (-${formatKRW(totalDiscount)})`;
+        logs.push(`🏷️ [조건 분기: else if (percent)] ${clampedRate}% 할인 → 총 ${formatKRW(totalDiscount)} 차감.`);
+      } else if (discountType === 'fixed') {
+        totalDiscount = Math.min(totalOrderAmount, Math.max(0, discountValInput));
+        discountBadgeText = `쿠폰 ${formatKRW(totalDiscount)} 할인`;
+        logs.push(`🏷️ [조건 분기: else if (fixed)] 정액 쿠폰 → 총 ${formatKRW(totalDiscount)} 차감.`);
+      } else if (discountType === 'tier') {
+        // 금액대별 다중 조건 분기
+        let autoRate = 0;
+        let tierName = '일반';
+        if (totalOrderAmount >= 100000) {
+          autoRate = 15;
+          tierName = 'VIP (10만원↑)';
+        } else if (totalOrderAmount >= 50000) {
+          autoRate = 10;
+          tierName = '골드 (5만원↑)';
+        } else if (totalOrderAmount >= 30000) {
+          autoRate = 5;
+          tierName = '실버 (3만원↑)';
+        } else {
+          autoRate = 0;
+          tierName = '3만원 미만 (할인 없음)';
+        }
+        totalDiscount = Math.round(totalOrderAmount * (autoRate / 100));
+        discountBadgeText = `${tierName} ${autoRate}% (-${formatKRW(totalDiscount)})`;
+        logs.push(`🏷️ [다중 조건 분기: tier] 주문총액 ${formatKRW(totalOrderAmount)} → ${tierName} 등급(${autoRate}%) 자동 분기!`);
+      }
+
+      const finalTargetTotal = Math.max(0, totalOrderAmount - totalDiscount);
+
+      // [배열 반복문 3 + 조건 분기 3] 개인별 할인 배분 및 잔돈 절사 규칙 적용
+      const resultsArray = Object.values(settlementMap);
+      let sumOfRoundedFinals = 0;
+
+      resultsArray.forEach(person => {
+        // 할인 분배 조건 분기: 비례 할인 vs 균등 할인
+        if (totalDiscount > 0 && totalOrderAmount > 0) {
+          if (discountSplitMode === 'proportional') {
+            const ratio = person.rawSubtotal / totalOrderAmount;
+            person.discountAmount = Math.round(totalDiscount * ratio);
+          } else {
+            person.discountAmount = Math.min(person.rawSubtotal, Math.round(totalDiscount / personCount));
+          }
+        } else {
+          person.discountAmount = 0;
+        }
+
+        const rawNet = Math.max(0, person.rawSubtotal - person.discountAmount);
+
+        // 잔돈 처리 조건 분기 (switch)
+        switch (roundingMode) {
+          case 'floor100':
+            person.finalAmount = Math.floor(rawNet / 100) * 100;
+            break;
+          case 'ceil100':
+            person.finalAmount = Math.ceil(rawNet / 100) * 100;
+            break;
+          case 'exact':
+          default:
+            person.finalAmount = Math.round(rawNet);
+            break;
+        }
+
+        sumOfRoundedFinals += person.finalAmount;
+      });
+
+      logs.push(`✅ [switch 조건 분기] '${roundingMode}' 잔돈 규칙으로 ${resultsArray.length}명 최종 정산 완료.`);
+
+      return {
+        totalOrderAmount,
+        totalDiscount,
+        finalTargetTotal,
+        sumOfRoundedFinals,
+        discountBadgeText,
+        resultsArray,
+        logs
+      };
+    }
+
+    // =========================================================================
+    // 3. UI 렌더링 함수
+    // =========================================================================
+    function renderAll() {
+      renderParticipants();
+      renderMenuEatersCheckboxes();
+      renderMenuList();
+      renderCalculationResult();
+    }
+
+    function renderParticipants() {
+      const container = document.getElementById('participantsContainer');
+      document.getElementById('personCountBadge').textContent = `${participants.length}명`;
+      container.innerHTML = '';
+
+      participants.forEach((p, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50/80 border border-indigo-200/70 text-xs font-bold text-indigo-950';
+        chip.innerHTML = `
+          <span class="w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center">${idx + 1}</span>
+          <span>${p.name}</span>
+          ${participants.length > 1 ? `
+            <button type="button" data-id="${p.id}" class="btn-remove-person ml-0.5 text-slate-400 hover:text-rose-600 flex items-center">
+              <span class="material-symbols-outlined text-[15px]">close</span>
+            </button>
+          ` : ''}
+        `;
+        container.appendChild(chip);
+      });
+
+      container.querySelectorAll('.btn-remove-person').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-id');
+          participants = participants.filter(p => p.id !== targetId);
+          selectedEatersForNewMenu = selectedEatersForNewMenu.filter(id => id !== targetId);
+          // 각 메뉴의 eaters에서도 제거하되, 비게 되면 전체 인원으로 복구
+          menus.forEach(m => {
+            m.eaters = m.eaters.filter(id => id !== targetId);
+            if (m.eaters.length === 0 && participants.length > 0) {
+              m.eaters = participants.map(p => p.id);
+            }
+          });
+          renderAll();
+        });
+      });
+    }
+
+    function renderMenuEatersCheckboxes() {
+      const wrap = document.getElementById('menuEatersCheckboxes');
+      const box = document.getElementById('eatersSelectionBox');
+      const hint = document.getElementById('eatersLockHint');
+      const btnAll = document.getElementById('btnSelectAllEaters');
+      const btnClear = document.getElementById('btnClearAllEaters');
+      wrap.innerHTML = '';
+
+      const ready = isMenuInputReady();
+
+      // 유효한 참석자만 유지하되, 입력이 안 된 상태면 선택 초기화
+      selectedEatersForNewMenu = selectedEatersForNewMenu.filter(id => participants.some(p => p.id === id));
+      if (!ready) {
+        selectedEatersForNewMenu = [];
+      }
+
+      if (!ready) {
+        box.classList.add('opacity-60', 'bg-slate-100/80');
+        box.classList.remove('bg-white/70', 'border-indigo-200');
+        hint.textContent = '🔒 메뉴·가격·수량 입력 후 선택 가능';
+        hint.className = 'px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-600 text-[10px] font-bold';
+        btnAll.disabled = true;
+        btnClear.disabled = true;
+      } else {
+        box.classList.remove('opacity-60', 'bg-slate-100/80');
+        box.classList.add('bg-white/70', 'border-indigo-200');
+        hint.textContent = selectedEatersForNewMenu.length > 0
+          ? `✅ ${selectedEatersForNewMenu.length}명 선택됨`
+          : '👆 먹은 사람을 선택해 주세요';
+        hint.className = selectedEatersForNewMenu.length > 0
+          ? 'px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold'
+          : 'px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold';
+        btnAll.disabled = false;
+        btnClear.disabled = false;
+      }
+
+      participants.forEach(p => {
+        const isChecked = ready && selectedEatersForNewMenu.includes(p.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !ready;
+        btn.className = `px-3 py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 ${
+          !ready
+            ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+            : isChecked
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+              : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'
+        }`;
+        btn.innerHTML = `
+          <span class="material-symbols-outlined text-[14px]">${isChecked ? 'check_box' : 'check_box_outline_blank'}</span>
+          <span>${p.name}</span>
+        `;
+        btn.addEventListener('click', () => {
+          if (!isMenuInputReady()) {
+            showToast('먼저 메뉴 이름, 가격, 수량을 입력해 주세요.');
+            return;
+          }
+          if (selectedEatersForNewMenu.includes(p.id)) {
+            selectedEatersForNewMenu = selectedEatersForNewMenu.filter(id => id !== p.id);
+          } else {
+            selectedEatersForNewMenu.push(p.id);
+          }
+          renderMenuEatersCheckboxes();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderMenuList() {
+      const container = document.getElementById('menuListContainer');
+      container.innerHTML = '';
+
+      if (menus.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+            등록된 주문 메뉴가 없습니다. 위 입력창에서 메뉴를 추가해 주세요!
+          </div>
+        `;
+        return;
+      }
+
+      menus.forEach(menu => {
+        const itemTotal = menu.price * menu.qty;
+        const isAll = menu.eaters.length === participants.length;
+
+        const row = document.createElement('div');
+        row.className = 'p-3.5 rounded-xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/80 flex flex-col gap-2 transition-colors';
+
+        // 참석자 토글 버튼들 생성
+        const eaterButtonsHtml = participants.map(p => {
+          const ate = menu.eaters.includes(p.id);
+          return `
+            <button type="button" data-menu="${menu.id}" data-person="${p.id}" class="btn-toggle-menu-eater px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all ${
+              ate
+                ? 'bg-indigo-100 text-indigo-800 border-indigo-300'
+                : 'bg-white text-slate-400 border-slate-200 line-through'
+            }">
+              ${p.name}
+            </button>
+          `;
+        }).join('');
+
+        row.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${isAll ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                ${isAll ? '공용 1/N' : `개별 (${menu.eaters.length}명)`}
+              </span>
+              <span class="text-sm font-bold text-slate-900 truncate">${menu.name}</span>
+              <span class="text-xs text-slate-400 font-mono">${menu.price.toLocaleString()}원 × ${menu.qty}개</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <strong class="text-sm font-extrabold font-mono text-slate-900">${formatKRW(itemTotal)}</strong>
+              <button type="button" data-id="${menu.id}" class="btn-delete-menu w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-[17px]">delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between flex-wrap gap-1.5 pt-1 border-t border-slate-200/60">
+            <div class="flex flex-wrap gap-1 items-center">
+              <span class="text-[11px] text-slate-400 mr-1">먹은 사람(클릭하여 변경):</span>
+              ${eaterButtonsHtml}
+            </div>
+            <span class="text-[11px] font-mono font-semibold text-indigo-600">
+              1인당 ${formatKRW(itemTotal / Math.max(1, menu.eaters.length))}
+            </span>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+
+      // 메뉴 삭제 이벤트
+      container.querySelectorAll('.btn-delete-menu').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          menus = menus.filter(m => m.id !== id);
+          renderAll();
+        });
+      });
+
+      // 각 메뉴에서 먹은 사람 즉시 토글
+      container.querySelectorAll('.btn-toggle-menu-eater').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const menuId = btn.getAttribute('data-menu');
+          const personId = btn.getAttribute('data-person');
+          const targetMenu = menus.find(m => m.id === menuId);
+          if (!targetMenu) return;
+
+          if (targetMenu.eaters.includes(personId)) {
+            if (targetMenu.eaters.length <= 1) {
+              showToast('메뉴당 최소 1명은 선택되어야 합니다.');
+              return;
+            }
+            targetMenu.eaters = targetMenu.eaters.filter(id => id !== personId);
+          } else {
+            targetMenu.eaters.push(personId);
+          }
+          renderAll();
+        });
+      });
+    }
+
+    function renderCalculationResult() {
+      const calc = calculateDutchPay();
+
+      document.getElementById('summaryMenuCount').textContent = `총 ${menus.length}개 메뉴 · ${participants.length}명`;
+      document.getElementById('totalOriginalDisplay').textContent = formatKRW(calc.totalOrderAmount);
+      document.getElementById('totalDiscountDisplay').textContent = `-${formatKRW(calc.totalDiscount)}`;
+      document.getElementById('totalFinalDisplay').textContent = formatKRW(calc.finalTargetTotal);
+      document.getElementById('activeDiscountBadge').textContent = calc.discountBadgeText;
+
+      const diff = calc.sumOfRoundedFinals - calc.finalTargetTotal;
+      const diffEl = document.getElementById('roundingDiffNotice');
+      if (diff === 0) {
+        diffEl.textContent = '✨ 개인별 정산 합계와 최종 결제 금액이 정확히 일치합니다.';
+      } else if (diff > 0) {
+        diffEl.textContent = `💡 100원 올림 정산으로 ${formatKRW(diff)}이 남습니다. (모임통장/간식비 적립)`;
+      } else {
+        diffEl.textContent = `💡 100원 버림 정산으로 차액 ${formatKRW(Math.abs(diff))}은 총무가 부담합니다.`;
+      }
+
+      // 개인별 카드 렌더링
+      const listEl = document.getElementById('perPersonResultList');
+      listEl.innerHTML = '';
+
+      calc.resultsArray.forEach((person, idx) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2';
+
+        const eatenTags = person.items.length > 0
+          ? person.items.map(item => `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] text-slate-700">
+                <span>${item.menuName}</span>
+                <span class="text-slate-400 font-mono">(${formatKRW(item.mySharePrice)})</span>
+              </span>
+            `).join('')
+          : `<span class="text-xs text-slate-400">먹은 메뉴 없음 (0원)</span>`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">${idx + 1}</span>
+              <span class="text-sm font-extrabold text-slate-900">${person.name}</span>
+              <span class="text-[11px] text-slate-400">메뉴 ${person.items.length}개</span>
+            </div>
+            <div class="text-right">
+              <strong class="text-base font-black font-mono text-indigo-600">${formatKRW(person.finalAmount)}</strong>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1 pt-1">
+            ${eatenTags}
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 font-mono">
+            <span>주문 합계: ${formatKRW(person.rawSubtotal)}</span>
+            <span class="text-emerald-600 font-bold">할인 혜택: -${formatKRW(person.discountAmount)}</span>
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+
+      // 알고리즘 실행 로그 렌더링
+      const logBox = document.getElementById('algorithmLogBox');
+      logBox.innerHTML = calc.logs.map(l => `<div>${l}</div>`).join('');
+    }
+
+    // =========================================================================
+    // 4. 이벤트 리스너 바인딩
+    // =========================================================================
+    // 인원 추가
+    function addPersonByName(customName) {
+      const name = (customName || '').trim() || `참석자 ${participants.length + 1}`;
+      const newId = 'p_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      participants.push({ id: newId, name });
+      renderAll();
+    }
+
+    // 메뉴 이름, 가격, 수량 입력 시 실시간으로 '누가 먹었나요?' 활성화 상태 갱신
+    ['menuNameInput', 'menuPriceInput', 'menuQtyInput'].forEach(inputId => {
+      document.getElementById(inputId).addEventListener('input', () => {
+        renderMenuEatersCheckboxes();
+      });
+    });
+
+    document.getElementById('btnAddPerson').addEventListener('click', () => {
+      const input = document.getElementById('newPersonName');
+      addPersonByName(input.value);
+      input.value = '';
+    });
+
+    document.getElementById('newPersonName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('btnAddPerson').click();
+      }
+    });
+
+    document.getElementById('btnIncPerson').addEventListener('click', () => {
+      addPersonByName('');
+    });
+
+    document.getElementById('btnDecPerson').addEventListener('click', () => {
+      if (participants.length <= 1) {
+        showToast('최소 1명의 인원이 필요합니다.');
+        return;
+      }
+      const removed = participants.pop();
+      selectedEatersForNewMenu = selectedEatersForNewMenu.filter(id => id !== removed.id);
+      menus.forEach(m => {
+        m.eaters = m.eaters.filter(id => id !== removed.id);
+        if (m.eaters.length === 0) m.eaters = participants.map(p => p.id);
+      });
+      renderAll();
+    });
+
+    // 새 메뉴 먹은 사람 전체 선택 / 해제
+    document.getElementById('btnSelectAllEaters').addEventListener('click', () => {
+      if (!isMenuInputReady()) return;
+      selectedEatersForNewMenu = participants.map(p => p.id);
+      renderMenuEatersCheckboxes();
+    });
+
+    document.getElementById('btnClearAllEaters').addEventListener('click', () => {
+      if (!isMenuInputReady()) return;
+      selectedEatersForNewMenu = [];
+      renderMenuEatersCheckboxes();
+    });
+
+    // 메뉴 추가 버튼
+    document.getElementById('btnAddMenu').addEventListener('click', () => {
+      const nameEl = document.getElementById('menuNameInput');
+      const priceEl = document.getElementById('menuPriceInput');
+      const qtyEl = document.getElementById('menuQtyInput');
+
+      const name = nameEl.value.trim();
+      const price = parseInt(priceEl.value, 10);
+      const qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
+
+      if (!name || isNaN(price) || price <= 0) {
+        showToast('메뉴 이름, 가격, 수량을 먼저 입력해 주세요!');
+        return;
+      }
+
+      if (selectedEatersForNewMenu.length === 0) {
+        showToast('누가 먹었는지 최소 1명 이상 선택해 주세요!');
+        return;
+      }
+
+      menus.push({
+        id: 'm_' + Date.now(),
+        name,
+        price,
+        qty,
+        eaters: [...selectedEatersForNewMenu]
+      });
+
+      // 메뉴 추가 완료 후 입력값 및 먹은 사람 선택 전체 초기화
+      nameEl.value = '';
+      priceEl.value = '';
+      qtyEl.value = '1';
+      selectedEatersForNewMenu = [];
+      renderAll();
+      showToast(`'${name}' 메뉴가 추가되고 선택이 초기화되었습니다.`);
+    });
+
+    // 할인 조건 분기 UI 이벤트
+    document.getElementById('discountTypeSelect').addEventListener('change', (e) => {
+      const mode = e.target.value;
+      const valWrap = document.getElementById('discountValueWrap');
+      const valLabel = document.getElementById('discountValueLabel');
+      const valInput = document.getElementById('discountValueInput');
+      const tierBanner = document.getElementById('tierInfoBanner');
+
+      if (mode === 'none') {
+        valWrap.classList.add('opacity-40', 'pointer-events-none');
+        tierBanner.classList.add('hidden');
+      } else if (mode === 'percent') {
+        valWrap.classList.remove('opacity-40', 'pointer-events-none');
+        tierBanner.classList.add('hidden');
+        valLabel.textContent = '할인율 (%)';
+        valInput.value = '10';
+      } else if (mode === 'fixed') {
+        valWrap.classList.remove('opacity-40', 'pointer-events-none');
+        tierBanner.classList.add('hidden');
+        valLabel.textContent = '쿠폰 할인 금액 (원)';
+        valInput.value = '5000';
+      } else if (mode === 'tier') {
+        valWrap.classList.add('opacity-40', 'pointer-events-none');
+        tierBanner.classList.remove('hidden');
+        valLabel.textContent = '자동 등급 할인율';
+      }
+      renderCalculationResult();
+    });
+
+    document.getElementById('discountValueInput').addEventListener('input', renderCalculationResult);
+    document.getElementById('discountSplitMode').addEventListener('change', renderCalculationResult);
+    document.getElementById('roundingModeSelect').addEventListener('change', renderCalculationResult);
+
+    // 프리셋 시나리오 불러오기
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.getAttribute('data-preset');
+        if (type === 'dinner') {
+          participants = [
+            { id: 'p1', name: '민수 (총무)' },
+            { id: 'p2', name: '지영' },
+            { id: 'p3', name: '현우' },
+            { id: 'p4', name: '수빈' }
+          ];
+          menus = [
+            { id: 'm1', name: '숙성 삼겹살 (공용)', price: 16000, qty: 4, eaters: ['p1', 'p2', 'p3', 'p4'] },
+            { id: 'm2', name: '소주 & 맥주 (음주자만)', price: 5000, qty: 4, eaters: ['p1', 'p3'] },
+            { id: 'm3', name: '차돌 된장찌개', price: 8000, qty: 1, eaters: ['p1', 'p2', 'p3', 'p4'] },
+            { id: 'm4', name: '비빔냉면 (개별)', price: 7000, qty: 2, eaters: ['p2', 'p4'] }
+          ];
+          document.getElementById('discountTypeSelect').value = 'tier';
+          document.getElementById('discountTypeSelect').dispatchEvent(new Event('change'));
+          showToast('🥩 고기집 모임(4인, 주류/개별메뉴 분리 + 금액대별 자동 할인) 예시가 적용되었습니다.');
+        } else if (type === 'cafe') {
+          participants = [
+            { id: 'c1', name: '서연' },
+            { id: 'c2', name: '도윤' },
+            { id: 'c3', name: '하은' }
+          ];
+          menus = [
+            { id: 'mc1', name: '아이스 아메리카노', price: 4500, qty: 1, eaters: ['c1'] },
+            { id: 'mc2', name: '바닐라 빈 라떼', price: 5800, qty: 1, eaters: ['c2'] },
+            { id: 'mc3', name: '자몽 허니 블랙티', price: 6200, qty: 1, eaters: ['c3'] },
+            { id: 'mc4', name: '생딸기 조각케이크 (공용)', price: 8500, qty: 2, eaters: ['c1', 'c2', 'c3'] }
+          ];
+          document.getElementById('discountTypeSelect').value = 'percent';
+          document.getElementById('discountTypeSelect').dispatchEvent(new Event('change'));
+          showToast('☕ 카페 디저트 모임(3인, 각자 음료 + 공용 케이크 + 10% 할인) 예시가 적용되었습니다.');
+        }
+        selectedEatersForNewMenu = [];
+        renderAll();
+      });
+    });
+
+    // 초기화 버튼
+    document.getElementById('btnResetAll').addEventListener('click', () => {
+      menus = [];
+      selectedEatersForNewMenu = [];
+      document.getElementById('menuNameInput').value = '';
+      document.getElementById('menuPriceInput').value = '';
+      document.getElementById('menuQtyInput').value = '1';
+      document.getElementById('discountTypeSelect').value = 'none';
+      document.getElementById('discountTypeSelect').dispatchEvent(new Event('change'));
+      renderAll();
+      showToast('메뉴 및 할인 설정이 초기화되었습니다.');
+    });
+
+    // 카톡 정산표 클립보드 복사
+    document.getElementById('btnCopyReceipt').addEventListener('click', () => {
+      const calc = calculateDutchPay();
+      let lines = [
+        `📋 [스마트 더치페이 정산 내역]`,
+        `• 총 주문금액: ${formatKRW(calc.totalOrderAmount)}`,
+        `• 할인 금액: -${formatKRW(calc.totalDiscount)} (${calc.discountBadgeText})`,
+        `• 최종 결제액: ${formatKRW(calc.finalTargetTotal)}`,
+        `------------------------`
+      ];
+      calc.resultsArray.forEach(p => {
+        const menuNames = p.items.map(i => i.menuName).join(', ') || '메뉴 없음';
+        lines.push(`👤 ${p.name}: ${formatKRW(p.finalAmount)} (${menuNames})`);
+      });
+      navigator.clipboard.writeText(lines.join('\n'));
+      showToast('카카오톡 공유용 더치페이 정산표가 복사되었습니다!');
+    });
+
+    // 초기 실행 시 기본 할인 상태 세팅 후 렌더링
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('discountTypeSelect').value = 'percent';
+      document.getElementById('discountTypeSelect').dispatchEvent(new Event('change'));
+      renderAll();
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="mobile_tab" name="shell-type"/>
+  <title>프리미엄 나이 계산기 - 대한민국 공식 기준</title>
+
+  <!-- Google Fonts & Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS & Theme Setup -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "secondary": "#006c49",
+            "primary-container": "#1e1b4b",
+            "outline": "#787680",
+            "tertiary-fixed-dim": "#c0c1ff",
+            "on-tertiary-fixed-variant": "#2f2ebe",
+            "on-secondary-container": "#00714d",
+            "on-surface-variant": "#47464f",
+            "error": "#ba1a1a",
+            "secondary-fixed-dim": "#4edea3",
+            "primary": "#070235",
+            "on-error": "#ffffff",
+            "primary-fixed-dim": "#c4c1fb",
+            "tertiary-fixed": "#e1e0ff",
+            "tertiary-container": "#09007e",
+            "on-background": "#0b1c30",
+            "surface-container-high": "#dce9ff",
+            "surface-variant": "#d3e4fe",
+            "surface-tint": "#5b598c",
+            "surface-container-highest": "#d3e4fe",
+            "secondary-container": "#6cf8bb",
+            "on-secondary": "#ffffff",
+            "tertiary": "#02003c",
+            "on-primary": "#ffffff",
+            "surface-dim": "#cbdbf5",
+            "on-tertiary": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "error-container": "#ffdad6",
+            "on-primary-fixed-variant": "#444173",
+            "on-primary-container": "#8683ba",
+            "outline-variant": "#c8c5d0",
+            "on-tertiary-container": "#767aff",
+            "on-tertiary-fixed": "#07006c",
+            "inverse-primary": "#c4c1fb",
+            "surface-container": "#e5eeff",
+            "surface": "#f8f9ff",
+            "surface-bright": "#f8f9ff",
+            "on-primary-fixed": "#181445",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed-variant": "#005236",
+            "surface-container-lowest": "#ffffff",
+            "inverse-on-surface": "#eaf1ff",
+            "secondary-fixed": "#6ffbbe",
+            "on-secondary-fixed": "#002113",
+            "inverse-surface": "#213145",
+            "on-surface": "#0b1c30",
+            "background": "#f8f9ff",
+            "primary-fixed": "#e3dfff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-sm": "0.5rem",
+            "space-xxs": "0.125rem",
+            "space-md": "1rem",
+            "margin": "1.25rem",
+            "gutter-sm": "0.75rem",
+            "space-2xl": "3rem",
+            "space-lg": "1.5rem",
+            "margin-tablet": "2rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "gutter": "1rem"
+          },
+          fontFamily: {
+            "body-lg": ["Hanken Grotesk"],
+            "label-lg": ["Hanken Grotesk"],
+            "headline-md": ["Manrope"],
+            "display-number-lg": ["Manrope"],
+            "title-md": ["Hanken Grotesk"],
+            "headline-lg": ["Manrope"],
+            "label-sm": ["Hanken Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "body-md": ["Hanken Grotesk"],
+            "display-lg": ["Manrope"]
+          },
+          fontSize: {
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "display-number-lg": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "title-md": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9ff;
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .view-container {
+      display: none;
+    }
+    .view-container.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased">
+
+  <!-- Fixed Top Header -->
+  <header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(7,2,53,0.03)] border-b border-surface-container/60">
+    <div class="h-16 max-w-md mx-auto px-margin flex items-center justify-between">
+      <div class="flex items-center gap-space-sm">
+        <div class="w-9 h-9 rounded-xl bg-primary-container flex items-center justify-center text-secondary-fixed shadow-[0_2px_6px_rgba(30,27,75,0.12)]">
+          <span class="material-symbols-outlined text-[20px]" id="header-icon">calculate</span>
+        </div>
+        <div class="flex items-center gap-space-xs">
+          <span class="font-headline-md text-headline-md text-primary leading-tight tracking-tight">나이 계산기</span>
+          <span class="px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary font-label-sm text-[10px] leading-tight font-semibold">공식 기준</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main View Frame -->
+  <main class="flex flex-col relative w-full max-w-md mx-auto pt-16 pb-24 px-margin bg-surface min-h-screen">
+
+    <!-- ========================================================
+         VIEW 1: 나이 계산 (Age Calculator)
+    ======================================================== -->
+    <div class="view-container active flex-col w-full gap-space-lg pb-6" id="view-age-calculator">
+      
+      <!-- 1. Quick Profile Switcher Chips -->
+      <section class="flex flex-col gap-space-xs pt-1">
+        <div class="flex items-center justify-between">
+          <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase">프로필 빠른 선택</span>
+          <span class="font-label-sm text-label-sm text-secondary font-semibold flex items-center gap-0.5">
+            <span class="material-symbols-outlined text-[14px]">sync</span> 실시간 동기화
+          </span>
+        </div>
+        <div class="flex items-center gap-2 overflow-x-auto py-1 -mx-margin px-margin scrollbar-none" id="profile-chip-group">
+          <!-- Dynamic Profile Chips -->
+        </div>
+      </section>
+
+      <!-- 2. Birth & Reference Date Input Card -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md border border-surface-container-high/40">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+            </div>
+            <h2 class="font-title-md text-title-md text-primary font-bold">생년월일 및 기준일</h2>
+          </div>
+          <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-lg" id="calendar-type-toggle">
+            <button class="cal-type-btn active px-2.5 py-1 rounded bg-surface-container-lowest text-primary font-label-sm text-label-sm font-bold shadow-xs transition-all" type="button" data-type="solar">양력</button>
+            <button class="cal-type-btn px-2.5 py-1 rounded text-on-surface-variant font-label-sm text-label-sm transition-all" type="button" data-type="lunar">음력</button>
+          </div>
+        </div>
+
+        <!-- Inputs Group -->
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-medium flex items-center justify-between">
+              <span>생년월일 입력</span>
+              <span class="flex items-center gap-1 text-[11px] text-on-surface-variant/80">
+                <input class="rounded text-secondary focus:ring-0" id="leap-month-check" type="checkbox"/>
+                <span>윤달 여부</span>
+              </span>
+            </label>
+            <div class="relative flex items-center">
+              <input class="w-full h-12 px-4 py-3 rounded-lg bg-surface-container-low font-headline-md text-headline-md text-primary tracking-tight focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-xs transition-all cursor-pointer" id="input-birth" type="date" value="1998-10-24"/>
+              <span class="material-symbols-outlined absolute right-3.5 text-on-surface-variant pointer-events-none text-[20px]">edit_calendar</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">계산 기준일</label>
+              <button class="text-secondary font-label-sm text-label-sm font-semibold hover:underline flex items-center gap-0.5" id="btn-reset-today" type="button">
+                <span class="material-symbols-outlined text-[13px]">replay</span>오늘로 재설정
+              </button>
+            </div>
+            <div class="relative flex items-center">
+              <input class="w-full h-11 px-4 py-2 rounded-lg bg-surface-container-low font-title-md text-title-md text-primary font-medium focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-xs transition-all cursor-pointer" id="input-target" type="date"/>
+              <span class="material-symbols-outlined absolute right-3.5 text-on-surface-variant pointer-events-none text-[20px]">event_repeat</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="w-full h-12 rounded-lg bg-primary-container text-on-primary font-title-md text-title-md font-bold shadow-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2" id="btn-calculate" type="button">
+          <span class="material-symbols-outlined text-[20px] text-secondary-fixed">bolt</span>
+          <span>정밀 계산하기</span>
+        </button>
+      </section>
+
+      <!-- 3. Core Age Calculation Results (Hero Card) -->
+      <section class="flex flex-col gap-3">
+        <div class="relative overflow-hidden rounded-xl bg-primary text-on-primary p-space-lg shadow-xl">
+          <!-- Ambient Graphic Glow -->
+          <div class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-secondary/20 blur-2xl pointer-events-none"></div>
+          <div class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-primary-container blur-xl pointer-events-none"></div>
+
+          <div class="relative z-10 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm font-bold shadow-xs">
+                <span class="material-symbols-outlined text-[14px]">verified</span>
+                <span>대한민국 표준 법적 만 나이</span>
+              </div>
+              <span class="font-label-sm text-label-sm text-on-primary-container" id="profile-name-tag">나 (본인)</span>
+            </div>
+
+            <div class="flex flex-col items-center justify-center py-2 text-center">
+              <div class="flex items-baseline gap-1">
+                <span class="font-display-number-lg text-display-number-lg text-on-primary font-extrabold tracking-tight" id="display-mannai">26</span>
+                <span class="font-headline-lg text-headline-lg text-secondary-fixed font-bold">세</span>
+              </div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 mt-1 rounded-full bg-white/10 backdrop-blur-md text-white">
+                <span class="material-symbols-outlined text-[14px] text-secondary-fixed">celebration</span>
+                <span class="font-label-sm text-label-sm font-medium text-white" id="display-mannai-detail">올해 생일 지남 · 만 26년 달성</span>
+              </div>
+            </div>
+
+            <!-- Comparative Split (연 나이 & 세는 나이) -->
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t-0 bg-surface-container-lowest/5 rounded-lg p-2.5 backdrop-blur-xs">
+              <div class="flex flex-col items-center text-center p-1.5">
+                <span class="font-label-sm text-label-sm text-on-primary-container">행정/병역 연 나이</span>
+                <div class="flex items-baseline gap-0.5 mt-0.5">
+                  <span class="font-headline-md text-headline-md font-bold text-on-primary" id="display-yeonnai">27</span>
+                  <span class="font-title-md text-title-md text-secondary-fixed">세</span>
+                </div>
+                <span class="font-body-sm text-body-sm text-on-primary-container/80 text-[10px] mt-0.5" id="display-yeonnai-formula">2025 - 1998</span>
+              </div>
+              <div class="flex flex-col items-center text-center p-1.5 bg-surface-container-lowest/5 rounded">
+                <span class="font-label-sm text-label-sm text-on-primary-container">전통 세는나이</span>
+                <div class="flex items-baseline gap-0.5 mt-0.5">
+                  <span class="font-headline-md text-headline-md font-bold text-on-primary" id="display-korean-age">28</span>
+                  <span class="font-title-md text-title-md text-secondary-fixed">세</span>
+                </div>
+                <span class="font-body-sm text-body-sm text-on-primary-container/80 text-[10px] mt-0.5">태어날 때 1세 부여</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Detailed Bio & Life Statistics Bento Grid -->
+      <section class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between">
+          <h3 class="font-title-md text-title-md text-primary font-bold">생애 데이터 및 바이오 리포트</h3>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-medium">정밀 누적치</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- Days lived -->
+          <div class="col-span-2 bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center justify-between relative overflow-hidden border border-surface-container-high/30">
+            <div class="flex flex-col gap-1 z-10">
+              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium">지구에 머문 총 시간</span>
+              <div class="flex items-baseline gap-1">
+                <span class="font-headline-lg text-headline-lg text-primary font-extrabold" id="display-days-lived">9,703</span>
+                <span class="font-title-md text-title-md text-secondary font-bold">일째</span>
+              </div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant font-medium" id="display-days-summary">약 318개월 · 1,386주 동안 여행 중</span>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-secondary-container/40 flex items-center justify-center text-secondary z-10">
+              <span class="material-symbols-outlined text-[32px]">favorite</span>
+            </div>
+          </div>
+
+          <!-- Zodiac Animal -->
+          <div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm flex flex-col justify-between gap-2 border border-surface-container-high/30">
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">십이지신 (띠)</span>
+              <span class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-[12px]" id="display-zodiac-icon">🐅</span>
+            </div>
+            <div>
+              <div class="font-title-md text-title-md text-primary font-bold" id="display-zodiac">호랑이띠</div>
+              <div class="font-body-sm text-body-sm text-secondary font-medium" id="display-zodiac-detail">무인년 (인)</div>
+            </div>
+          </div>
+
+          <!-- Constellation -->
+          <div class="bg-surface-container-lowest p-3.5 rounded-xl shadow-sm flex flex-col justify-between gap-2 border border-surface-container-high/30">
+            <div class="flex items-center justify-between">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">별자리</span>
+              <span class="material-symbols-outlined text-[18px] text-primary">auto_awesome</span>
+            </div>
+            <div>
+              <div class="font-title-md text-title-md text-primary font-bold" id="display-constellation">전갈자리</div>
+              <div class="font-body-sm text-body-sm text-on-surface-variant font-medium" id="display-constellation-detail">Scorpio</div>
+            </div>
+          </div>
+
+          <!-- Next Birthday Countdown Card -->
+          <div class="col-span-2 bg-surface-container-low p-space-md rounded-xl shadow-xs flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-on-secondary shadow-xs">
+                <span class="material-symbols-outlined text-[20px]">cake</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-label-sm text-label-sm text-on-surface-variant">다음 생일까지</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="font-headline-md text-headline-md text-primary font-extrabold" id="display-birthday-dday">D-159</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant" id="display-birthday-date">(10월 24일 금요일)</span>
+                </div>
+              </div>
+            </div>
+            <div class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-bold" id="display-next-age-label">
+              만 27세 되는 날
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Action Buttons -->
+      <section class="flex items-center gap-2 pt-1">
+        <button class="flex-1 h-12 rounded-xl bg-surface-container-lowest text-primary font-label-lg text-label-lg font-bold shadow-sm hover:bg-surface-container active:scale-[0.98] transition-all flex items-center justify-center gap-2 border border-surface-container-high/40" id="btn-copy-result" type="button">
+          <span class="material-symbols-outlined text-[18px] text-primary">content_copy</span>
+          <span>결과 복사하기</span>
+        </button>
+        <button class="flex-1 h-12 rounded-xl bg-secondary-container text-on-secondary-container font-label-lg text-label-lg font-bold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2" id="btn-share-kakao" type="button">
+          <span class="material-symbols-outlined text-[20px]">share</span>
+          <span>공유 카드 전송</span>
+        </button>
+      </section>
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 2: 디데이/생애 (D-Day & Life Milestones)
+    ======================================================== -->
+    <div class="view-container flex-col w-full gap-space-lg pb-10" id="view-dday-milestones">
+      
+      <!-- Profile & Birthday Badge Header -->
+      <div class="flex items-center justify-between bg-surface-container-low px-space-md py-space-sm rounded-xl shadow-sm border border-surface-container-high/40">
+        <div class="flex items-center gap-space-sm min-w-0">
+          <div class="w-10 h-10 rounded-full bg-primary-container text-secondary-fixed flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[20px]">cake</span>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-title-md text-title-md text-on-surface font-bold truncate" id="milestone-profile-title">김지훈 님의 타임라인</span>
+              <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm whitespace-nowrap" id="milestone-current-age-badge">만 26세</span>
+            </div>
+            <span class="font-body-sm text-body-sm text-on-surface-variant tabular-nums" id="milestone-birth-desc">1998년 10월 24일생</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Highlight: Next Upcoming Major Milestone -->
+      <div class="relative overflow-hidden bg-primary-container text-on-primary rounded-xl p-space-lg shadow-xl">
+        <div class="flex items-center justify-between mb-space-sm">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-on-secondary shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+            <span class="font-label-sm text-label-sm font-bold tracking-wide">NEXT MILESTONE</span>
+          </div>
+          <span class="font-label-sm text-label-sm text-primary-fixed-dim" id="milestone-lived-badge">탄생 9,703일째 항해 중</span>
+        </div>
+        <div class="flex flex-col mt-space-xs">
+          <span class="font-body-md text-body-md text-on-primary-container">다음 다가오는 인생 전환점</span>
+          <div class="flex items-baseline justify-between mt-0.5">
+            <h2 class="font-headline-lg text-headline-lg font-bold text-white tracking-tight" id="hero-milestone-title">10,000일 기념일</h2>
+            <div class="flex items-baseline gap-1 text-secondary-fixed">
+              <span class="font-headline-md text-headline-md font-extrabold" id="hero-milestone-dday">D-297</span>
+            </div>
+          </div>
+        </div>
+        <!-- Progress Meter -->
+        <div class="mt-space-md pt-space-xs">
+          <div class="flex items-center justify-between text-on-primary-container font-label-sm text-label-sm mb-1.5">
+            <span>0일(탄생)부터 10,000일까지 여정</span>
+            <span class="text-secondary-fixed font-bold tabular-nums" id="hero-milestone-progress-text">97.0% 달성</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full bg-surface-container-high/20 overflow-hidden p-0.5">
+            <div class="h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-1000 ease-out" id="hero-milestone-progress-bar" style="width: 97%;"></div>
+          </div>
+        </div>
+        <!-- Target Date Specs -->
+        <div class="mt-space-md pt-space-md flex items-center justify-between bg-primary/40 rounded-lg px-space-md py-2.5">
+          <div class="flex items-center gap-2 text-surface-container-low font-body-sm text-body-sm">
+            <span class="material-symbols-outlined text-[18px] text-secondary-fixed">event_available</span>
+            <span class="tabular-nums" id="hero-milestone-target-date">2026년 03월 11일 도착 예정</span>
+          </div>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded bg-secondary/80 hover:bg-secondary text-white font-label-sm text-label-sm transition-transform active:scale-95 shadow-sm" id="syncCalendarBtn" type="button">
+            <span class="material-symbols-outlined text-[15px]">notification_add</span>
+            <span>캘린더 등록</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="flex items-center gap-1.5 p-1 bg-surface-container-low rounded-xl">
+        <button class="milestone-filter-btn flex-1 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-sm text-label-sm font-bold shadow-sm transition-all" data-filter="all">전체</button>
+        <button class="milestone-filter-btn flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-medium transition-all" data-filter="hundred">100일 단위</button>
+        <button class="milestone-filter-btn flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-medium transition-all" data-filter="life">생애 주기</button>
+        <button class="milestone-filter-btn flex-1 py-1.5 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-medium transition-all" data-filter="custom">맞춤 등록</button>
+      </div>
+
+      <!-- Milestone Timeline List -->
+      <div class="flex flex-col gap-2.5" id="milestone-cards-container">
+        <!-- Rendered by JavaScript based on birthDate -->
+      </div>
+
+      <!-- Custom D-Day Addition Card -->
+      <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/40 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[20px]">add_circle</span>
+            <span class="font-title-md text-title-md text-primary font-bold">나만의 기념일 등록</span>
+          </div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant" id="customCount">0개 등록됨</span>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+          <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low font-body-md text-primary outline-none focus:ring-2 focus:ring-primary" id="customTitleInput" placeholder="기념일 이름 (예: 입사 1주년, 결혼기념일)" type="text"/>
+          <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low font-body-md text-primary outline-none focus:ring-2 focus:ring-primary cursor-pointer" id="customDateInput" type="date"/>
+          <button class="h-11 rounded-lg bg-secondary text-white font-label-lg font-bold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all" id="addCustomDdayBtn" type="button">
+            디데이 추가하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 3: 법적 기준 (Legal Age Guide)
+    ======================================================== -->
+    <div class="view-container flex-col w-full gap-space-lg pb-10" id="view-legal-guide">
+      
+      <!-- Law Revision Banner -->
+      <section class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary p-space-md shadow-md">
+        <div class="flex items-start gap-space-sm">
+          <div class="w-10 h-10 rounded-lg bg-surface-container-lowest/10 flex items-center justify-center shrink-0 text-secondary-fixed">
+            <span class="material-symbols-outlined text-[24px]">verified</span>
+          </div>
+          <div class="flex flex-col gap-1 min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm">만 나이 통일법 시행</span>
+              <span class="text-on-primary-container font-label-sm text-label-sm">2023.06.28 개정</span>
+            </div>
+            <p class="font-title-md text-title-md font-bold text-on-primary tracking-tight leading-snug">
+              행정·민사상 나이는 원칙적으로 <span class="text-secondary-fixed underline underline-offset-4">만 나이</span>로 통일되었습니다
+            </p>
+            <p class="font-body-sm text-body-sm text-on-primary-container leading-relaxed mt-0.5">
+              별도 특별 규정(병역법, 청소년보호법 등 연 나이 적용)을 제외한 모든 계약 및 공문서 기준이 표준화됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Profile Status Summary -->
+      <section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/40 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="font-label-sm text-label-sm text-on-surface-variant">현재 적용 기준 프로필</span>
+          <span class="font-title-md text-title-md font-bold text-primary" id="legal-profile-name">김민준 (1998.10.24)</span>
+        </div>
+        <div class="text-right">
+          <span class="font-label-sm text-label-sm text-on-surface-variant">현재 기준 연령</span>
+          <div class="flex items-baseline justify-end gap-1">
+            <span class="font-headline-md text-headline-md font-bold text-secondary" id="legal-calculated-mannai">만 26세</span>
+            <span class="font-body-sm text-body-sm text-on-surface-variant" id="legal-calculated-yeonnai">(연 27세)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search & Category Filters -->
+      <section class="flex flex-col gap-2.5">
+        <div class="relative flex items-center">
+          <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+          <input class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-lowest text-primary font-body-md text-body-md placeholder:text-on-surface-variant/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container transition-all border border-surface-container-high/40" id="legal-search-input" placeholder="궁금한 법령이나 자격을 검색하세요 (예: 투표, 운전, 술, 알바)" type="text"/>
+          <button class="absolute right-3 hidden text-on-surface-variant hover:text-primary" id="clear-search-btn">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none" id="category-tabs">
+          <button class="cat-pill active px-3.5 py-1.5 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold whitespace-nowrap shadow-sm transition-all" data-cat="all">전체 보기</button>
+          <button class="cat-pill px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary font-label-sm text-label-sm font-medium whitespace-nowrap transition-all" data-cat="daily">일상/소비</button>
+          <button class="cat-pill px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary font-label-sm text-label-sm font-medium whitespace-nowrap transition-all" data-cat="military">교육/병역</button>
+          <button class="cat-pill px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary font-label-sm text-label-sm font-medium whitespace-nowrap transition-all" data-cat="job">취업/자격</button>
+          <button class="cat-pill px-3.5 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary font-label-sm text-label-sm font-medium whitespace-nowrap transition-all" data-cat="welfare">복지/연금</button>
+        </div>
+      </section>
+
+      <!-- Legal Status Cards Container -->
+      <section class="flex flex-col gap-2.5" id="legal-items-container">
+        <!-- Injected and updated reactively by JS -->
+      </section>
+
+      <!-- Empty State -->
+      <div class="hidden flex-col items-center justify-center py-12 text-center" id="legal-empty-state">
+        <span class="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-2">search_off</span>
+        <p class="font-title-md font-bold text-primary">일치하는 법령 기준이 없습니다</p>
+        <p class="font-body-sm text-on-surface-variant mt-1">다른 검색어나 카테고리를 선택해 보세요.</p>
+      </div>
+    </div>
+
+
+    <!-- ========================================================
+         VIEW 4: 저장/설정 (Saved Profiles & Settings)
+    ======================================================== -->
+    <div class="view-container flex-col w-full gap-space-lg pb-10" id="view-saved-profiles">
+      
+      <!-- Summary Bar -->
+      <div class="flex items-center justify-between bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-surface-container-high/40">
+        <div class="flex items-center gap-space-sm">
+          <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-secondary-fixed shadow-sm">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">group</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-title-md text-title-md text-primary font-bold" id="saved-profiles-count">등록된 프로필 4명</span>
+            <span class="font-body-sm text-body-sm text-on-surface-variant">다가오는 기념일과 맞춤 나이 관리</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg text-primary">
+          <span class="material-symbols-outlined text-[16px] text-secondary">notifications_active</span>
+          <span class="font-label-sm text-label-sm font-semibold">알림 켜짐</span>
+        </div>
+      </div>
+
+      <!-- Profiles Header & Sort Controls -->
+      <div class="flex flex-col gap-space-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="font-headline-md text-headline-md text-primary font-bold">가족 및 지인</span>
+          </div>
+          <div class="flex items-center p-1 bg-surface-container-low rounded-lg gap-1">
+            <button class="px-2.5 py-1 rounded bg-surface-container-lowest shadow-sm text-primary font-label-sm text-label-sm font-bold transition-all" id="sortDdayBtn">D-Day 순</button>
+            <button class="px-2.5 py-1 rounded text-on-surface-variant font-label-sm text-label-sm font-medium hover:text-primary transition-all" id="sortAgeBtn">나이 순</button>
+          </div>
+        </div>
+
+        <!-- Profiles Stack -->
+        <div class="flex flex-col gap-space-sm" id="savedProfileList">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Add New Profile Action Card -->
+      <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/40 flex flex-col gap-3">
+        <span class="font-title-md text-title-md text-primary font-bold flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-secondary text-[20px]">person_add</span>
+          새 프로필 추가
+        </span>
+        <div class="grid grid-cols-2 gap-2">
+          <input class="h-11 px-3.5 rounded-lg bg-surface-container-low text-primary outline-none focus:ring-2 focus:ring-primary" id="newProfileName" placeholder="이름 (예: 동생)" type="text"/>
+          <input class="h-11 px-3.5 rounded-lg bg-surface-container-low text-primary outline-none focus:ring-2 focus:ring-primary cursor-pointer" id="newProfileBirth" type="date"/>
+        </div>
+        <button class="w-full h-11 rounded-lg bg-primary text-white font-label-lg font-bold shadow-sm hover:opacity-95 transition-all" id="btnSaveNewProfile" type="button">
+          프로필 저장하기
+        </button>
+      </div>
+
+      <!-- App Settings Card -->
+      <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/40 flex flex-col gap-4">
+        <span class="font-title-md text-title-md text-primary font-bold">환경 설정</span>
+        
+        <!-- Setting 1: Theme -->
+        <div class="flex flex-col gap-2">
+          <span class="font-body-sm text-on-surface-variant">앱 테마 모드</span>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-primary-container text-white font-label-sm text-label-sm font-semibold shadow-sm" id="themeLightBtn">
+              <span class="material-symbols-outlined text-[16px]">light_mode</span>
+              <span>라이트</span>
+            </button>
+            <button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-medium hover:text-primary transition-colors" id="themeDarkBtn">
+              <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+              <span>다크</span>
+            </button>
+            <button class="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm font-medium hover:text-primary transition-colors" id="themeSystemBtn">
+              <span class="material-symbols-outlined text-[16px]">settings_brightness</span>
+              <span>시스템</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="h-[1px] bg-surface-container-high/60 w-full"></div>
+
+        <!-- Data Management -->
+        <div class="flex items-center justify-between pt-1">
+          <button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors text-xs" id="btnBackupData">
+            <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+            <span>데이터 백업</span>
+          </button>
+          <button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors text-xs" id="btnExportCsv">
+            <span class="material-symbols-outlined text-[16px]">file_download</span>
+            <span>CSV 내보내기</span>
+          </button>
+          <button class="text-error hover:underline transition-colors text-xs font-semibold" id="btnResetAll">
+            초기화
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Global Toast Notification Pop -->
+  <div class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shadow-xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-1.5" id="toast-msg">
+    <span class="material-symbols-outlined text-[16px] text-secondary-fixed">check_circle</span>
+    <span id="toast-text">알림 메시지</span>
+  </div>
+
+  <!-- Fixed Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl border-t border-surface-container shadow-[0_-4px_16px_rgba(7,2,53,0.04)]">
+    <div class="max-w-md mx-auto h-16 px-gutter-sm flex items-center justify-around" id="bottom-nav">
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[64px] min-h-[44px] gap-0.5 transition-colors text-primary font-bold" data-target="view-age-calculator" type="button">
+        <span class="material-symbols-outlined text-[22px]">calculate</span>
+        <span class="font-label-sm text-label-sm">나이 계산</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[64px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-primary transition-colors" data-target="view-dday-milestones" type="button">
+        <span class="material-symbols-outlined text-[22px]">hourglass_bottom</span>
+        <span class="font-label-sm text-label-sm">디데이/생애</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[64px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-primary transition-colors" data-target="view-legal-guide" type="button">
+        <span class="material-symbols-outlined text-[22px]">gavel</span>
+        <span class="font-label-sm text-label-sm">법적 기준</span>
+      </button>
+      <button class="nav-tab-btn flex flex-col items-center justify-center min-w-[64px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-primary transition-colors" data-target="view-saved-profiles" type="button">
+        <span class="material-symbols-outlined text-[22px]">bookmarks</span>
+        <span class="font-label-sm text-label-sm">저장/설정</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Complete Integrated Application JavaScript -->
+  <script>
+    (function() {
+      // 1. Data Store & Global State
+      const defaultProfiles = [
+        { id: "p1", name: "나", role: "본인", birth: "1998-10-24", icon: "face" },
+        { id: "p2", name: "아버지", role: "가족", birth: "1968-04-12", icon: "person" },
+        { id: "p3", name: "어머니", role: "가족", birth: "1971-08-05", icon: "person_2" },
+        { id: "p4", name: "아이", role: "자녀", birth: "2021-12-19", icon: "child_care" }
+      ];
+
+      let profiles = JSON.parse(localStorage.getItem('app_profiles') || JSON.stringify(defaultProfiles));
+      let currentProfile = profiles[0];
+      let customMilestones = JSON.parse(localStorage.getItem('app_custom_milestones') || '[]');
+
+      // Today string formatted YYYY-MM-DD
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+      // Toast utility
+      const toast = document.getElementById('toast-msg');
+      const toastText = document.getElementById('toast-text');
+      function showToast(message) {
+        toastText.innerText = message;
+        toast.classList.remove('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2200);
+      }
+
+      // 2. Navigation Tab Switching
+      const navBtns = document.querySelectorAll('.nav-tab-btn');
+      const viewContainers = document.querySelectorAll('.view-container');
+      const headerIcon = document.getElementById('header-icon');
+      const headerSub = document.getElementById('header-sub');
+
+      const viewMeta = {
+        'view-age-calculator': { icon: 'calculate', sub: 'Age Calculator' },
+        'view-dday-milestones': { icon: 'hourglass_bottom', sub: 'Dday Life Milestones' },
+        'view-legal-guide': { icon: 'gavel', sub: 'Legal Age Guide' },
+        'view-saved-profiles': { icon: 'bookmarks', sub: 'Saved Profiles & Settings' }
+      };
+
+      navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+
+          // Update active button styles
+          navBtns.forEach(b => {
+            b.classList.remove('text-primary', 'font-bold');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('text-primary', 'font-bold');
+          btn.classList.remove('text-on-surface-variant');
+
+          // Switch active view
+          viewContainers.forEach(vc => {
+            if (vc.id === targetId) {
+              vc.classList.add('active');
+            } else {
+              vc.classList.remove('active');
+            }
+          });
+
+          // Update header
+          if (viewMeta[targetId]) {
+            headerIcon.textContent = viewMeta[targetId].icon;
+            if (headerSub) headerSub.textContent = viewMeta[targetId].sub;
+          }
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      // 3. Zodiac and Constellation Utilities
+      const zodiacAnimals = [
+        { name: "원숭이띠", icon: "🐒", ganji: "신(申)" },
+        { name: "닭띠", icon: "🐓", ganji: "유(酉)" },
+        { name: "개띠", icon: "🐕", ganji: "술(戌)" },
+        { name: "돼지띠", icon: "🐖", ganji: "해(亥)" },
+        { name: "쥐띠", icon: "🐀", ganji: "자(子)" },
+        { name: "소띠", icon: "🐂", ganji: "축(丑)" },
+        { name: "호랑이띠", icon: "🐅", ganji: "인(寅)" },
+        { name: "토끼띠", icon: "🐇", ganji: "묘(卯)" },
+        { name: "용띠", icon: "🐉", ganji: "진(辰)" },
+        { name: "뱀띠", icon: "🐍", ganji: "사(巳)" },
+        { name: "말띠", icon: "🐎", ganji: "오(午)" },
+        { name: "양띠", icon: "🐑", ganji: "미(未)" }
+      ];
+
+      function getConstellation(month, day) {
+        const dates = [20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22];
+        const names = [
+          { name: "물병자리", eng: "Aquarius (01.20~02.18)" },
+          { name: "물고기자리", eng: "Pisces (02.19~03.20)" },
+          { name: "양자리", eng: "Aries (03.21~04.19)" },
+          { name: "황소자리", eng: "Taurus (04.20~05.20)" },
+          { name: "쌍둥이자리", eng: "Gemini (05.21~06.21)" },
+          { name: "게자리", eng: "Cancer (06.22~07.22)" },
+          { name: "사자자리", eng: "Leo (07.23~08.22)" },
+          { name: "처녀자리", eng: "Virgo (08.23~09.22)" },
+          { name: "천칭자리", eng: "Libra (09.23~10.22)" },
+          { name: "전갈자리", eng: "Scorpio (10.23~11.22)" },
+          { name: "사수자리", eng: "Sagittarius (11.23~12.24)" },
+          { name: "염소자리", eng: "Capricorn (12.25~01.19)" }
+        ];
+        let idx = month - 1;
+        if (day < dates[idx]) {
+          idx = (idx + 11) % 12;
+        }
+        return names[idx];
+      }
+
+      // 4. Core Age Calculations
+      const inputBirth = document.getElementById('input-birth');
+      const inputTarget = document.getElementById('input-target');
+      inputTarget.value = todayStr;
+
+      function computeAges(birthDateStr, targetDateStr) {
+        const birthDate = new Date(birthDateStr);
+        const targetDate = new Date(targetDateStr);
+
+        const birthYear = birthDate.getFullYear();
+        const birthMonth = birthDate.getMonth();
+        const birthDay = birthDate.getDate();
+
+        const targetYear = targetDate.getFullYear();
+        const targetMonth = targetDate.getMonth();
+        const targetDay = targetDate.getDate();
+
+        // 1. 만 나이
+        let manAge = targetYear - birthYear;
+        const hasHadBirthday = (targetMonth > birthMonth) || (targetMonth === birthMonth && targetDay >= birthDay);
+        if (!hasHadBirthday) {
+          manAge -= 1;
+        }
+
+        // 2. 연 나이
+        const yeonAge = targetYear - birthYear;
+
+        // 3. 세는 나이
+        const koreanAge = yeonAge + 1;
+
+        // 4. 총 일수
+        const diffTime = targetDate - birthDate;
+        const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+
+        // 5. 다음 생일 D-day
+        let nextBday = new Date(targetYear, birthMonth, birthDay);
+        if (nextBday < targetDate) {
+          nextBday = new Date(targetYear + 1, birthMonth, birthDay);
+        }
+        const bdayDiffTime = nextBday - targetDate;
+        const bdayDDay = Math.ceil(bdayDiffTime / (1000 * 60 * 60 * 24));
+        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+
+        return {
+          birthYear, birthMonth, birthDay,
+          targetYear, targetMonth, targetDay,
+          manAge, yeonAge, koreanAge,
+          diffDays, hasHadBirthday,
+          bdayDDay,
+          nextBdayStr: `${nextBday.getMonth() + 1}월 ${nextBday.getDate()}일 ${weekdays[nextBday.getDay()]}요일`
+        };
+      }
+
+      // Update View 1 (나이 계산)
+      function updateView1(calc) {
+        document.getElementById('display-mannai').innerText = calc.manAge;
+        document.getElementById('display-yeonnai').innerText = calc.yeonAge;
+        document.getElementById('display-korean-age').innerText = calc.koreanAge;
+        document.getElementById('display-yeonnai-formula').innerText = `${calc.targetYear} - ${calc.birthYear}`;
+        document.getElementById('display-days-lived').innerText = calc.diffDays.toLocaleString();
+
+        const monthsLived = Math.floor(calc.diffDays / 30.4);
+        const weeksLived = Math.floor(calc.diffDays / 7);
+        document.getElementById('display-days-summary').innerText = `약 ${monthsLived.toLocaleString()}개월 · ${weeksLived.toLocaleString()}주 동안 여행 중`;
+
+        const bdayStatusText = calc.hasHadBirthday ? "올해 생일 지남" : "올해 생일 전";
+        document.getElementById('display-mannai-detail').innerText = `${bdayStatusText} · 만 ${calc.manAge}세 달성`;
+
+        document.getElementById('display-birthday-dday').innerText = calc.bdayDDay === 0 ? "D-DAY" : `D-${calc.bdayDDay}`;
+        document.getElementById('display-birthday-date').innerText = `(${calc.nextBdayStr})`;
+        document.getElementById('display-next-age-label').innerText = `만 ${calc.manAge + (calc.hasHadBirthday ? 1 : 1)}세 되는 날`;
+
+        const zodiac = zodiacAnimals[calc.birthYear % 12];
+        document.getElementById('display-zodiac').innerText = zodiac.name;
+        document.getElementById('display-zodiac-icon').innerText = zodiac.icon;
+        document.getElementById('display-zodiac-detail').innerText = `${zodiac.ganji}년`;
+
+        const constellation = getConstellation(calc.birthMonth + 1, calc.birthDay);
+        document.getElementById('display-constellation').innerText = constellation.name;
+        document.getElementById('display-constellation-detail').innerText = constellation.eng;
+
+        document.getElementById('profile-name-tag').innerText = `${currentProfile.name} (${currentProfile.role})`;
+      }
+
+      // Update View 2 (디데이/생애 마일스톤)
+      function updateView2(calc) {
+        document.getElementById('milestone-profile-title').innerText = `${currentProfile.name} 님의 타임라인`;
+        document.getElementById('milestone-current-age-badge').innerText = `만 ${calc.manAge}세`;
+        document.getElementById('milestone-birth-desc').innerText = `${calc.birthYear}년 ${calc.birthMonth + 1}월 ${calc.birthDay}일생 (${zodiacAnimals[calc.birthYear % 12].name})`;
+        document.getElementById('milestone-lived-badge').innerText = `탄생 ${calc.diffDays.toLocaleString()}일째 항해 중`;
+
+        // 10,000일 기준 계산
+        const birthDate = new Date(inputBirth.value);
+        const day10000 = new Date(birthDate.getTime() + (10000 * 24 * 60 * 60 * 1000));
+        const diff10000 = Math.ceil((day10000 - new Date()) / (24 * 60 * 60 * 1000));
+        const progress10000 = Math.min(100, Math.max(0, (calc.diffDays / 10000) * 100)).toFixed(1);
+
+        document.getElementById('hero-milestone-dday').innerText = diff10000 >= 0 ? `D-${diff10000}` : `D+${Math.abs(diff10000)}`;
+        document.getElementById('hero-milestone-progress-text').innerText = `${progress10000}% 달성`;
+        document.getElementById('hero-milestone-progress-bar').style.width = `${progress10000}%`;
+        document.getElementById('hero-milestone-target-date').innerText = `${day10000.getFullYear()}년 ${day10000.getMonth() + 1}월 ${day10000.getDate()}일 도착 예정`;
+
+        // Standard milestone cards
+        const milestones = [
+          { name: "백일 (100일)", days: 100, type: "hundred", icon: "child_friendly" },
+          { name: "첫 돌 (1세)", years: 1, type: "life", icon: "cake" },
+          { name: "1,000일 기념일", days: 1000, type: "hundred", icon: "military_tech" },
+          { name: "초등학교 입학 (만 7세)", years: 7, type: "life", icon: "school" },
+          { name: "성인 법적 도달 (만 19세)", years: 19, type: "life", icon: "verified" },
+          { name: "5,000일 기념일", days: 5000, type: "hundred", icon: "star" },
+          { name: "10,000일 기념일", days: 10000, type: "hundred", icon: "flag" },
+          { name: "이립 (만 30세)", years: 30, type: "life", icon: "diamond" },
+          { name: "불혹 (만 40세)", years: 40, type: "life", icon: "wb_sunny" },
+          { name: "지천명 (만 50세)", years: 50, type: "life", icon: "mountain_flag" },
+          { name: "환갑 (만 60세)", years: 60, type: "life", icon: "celebration" },
+          { name: "고희·칠순 (만 70세)", years: 70, type: "life", icon: "favorite" }
+        ];
+
+        const container = document.getElementById('milestone-cards-container');
+        container.innerHTML = "";
+
+        const today = new Date();
+
+        milestones.forEach(m => {
+          let targetDate;
+          if (m.days) {
+            targetDate = new Date(birthDate.getTime() + (m.days * 24 * 60 * 60 * 1000));
+          } else {
+            targetDate = new Date(birthDate.getFullYear() + m.years, birthDate.getMonth(), birthDate.getDate());
+          }
+
+          const diff = Math.ceil((targetDate - today) / (24 * 60 * 60 * 1000));
+          const isPassed = diff < 0;
+          const ddayText = diff === 0 ? "D-DAY" : (diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
+          const dateStr = `${targetDate.getFullYear()}.${String(targetDate.getMonth() + 1).padStart(2, '0')}.${String(targetDate.getDate()).padStart(2, '0')}`;
+
+          const card = document.createElement('div');
+          card.className = `milestone-card flex items-center justify-between bg-surface-container-lowest p-space-md rounded-xl shadow-xs border border-surface-container-high/30 transition-all ${isPassed ? 'opacity-70' : ''}`;
+          card.dataset.type = m.type;
+
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl ${isPassed ? 'bg-surface-container text-on-surface-variant' : 'bg-secondary-container/40 text-secondary'} flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[20px]">${m.icon}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-title-md text-title-md font-bold ${isPassed ? 'text-on-surface-variant line-through' : 'text-primary'}">${m.name}</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">${dateStr}</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end">
+              <span class="font-headline-md text-headline-md font-bold ${isPassed ? 'text-on-surface-variant' : 'text-secondary'} tabular-nums">${ddayText}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">${isPassed ? '완료' : '예정'}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        // Add custom milestones
+        customMilestones.forEach(cm => {
+          const target = new Date(cm.date);
+          const diff = Math.ceil((target - today) / (24 * 60 * 60 * 1000));
+          const isPassed = diff < 0;
+          const ddayText = diff === 0 ? "D-DAY" : (diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
+
+          const card = document.createElement('div');
+          card.className = `milestone-card flex items-center justify-between bg-surface-container-lowest p-space-md rounded-xl shadow-xs border border-surface-container-high/30 transition-all`;
+          card.dataset.type = 'custom';
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary-container text-secondary-fixed flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[20px]">event_star</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-title-md text-title-md font-bold text-primary">${cm.title}</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">${cm.date.replaceAll('-', '.')}</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end">
+              <span class="font-headline-md text-headline-md font-bold text-secondary tabular-nums">${ddayText}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">맞춤 등록</span>
+            </div>
+          `;
+          container.prepend(card);
+        });
+
+        document.getElementById('customCount').textContent = `${customMilestones.length}개 등록됨`;
+      }
+
+      // Update View 3 (법적 기준)
+      function updateView3(calc) {
+        document.getElementById('legal-profile-name').innerText = `${currentProfile.name} (${calc.birthYear}.${calc.birthMonth + 1}.${calc.birthDay})`;
+        document.getElementById('legal-calculated-mannai').innerText = `만 ${calc.manAge}세`;
+        document.getElementById('legal-calculated-yeonnai').innerText = `(연 ${calc.yeonAge}세)`;
+
+        const legalRules = [
+          {
+            id: "vote",
+            title: "투표권 행사 (선거권)",
+            law: "공직선거법 제15조",
+            cat: "daily",
+            keywords: "투표권 선거 대통령 국회의원 지방선거 공직선거법 만18세",
+            icon: "how_to_vote",
+            condition: calc.manAge >= 18,
+            desc: "만 18세 이상 (선거일 기준)",
+            typeDesc: "만 나이 통일 기준"
+          },
+          {
+            id: "driver",
+            title: "운전면허 취득 (1종/2종 보통)",
+            law: "도로교통법 제82조",
+            cat: "job",
+            keywords: "운전면허 1종보통 2종보통 도로교통법 면허시험 취득 만18세",
+            icon: "directions_car",
+            condition: calc.manAge >= 18,
+            desc: "만 18세 이상 (대형/특수는 만 19세)",
+            typeDesc: "만 나이 통일 기준"
+          },
+          {
+            id: "alcohol",
+            title: "주류 및 담배 구매",
+            law: "청소년보호법 제2조 (연 나이 예외)",
+            cat: "daily",
+            keywords: "술 담배 주류 담배구매 청소년보호법 편의점 연나이 예외",
+            icon: "local_bar",
+            isException: true,
+            condition: calc.yeonAge >= 19,
+            desc: "연 나이 19세가 되는 해 1월 1일부터",
+            typeDesc: "💡 청소년보호법 연 나이 예외 규정 적용"
+          },
+          {
+            id: "military",
+            title: "군 입대 및 병역판정검사",
+            law: "병역법 제8조 (병역의무 연 나이)",
+            cat: "military",
+            keywords: "군입대 병역판정검사 신체검사 징집 병무청 병역법 연나이 19세",
+            icon: "military_tech",
+            isException: true,
+            condition: calc.yeonAge >= 19,
+            desc: "연 나이 19세가 되는 해 (병역판정검사)",
+            typeDesc: "💡 병역법 연 나이 예외 규정 적용"
+          },
+          {
+            id: "work",
+            title: "청소년 아르바이트 및 근로",
+            law: "근로기준법 제64조",
+            cat: "job",
+            keywords: "아르바이트 알바 취업 근로기준법 취직인허증 만15세",
+            icon: "work",
+            condition: calc.manAge >= 15,
+            desc: "만 15세 이상 (만 13~14세는 취직인허증 필요)",
+            typeDesc: "만 나이 통일 기준"
+          },
+          {
+            id: "working-holiday",
+            title: "워킹홀리데이 비자 신청",
+            law: "국가별 협정 조약 (외교부)",
+            cat: "job",
+            keywords: "워킹홀리데이 워홀 비자 외교부 호주 캐나다 해외취업 만18세 만30세",
+            icon: "flight_takeoff",
+            condition: calc.manAge >= 18 && calc.manAge <= 30,
+            desc: "만 18세 이상 ~ 만 30세 이하",
+            typeDesc: "국제 표준 만 나이 기준"
+          },
+          {
+            id: "movie",
+            title: "청소년 관람불가 영화 관람",
+            law: "영화및비디오물진흥에관한법률",
+            cat: "daily",
+            keywords: "영화 청불 청소년관람불가 극장 연나이 만18세",
+            icon: "movie",
+            condition: calc.manAge >= 18,
+            desc: "만 18세 이상 (고등학교 재학 중인 청소년 제외)",
+            typeDesc: "만 나이 통일 기준"
+          },
+          {
+            id: "pension",
+            title: "국민연금 수령 개시",
+            law: "국민연금법 제61조",
+            cat: "welfare",
+            keywords: "국민연금 연금수령 노령연금 복지 만63세 만65세",
+            icon: "savings",
+            condition: calc.manAge >= 65,
+            desc: "만 63세 ~ 65세 (출생연도별 상이)",
+            typeDesc: "만 나이 기준 (1969년생 이후 만 65세)"
+          }
+        ];
+
+        const container = document.getElementById('legal-items-container');
+        container.innerHTML = "";
+
+        legalRules.forEach(rule => {
+          const article = document.createElement('article');
+          article.className = "legal-card bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/30 transition-all";
+          article.dataset.category = rule.cat;
+          article.dataset.keywords = rule.keywords;
+
+          const statusBadge = rule.condition ?
+            `<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold flex items-center gap-1 shrink-0">
+               <span class="material-symbols-outlined text-[14px]">check_circle</span> 가능 (요건 충족)
+             </span>` :
+            `<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-bold flex items-center gap-1 shrink-0">
+               <span class="material-symbols-outlined text-[14px]">lock</span> 제한 (연령 미달)
+             </span>`;
+
+          article.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+                  <span class="material-symbols-outlined text-[18px]">${rule.icon}</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h3 class="font-title-md text-title-md text-primary font-bold">${rule.title}</h3>
+                    ${rule.isException ? '<span class="px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-[10px] font-bold">예외법률</span>' : ''}
+                  </div>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">${rule.law}</p>
+                </div>
+              </div>
+              ${statusBadge}
+            </div>
+            <div class="mt-space-sm pt-space-sm flex flex-col gap-1 bg-surface-container-low/60 rounded-lg p-2.5">
+              <div class="flex items-center justify-between text-body-sm font-body-sm">
+                <span class="text-on-surface-variant">법정 연령 요건</span>
+                <span class="font-medium text-primary">${rule.desc}</span>
+              </div>
+              <div class="flex items-center justify-between text-body-sm font-body-sm">
+                <span class="text-on-surface-variant">적용 나이 체계</span>
+                <span class="text-secondary font-semibold">${rule.typeDesc}</span>
+              </div>
+            </div>
+          `;
+          container.appendChild(article);
+        });
+      }
+
+      // Update View 4 (저장/설정)
+      function updateView4() {
+        document.getElementById('saved-profiles-count').textContent = `등록된 프로필 ${profiles.length}명`;
+        const list = document.getElementById('savedProfileList');
+        list.innerHTML = "";
+
+        profiles.forEach(p => {
+          const calc = computeAges(p.birth, todayStr);
+          const isSelected = p.id === currentProfile.id;
+
+          const card = document.createElement('div');
+          card.className = `profile-manage-card bg-surface-container-lowest rounded-xl p-space-md shadow-sm border ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-surface-container-high/40'} relative overflow-hidden transition-all duration-200 hover:shadow-md cursor-pointer`;
+          
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-primary-container text-white flex items-center justify-center font-headline-md font-bold shadow-sm">
+                  ${p.name.slice(0, 1)}
+                </div>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-title-md text-title-md text-primary font-bold">${p.name}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">${p.role}</span>
+                    ${isSelected ? '<span class="px-1.5 py-0.5 rounded bg-secondary text-white font-label-sm text-[10px] font-bold">현재 선택</span>' : ''}
+                  </div>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">${p.birth.replaceAll('-', '.')}</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="font-headline-md text-headline-md font-bold text-secondary">만 ${calc.manAge}세</span>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">생일 D-${calc.bdayDDay}</span>
+              </div>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            selectProfile(p);
+            showToast(`${p.name} 프로필로 전환되었습니다.`);
+          });
+
+          list.appendChild(card);
+        });
+      }
+
+      // 5. Profile Switching & Global Calculation Refresh
+      function selectProfile(p) {
+        currentProfile = p;
+        inputBirth.value = p.birth;
+        const avatarEl = document.getElementById('header-avatar');
+        if (avatarEl) avatarEl.textContent = p.name.slice(0, 1);
+        renderProfileChips();
+        runAllCalculations();
+      }
+
+      function renderProfileChips() {
+        const group = document.getElementById('profile-chip-group');
+        group.innerHTML = "";
+
+        profiles.forEach(p => {
+          const isAct = p.id === currentProfile.id;
+          const chip = document.createElement('button');
+          chip.className = `profile-chip flex items-center gap-1.5 px-3.5 py-2 rounded-xl ${isAct ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'} shadow-sm whitespace-nowrap transition-transform active:scale-95 text-left border border-surface-container-high/40`;
+          chip.type = "button";
+          chip.innerHTML = `
+            <span class="material-symbols-outlined text-[16px] ${isAct ? 'text-secondary-fixed' : 'text-on-surface-variant'}">${p.icon || 'person'}</span>
+            <span class="font-label-lg text-label-lg font-bold">${p.name}</span>
+          `;
+          chip.addEventListener('click', () => {
+            selectProfile(p);
+          });
+          group.appendChild(chip);
+        });
+
+        // Add Profile Quick Button
+        const addBtn = document.createElement('button');
+        addBtn.className = "flex items-center gap-1 px-3 py-2 rounded-xl bg-surface-container-lowest text-primary shadow-sm hover:bg-surface-container transition-transform active:scale-95 whitespace-nowrap border border-surface-container-high/40";
+        addBtn.type = "button";
+        addBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          <span class="font-label-sm text-label-sm font-semibold">추가</span>
+        `;
+        addBtn.addEventListener('click', () => {
+          // Switch to View 4
+          const settingsBtn = document.querySelector('[data-target="view-saved-profiles"]');
+          if (settingsBtn) settingsBtn.click();
+          document.getElementById('newProfileName').focus();
+        });
+        group.appendChild(addBtn);
+      }
+
+      function runAllCalculations() {
+        if (!inputBirth.value) return;
+        const targetDateVal = inputTarget.value || todayStr;
+        const calc = computeAges(inputBirth.value, targetDateVal);
+
+        updateView1(calc);
+        updateView2(calc);
+        updateView3(calc);
+        updateView4();
+      }
+
+      // Input Listeners
+      inputBirth.addEventListener('change', () => {
+        runAllCalculations();
+      });
+      inputTarget.addEventListener('change', () => {
+        runAllCalculations();
+      });
+
+      document.getElementById('btn-calculate').addEventListener('click', () => {
+        runAllCalculations();
+        showToast('정밀 나이 계산이 완료되었습니다.');
+      });
+
+      document.getElementById('btn-reset-today').addEventListener('click', () => {
+        inputTarget.value = todayStr;
+        runAllCalculations();
+        showToast('계산 기준일이 오늘로 설정되었습니다.');
+      });
+
+      // Calendar Solar/Lunar Toggle
+      const calTypeBtns = document.querySelectorAll('.cal-type-btn');
+      calTypeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          calTypeBtns.forEach(b => {
+            b.classList.remove('active', 'bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-xs');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('active', 'bg-surface-container-lowest', 'text-primary', 'font-bold', 'shadow-xs');
+          btn.classList.remove('text-on-surface-variant');
+          showToast(`${btn.innerText}력 기준으로 설정되었습니다.`);
+        });
+      });
+
+      // Copy Result Action
+      document.getElementById('btn-copy-result').addEventListener('click', () => {
+        const man = document.getElementById('display-mannai').innerText;
+        const yeon = document.getElementById('display-yeonnai').innerText;
+        const korean = document.getElementById('display-korean-age').innerText;
+        const days = document.getElementById('display-days-lived').innerText;
+        const text = `[대한민국 공식 나이 계산 결과]\n• 대상: ${currentProfile.name} (${inputBirth.value}생)\n• 법적 만 나이: ${man}세\n• 행정/병역 연 나이: ${yeon}세\n• 전통 세는나이: ${korean}세\n• 지구에 머문 시간: ${days}일째\n기준일: ${inputTarget.value}`;
+        
+        navigator.clipboard?.writeText(text).then(() => {
+          showToast('나이 계산 결과가 클립보드에 복사되었습니다.');
+        }).catch(() => {
+          showToast('복사 완료!');
+        });
+      });
+
+      // Kakao Share Mock Action
+      document.getElementById('btn-share-kakao').addEventListener('click', () => {
+        showToast('카카오톡 공유 카드 링크가 생성되었습니다!');
+      });
+
+      // Calendar Sync Button
+      document.getElementById('syncCalendarBtn').addEventListener('click', () => {
+        showToast('10,000일 기념일 캘린더 등록 알림이 전송되었습니다.');
+      });
+
+      // Milestone Filter Buttons
+      const milestoneFilterBtns = document.querySelectorAll('.milestone-filter-btn');
+      milestoneFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          milestoneFilterBtns.forEach(b => {
+            b.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-bold');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-bold');
+          btn.classList.remove('text-on-surface-variant');
+
+          const filter = btn.dataset.filter;
+          const allCards = document.querySelectorAll('.milestone-card');
+          allCards.forEach(card => {
+            if (filter === 'all' || card.dataset.type === filter) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // Custom D-Day Add
+      document.getElementById('addCustomDdayBtn').addEventListener('click', () => {
+        const title = document.getElementById('customTitleInput').value.trim();
+        const date = document.getElementById('customDateInput').value;
+        if (!title || !date) {
+          showToast('기념일 이름과 날짜를 입력해 주세요.');
+          return;
+        }
+        customMilestones.push({ title, date });
+        localStorage.setItem('app_custom_milestones', JSON.stringify(customMilestones));
+        document.getElementById('customTitleInput').value = '';
+        document.getElementById('customDateInput').value = '';
+        runAllCalculations();
+        showToast(`'${title}' 기념일이 등록되었습니다.`);
+      });
+
+      // Legal Guide Search & Category Filters
+      const legalSearchInput = document.getElementById('legal-search-input');
+      const clearSearchBtn = document.getElementById('clear-search-btn');
+      const catPills = document.querySelectorAll('.cat-pill');
+      let currentLegalCat = 'all';
+
+      function filterLegalCards() {
+        const query = legalSearchInput.value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.legal-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const cat = card.dataset.category;
+          const keywords = card.dataset.keywords || '';
+          const text = card.textContent.toLowerCase();
+
+          const matchesCat = (currentLegalCat === 'all' || cat === currentLegalCat);
+          const matchesQuery = !query || keywords.includes(query) || text.includes(query);
+
+          if (matchesCat && matchesQuery) {
+            card.style.display = 'block';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        const emptyEl = document.getElementById('legal-empty-state');
+        if (visibleCount === 0) {
+          emptyEl.classList.remove('hidden');
+          emptyEl.classList.add('flex');
+        } else {
+          emptyEl.classList.add('hidden');
+          emptyEl.classList.remove('flex');
+        }
+      }
+
+      catPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          catPills.forEach(p => {
+            p.classList.remove('bg-primary-container', 'text-on-primary', 'shadow-sm', 'font-semibold');
+            p.classList.add('bg-surface-container-low', 'text-on-surface-variant', 'font-medium');
+          });
+          pill.classList.remove('bg-surface-container-low', 'text-on-surface-variant', 'font-medium');
+          pill.classList.add('bg-primary-container', 'text-on-primary', 'shadow-sm', 'font-semibold');
+          currentLegalCat = pill.dataset.cat;
+          filterLegalCards();
+        });
+      });
+
+      legalSearchInput.addEventListener('input', () => {
+        clearSearchBtn.classList.toggle('hidden', !legalSearchInput.value);
+        filterLegalCards();
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        legalSearchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        filterLegalCards();
+      });
+
+      // Save New Profile in View 4
+      document.getElementById('btnSaveNewProfile').addEventListener('click', () => {
+        const name = document.getElementById('newProfileName').value.trim();
+        const birth = document.getElementById('newProfileBirth').value;
+        if (!name || !birth) {
+          showToast('이름과 생년월일을 모두 입력해 주세요.');
+          return;
+        }
+        const newProf = {
+          id: `p_${Date.now()}`,
+          name: name,
+          role: "지인",
+          birth: birth,
+          icon: "person"
+        };
+        profiles.push(newProf);
+        localStorage.setItem('app_profiles', JSON.stringify(profiles));
+        document.getElementById('newProfileName').value = '';
+        document.getElementById('newProfileBirth').value = '';
+        selectProfile(newProf);
+        showToast(`${name} 님이 새 프로필로 등록되었습니다.`);
+      });
+
+      // Sort profiles in View 4
+      const sortDdayBtn = document.getElementById('sortDdayBtn');
+      const sortAgeBtn = document.getElementById('sortAgeBtn');
+      sortDdayBtn.addEventListener('click', () => {
+        sortDdayBtn.className = "px-2.5 py-1 rounded bg-surface-container-lowest shadow-sm text-primary font-label-sm text-label-sm font-bold transition-all";
+        sortAgeBtn.className = "px-2.5 py-1 rounded text-on-surface-variant font-label-sm text-label-sm font-medium hover:text-primary transition-all";
+        profiles.sort((a, b) => {
+          const ca = computeAges(a.birth, todayStr);
+          const cb = computeAges(b.birth, todayStr);
+          return ca.bdayDDay - cb.bdayDDay;
+        });
+        updateView4();
+      });
+      sortAgeBtn.addEventListener('click', () => {
+        sortAgeBtn.className = "px-2.5 py-1 rounded bg-surface-container-lowest shadow-sm text-primary font-label-sm text-label-sm font-bold transition-all";
+        sortDdayBtn.className = "px-2.5 py-1 rounded text-on-surface-variant font-label-sm text-label-sm font-medium hover:text-primary transition-all";
+        profiles.sort((a, b) => {
+          return new Date(a.birth) - new Date(b.birth);
+        });
+        updateView4();
+      });
+
+      // Theme toggle buttons
+      document.getElementById('themeLightBtn').addEventListener('click', () => {
+        document.documentElement.classList.remove('dark');
+        showToast('라이트 모드가 적용되었습니다.');
+      });
+      document.getElementById('themeDarkBtn').addEventListener('click', () => {
+        document.documentElement.classList.add('dark');
+        showToast('다크 모드가 적용되었습니다.');
+      });
+      document.getElementById('themeSystemBtn').addEventListener('click', () => {
+        document.documentElement.classList.remove('dark');
+        showToast('시스템 설정 테마가 적용되었습니다.');
+      });
+
+      // Backup & Reset Actions
+      document.getElementById('btnBackupData').addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ profiles, customMilestones }));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", `age_calculator_backup_${todayStr}.json`);
+        dlAnchor.click();
+        showToast('프로필 데이터 백업 파일이 다운로드되었습니다.');
+      });
+
+      document.getElementById('btnExportCsv').addEventListener('click', () => {
+        let csv = "이름,역할,생년월일,만나이,연나이,세는나이\n";
+        profiles.forEach(p => {
+          const c = computeAges(p.birth, todayStr);
+          csv += `${p.name},${p.role},${p.birth},${c.manAge},${c.yeonAge},${c.koreanAge}\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `profiles_${todayStr}.csv`;
+        a.click();
+        showToast('프로필 CSV 내보내기가 완료되었습니다.');
+      });
+
+      document.getElementById('btnResetAll').addEventListener('click', () => {
+        if (confirm('모든 프로필 및 기념일 데이터를 초기화하시겠습니까?')) {
+          localStorage.removeItem('app_profiles');
+          localStorage.removeItem('app_custom_milestones');
+          profiles = [...defaultProfiles];
+          customMilestones = [];
+          currentProfile = profiles[0];
+          selectProfile(currentProfile);
+          showToast('데이터가 초기 상태로 복원되었습니다.');
+        }
+      });
+
+      // Initial Bootstrap
+      renderProfileChips();
+      runAllCalculations();
+    })();
+  </script>
+</body>
+</html>
+

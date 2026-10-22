@@ -1,0 +1,25 @@
+{
+  "heading": {
+    "x": 743.71875,
+    "y": 404,
+    "width": 310.265625,
+    "height": 18,
+    "top": 404,
+    "right": 1053.984375,
+    "bottom": 422,
+    "left": 743.71875
+  },
+  "icon": {
+    "x": 743.71875,
+    "y": 404,
+    "width": 12,
+    "height": 16,
+    "top": 404,
+    "right": 755.71875,
+    "bottom": 420,
+    "left": 743.71875
+  },
+  "textInkAscent": 13,
+  "textInkDescent": 0,
+  "mobileNoHorizontalOverflow": true
+}

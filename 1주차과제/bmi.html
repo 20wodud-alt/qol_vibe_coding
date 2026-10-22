@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#176b55">
+<title>BMI 계산기 | 나의 건강 체크</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f0;color:#233b32;font-family:system-ui,-apple-system,"맑은 고딕",sans-serif;line-height:1.6}main{max-width:960px;margin:0 auto;padding:54px 24px}header{margin-bottom:30px}.brand{font-size:12px;letter-spacing:.18em;font-weight:800;color:#176b55}h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.05em;margin:12px 0 8px}header p{color:#62746b;margin:0}.layout{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card{background:white;border:1px solid #e0e7dd;border-radius:24px;padding:30px;box-shadow:0 10px 35px #233b3205}h2{font-size:19px;margin:0 0 24px;letter-spacing:-.03em}.step{color:#6b8276;font-size:12px;margin-bottom:6px;display:block}label{display:block;font-weight:650;margin-bottom:8px}.field{position:relative;margin-bottom:22px}input{width:100%;border:1px solid #ced8cf;border-radius:12px;background:#fafbf9;padding:15px 56px 15px 17px;font-size:22px;font-weight:600;color:#233b32;outline:none}input:focus{border-color:#176b55;box-shadow:0 0 0 3px #176b551a}.unit{position:absolute;right:17px;top:17px;color:#78877e}button{font:inherit;cursor:pointer;border-radius:12px;padding:14px;border:0;font-weight:700}.actions{display:flex;gap:10px}.primary{background:#176b55;color:white;flex:1}.primary:hover{background:#10533f}.reset{background:#edf2eb;color:#486054}button:focus-visible,a:focus-visible{outline:3px solid #80b8ff;outline-offset:4px}.error{color:#b23730;font-size:13px;min-height:23px;margin:10px 0 0}.result{background:#e8efe5;display:flex;flex-direction:column;justify-content:center;text-align:center}.result h2{margin-bottom:10px}.number{font-size:84px;line-height:1.25;letter-spacing:-.07em;font-weight:750;font-variant-numeric:tabular-nums}.badge{display:inline-block;background:white;padding:5px 18px;border-radius:30px;font-weight:700;color:var(--tone,#176b55)}.description{font-size:14px;color:#607367;margin:18px 0 0}.meter{margin:26px 0 8px;position:relative;height:12px;background:linear-gradient(to right,#82b8d1 0% 28.33%,#72af86 28.33% 43.33%,#e5c469 43.33% 50%,#d69774 50% 66.67%,#bd7f80 66.67%);border-radius:10px}.pointer{position:absolute;left:0;top:-6px;width:4px;height:24px;background:#233b32;border-radius:4px;transform:translateX(-50%);transition:left .35s;display:none}.scale{display:flex;justify-content:space-between;font-size:11px;color:#6a7e70}.guide{margin-top:22px;padding:25px 30px}.guide h2{margin-bottom:16px}.categories{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.category{padding:12px;background:#f6f8f3;border-radius:12px;font-size:13px}.category strong{display:block;font-size:14px}.category span{color:#67786c}footer{font-size:12px;color:#748177;margin:20px 5px}footer p{margin:6px 0}a{color:#426a55} .formula{font-size:12px;color:#748177;margin-top:20px}@media(max-width:650px){main{padding:30px 18px}.layout{grid-template-columns:1fr}.card{padding:24px}.categories{grid-template-columns:repeat(2,1fr)}.number{font-size:72px}.result{min-height:310px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand">DAILY WELLNESS</div><h1>가볍게 확인하는 나의 BMI</h1><p>키와 몸무게로 체질량지수를 확인해 보세요.</p></header>
+<div class="layout">
+<section class="card"><span class="step">01 · 신체 정보</span><h2>지금의 나를 입력하세요</h2>
+<form id="bmiForm" novalidate>
+<label for="height">키</label><div class="field"><input id="height" type="number" inputmode="decimal" min="50" max="250" step="any" placeholder="예: 170" required aria-describedby="error"><span class="unit">cm</span></div>
+<label for="weight">몸무게</label><div class="field"><input id="weight" type="number" inputmode="decimal" min="10" max="500" step="any" placeholder="예: 65" required aria-describedby="error"><span class="unit">kg</span></div>
+<div class="actions"><button class="primary" type="submit">BMI 계산하기 <span aria-hidden="true">↗</span></button><button class="reset" type="reset">초기화</button></div><p class="error" id="error" role="alert"></p>
+</form><div class="formula">BMI = 몸무게(kg) ÷ 키(m)²</div></section>
+<section class="card result" aria-label="계산 결과" aria-live="polite" aria-atomic="true"><span class="step">02 · 나의 결과</span><h2>체질량지수 BMI</h2><div class="number" id="value">—</div><div><span class="badge" id="status">입력 대기</span></div><p class="description" id="description">키와 몸무게를 입력하면<br>이곳에 계산 결과가 표시됩니다.</p><div class="meter" aria-hidden="true"><span class="pointer" id="pointer"></span></div><div class="scale" aria-hidden="true"><span>10</span><span>18.5</span><span>25</span><span>40+</span></div></section>
+</div>
+<section class="card guide"><h2>성인 BMI 분류 기준</h2><div class="categories"><div class="category"><strong>저체중</strong><span>18.5 미만</span></div><div class="category"><strong>정상</strong><span>18.5 이상 ~ 23 미만</span></div><div class="category"><strong>비만 전 단계</strong><span>23 이상 ~ 25 미만</span></div><div class="category"><strong>비만</strong><span>25 이상</span></div></div></section>
+<footer><p>국내 성인 기준의 참고용 계산기입니다. BMI는 근육량과 체지방 분포를 반영하지 않으며, 소아·청소년이나 임신 중에는 이 분류를 적용하지 않습니다.</p><p>입력한 정보는 저장되거나 전송되지 않습니다. · 기준 참고: <a href="https://health.kdca.go.kr/healthinfo/biz/health/gnrlzHealthInfo/gnrlzHealthInfoView.do?cntnts_sn=6774" target="_blank" rel="noopener noreferrer">질병관리청 국가건강정보포털</a></p></footer>
+</main>
+<script>
+const form=document.getElementById('bmiForm');
+const height=document.getElementById('height'),weight=document.getElementById('weight');
+const value=document.getElementById('value'),status=document.getElementById('status'),description=document.getElementById('description'),pointer=document.getElementById('pointer'),error=document.getElementById('error');
+function classify(bmi){return bmi<18.5?['저체중','#397d9d']:bmi<23?['정상','#176b55']:bmi<25?['비만 전 단계','#94731c']:bmi<30?['1단계 비만','#ac623d']:bmi<35?['2단계 비만','#a24d51']:['3단계 비만','#903b57'];}
+function clearResult(){value.textContent='—';status.textContent='입력 대기';status.style.removeProperty('--tone');description.textContent='키와 몸무게를 입력하면 이곳에 계산 결과가 표시됩니다.';pointer.style.display='none';}
+form.addEventListener('submit',event=>{event.preventDefault();error.textContent='';height.removeAttribute('aria-invalid');weight.removeAttribute('aria-invalid');const h=Number(height.value),w=Number(weight.value);let invalid=null;if(!Number.isFinite(h)||h<50||h>250){error.textContent='키를 50~250cm 범위의 숫자로 입력해 주세요.';invalid=height;}else if(!Number.isFinite(w)||w<10||w>500){error.textContent='몸무게를 10~500kg 범위의 숫자로 입력해 주세요.';invalid=weight;}if(invalid){clearResult();invalid.setAttribute('aria-invalid','true');invalid.focus();return;}const bmi=w/((h/100)**2);const [label,color]=classify(bmi);value.textContent=bmi.toFixed(2);status.textContent=label;status.style.setProperty('--tone',color);description.textContent=`키 ${h}cm · 몸무게 ${w}kg 기준입니다. 분류는 반올림 전 BMI로 계산합니다.`;pointer.style.display='block';pointer.style.left=`${Math.max(0,Math.min(100,(bmi-10)/30*100))}%`;});
+form.addEventListener('reset',()=>{clearResult();error.textContent='';height.removeAttribute('aria-invalid');weight.removeAttribute('aria-invalid');height.focus();});
+[height,weight].forEach(input=>input.addEventListener('input',()=>{clearResult();error.textContent='';input.removeAttribute('aria-invalid');}));
+</script>
+</body>
+</html>
